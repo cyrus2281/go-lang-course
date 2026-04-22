@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6YPTC2B9NR"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 4 · Hello, World — Learn Go by Cyrus Mobini</title>
+  <meta name="description" content="Write your first Go program from scratch. Understand every line, then meet go run, go build, go install, go fmt, and your first Go module.">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Chapter 4 · Hello, World — Learn Go">
+  <meta property="og:description" content="Your first Go program, line by line — plus go run / build / install / fmt / mod init.">
+  <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/04-hello-world.html">
+  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Chapter 4 · Hello, World — Learn Go">
+  <meta name="twitter:description" content="Your first Go program, line by line — plus go run / build / install / fmt / mod init.">
+  <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+
+  <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/04-hello-world.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/prism.css">
+  <script>
+    (function(){ try { var t = localStorage.getItem('go-course-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t); } catch(e){} })();
+  </script>
+</head>
+<body>
+
+  <header class="site-header">
+    <a href="../index.html" class="brand">
+      <span class="brand-mark">Go</span>
+      <span class="brand-name">Learn <span class="brand-accent">Go</span></span>
+    </a>
+    <button id="menu-toggle" class="icon-btn menu-toggle" aria-label="Toggle chapter menu" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="header-spacer"></div>
+    <div class="search" role="search">
+      <input id="search-input" type="search" placeholder="Search chapters…" autocomplete="off" aria-label="Search across all chapters">
+      <kbd class="search-hint">/</kbd>
+      <div id="search-results" class="search-results"></div>
+    </div>
+    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" type="button"></button>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="chapter-sidebar">
+      <div class="side-title">On this page</div>
+      <ul>
+        <li><a href="#objectives">Learning objectives</a></li>
+        <li><a href="#write">Writing Hello World</a></li>
+        <li><a href="#line-by-line">Line by line</a></li>
+        <li><a href="#run">Running it with <code>go run</code></a></li>
+        <li><a href="#module">Your first module</a></li>
+        <li><a href="#build">Building a binary</a></li>
+        <li><a href="#install">go run vs build vs install</a></li>
+        <li><a href="#fmt">Formatting with <code>go fmt</code></a></li>
+        <li><a href="#exit-codes">Exit codes</a></li>
+        <li><a href="#cross-compile">Cross-compilation</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+        <li><a href="#exercises">Exercises</a></li>
+        <li><a href="#further">Further reading</a></li>
+      </ul>
+      <div class="side-title">Navigate</div>
+      <ul>
+        <li><a href="03-installation.html">← Previous: Installing Go</a></li>
+        <li><a href="05-variables.html">Next: Variables & Constants →</a></li>
+        <li><a href="../index.html">Table of contents</a></li>
+      </ul>
+    </aside>
+
+    <main class="chapter-main" data-chapter-id="ch-04">
+      <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 04 · FOUNDATIONS</div>
+      <h1>Hello, World &amp; Your First Module</h1>
+      <p>The "Hello, World!" program is a rite of passage. It's trivial, but
+         writing one proves your toolchain works and gives us a tiny anchor to
+         talk about Go's structure, the <code>go</code> CLI, and modules.</p>
+
+      <section id="objectives" class="learning-objectives">
+        <h3>Learning objectives</h3>
+        <ul>
+          <li>Write, run, and build your first Go program.</li>
+          <li>Explain every line of a minimal Go source file.</li>
+          <li>Initialize a Go module with <code>go mod init</code>.</li>
+          <li>Choose correctly between <code>go run</code>, <code>go build</code>, and <code>go install</code>.</li>
+          <li>Format code with <code>go fmt</code> and cross-compile to other platforms.</li>
+        </ul>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="write">
+        <h2>Writing Hello World</h2>
+        <p>Create a directory for your first program and put a single Go file in it:</p>
+
+        <pre><code class="language-bash">mkdir -p ~/code/hello
+cd ~/code/hello
+touch main.go</code></pre>
+
+        <p>Open <code>main.go</code> in your editor and type:</p>
+
+        <pre><code class="language-go">package main
+
+import "fmt"
+
+func main() {
+    fmt.Println("Hello, World!")
+}
+</code></pre>
+
+        <p>Seven lines of code. We'll unpack each one.</p>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="line-by-line">
+        <h2>Line by line</h2>
+
+        <h3><code>package main</code></h3>
+        <p>Every Go source file begins with a <strong>package declaration</strong>.
+           The package <code>main</code> is special: it's the one Go recognizes as
+           a <em>runnable</em> program. Any other package name (e.g.
+           <code>mathutil</code>) would produce a <em>library</em>, not a binary.
+           We'll revisit packages in depth in Chapter 18.</p>
+
+        <h3><code>import "fmt"</code></h3>
+        <p><code>import</code> pulls in another package so you can use its
+           exported names. <code>fmt</code> is Go's standard library package for
+           <em>formatted I/O</em> — printing, string formatting, scanning input.
+           You'll see <code>fmt</code> in almost every program.</p>
+
+        <div class="callout pitfall">
+          <div class="ico">!</div>
+          <div>
+            <span class="callout-title">Unused imports break the build</span>
+            If you import a package but never use it, Go refuses to compile. This
+            prevents dead imports from accumulating in your codebase. Your editor
+            (with <code>goimports</code> enabled) manages imports automatically
+            — add or remove <code>fmt.Println</code> calls and the import line
+            will update on save.
+          </div>
+        </div>
+
+        <h3><code>func main() { … }</code></h3>
+        <p>The <strong>entry point</strong>. Exactly one <code>main</code>
+           function must live in the <code>main</code> package. When Go launches
+           your binary, <code>main()</code> runs and, when it returns, the program
+           exits.</p>
+
+        <h3><code>fmt.Println("Hello, World!")</code></h3>
+        <p><code>fmt.Println</code> prints its arguments to standard output,
+           separated by spaces, followed by a newline. The string
+           <code>"Hello, World!"</code> is a Go <em>string literal</em> (Chapter 7
+           is dedicated to strings).</p>
+
+        <h3>What's absent</h3>
+        <p>Notice what's <em>not</em> there:</p>
+        <ul>
+          <li>No semicolons ending lines. Go inserts them automatically.</li>
+          <li>No explicit types on anything. Go can tell <code>"Hello, World!"</code> is a string.</li>
+          <li>No exception handling syntax. Errors in Go are values, returned from functions (Chapter 23).</li>
+        </ul>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="run">
+        <h2>Running it with <code>go run</code></h2>
+        <p>The quickest way to see output:</p>
+
+        <pre><code class="language-bash">go run main.go</code></pre>
+
+        <p>You should see:</p>
+        <pre><code class="language-bash">Hello, World!</code></pre>
+
+        <p><code>go run</code> compiles your code to a temporary binary, executes
+           it, then deletes the binary. It's perfect for iteration — no artifacts
+           left behind.</p>
+
+        <p>You can also pass a directory or a package path:</p>
+        <pre><code class="language-bash">go run .          # compile + run the current package
+go run ./cmd/app  # compile + run a package at a relative path</code></pre>
+
+        <p>Once your program has more than one file, you'll use <code>go run .</code>
+           rather than listing individual files.</p>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="module">
+        <h2>Your first module</h2>
+        <p>Go projects are organized into <strong>modules</strong>. A module is
+           just a directory with a <code>go.mod</code> file in it. Even for a
+           one-file hello-world, it's good practice to initialize one:</p>
+
+        <pre><code class="language-bash">go mod init example.com/hello</code></pre>
+
+        <p>This creates a file called <code>go.mod</code>:</p>
+
+        <pre><code class="language-go" data-runnable="false">module example.com/hello
+
+go 1.22
+</code></pre>
+
+        <p>The <code>module</code> line declares the module's import path. It's
+           typically a URL where the code lives (like <code>github.com/you/hello</code>)
+           — even if you never publish it. The <code>go</code> line records the
+           minimum Go version this module supports. You rarely edit
+           <code>go.mod</code> by hand; Go tools do it when you add dependencies.</p>
+
+        <div class="callout info">
+          <div class="ico">i</div>
+          <div>
+            <span class="callout-title">Why a module if you don't publish it?</span>
+            A <code>go.mod</code> unlocks import path resolution (you can split
+            your program into multiple packages), dependency tracking, and
+            reproducible builds. It's free; just do it. Chapter 18 dives deeper.
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="build">
+        <h2>Building a binary with <code>go build</code></h2>
+        <p>To produce an actual executable file:</p>
+
+        <pre><code class="language-bash">go build .</code></pre>
+
+        <p>Go compiles your package and places the binary in the current directory.
+           On macOS/Linux it's called <code>hello</code>; on Windows
+           <code>hello.exe</code>. Run it:</p>
+
+        <pre><code class="language-bash">./hello            # macOS / Linux
+hello.exe          # Windows</code></pre>
+
+        <p>You can also name the output file:</p>
+        <pre><code class="language-bash">go build -o greet .
+./greet</code></pre>
+
+        <p>This binary is <strong>static</strong>: it has no external runtime
+           dependencies. Copy it to a machine with the same OS/architecture and
+           it runs. That's the Go deployment superpower in a nutshell.</p>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="install">
+        <h2>go run vs build vs install</h2>
+
+        <table>
+          <thead>
+            <tr><th>Command</th><th>What it does</th><th>Use when</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>go run</code></td>
+              <td>Compiles to a temp binary, runs it, deletes it</td>
+              <td>Iterating — changing code and re-running quickly</td>
+            </tr>
+            <tr>
+              <td><code>go build</code></td>
+              <td>Produces a binary in the current directory (or wherever <code>-o</code> says)</td>
+              <td>Shipping a standalone executable</td>
+            </tr>
+            <tr>
+              <td><code>go install</code></td>
+              <td>Compiles and places the binary in <code>$GOPATH/bin</code> (usually <code>~/go/bin</code>)</td>
+              <td>Installing a CLI tool system-wide, e.g. installing someone else's tool</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>Typical example of <code>go install</code>:</p>
+        <pre><code class="language-bash"># Install golangci-lint from the internet, now available on your $PATH
+go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest</code></pre>
+
+        <p>This is how you install most Go CLI tools. Make sure <code>~/go/bin</code>
+           is on your <code>PATH</code> (you set this up in Chapter 3).</p>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="fmt">
+        <h2>Formatting with <code>go fmt</code></h2>
+        <p>Go has <strong>one</strong> canonical code style, enforced by the
+           <code>gofmt</code> tool. No tabs-vs-spaces debates, no bikeshedding
+           over where to put braces. Your editor should format on save (Chapter 3)
+           — but you can also run it manually:</p>
+
+        <pre><code class="language-bash">go fmt ./...</code></pre>
+
+        <p>(The <code>./...</code> pattern means "the current directory and all
+           subdirectories recursively" — a common Go idiom.)</p>
+
+        <p>An even better version is <code>goimports</code>, which runs
+           <code>gofmt</code> <em>and</em> manages the <code>import</code> block
+           for you:</p>
+
+        <pre><code class="language-bash">go install golang.org/x/tools/cmd/goimports@latest
+goimports -w .</code></pre>
+
+        <div class="callout tip">
+          <div class="ico">✓</div>
+          <div>
+            <span class="callout-title">Embrace <code>gofmt</code></span>
+            It's actually freeing to not think about formatting. Every Go project
+            you'll ever see is formatted the same way. You can skim strangers'
+            code without friction. This is one of the small things that makes Go
+            a pleasure to write over time.
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="exit-codes">
+        <h2>Exit codes</h2>
+        <p>Every program that finishes reports an exit code to its parent (usually
+           the shell). <code>0</code> means success; anything non-zero means
+           something went wrong. Go's <code>main</code> function returns
+           <code>0</code> implicitly. To exit with a specific code:</p>
+
+        <pre><code class="language-go">package main
+
+import (
+    "fmt"
+    "os"
+)
+
+func main() {
+    if len(os.Args) < 2 {
+        fmt.Fprintln(os.Stderr, "usage: greet NAME")
+        os.Exit(1) // exit code 1 — "usage error"
+    }
+    fmt.Println("Hello,", os.Args[1])
+}
+</code></pre>
+
+        <p>Two new ideas:</p>
+        <ul>
+          <li><code>os.Args</code> is a slice containing the program name followed
+              by command-line arguments. (We'll cover slices in Chapter 13.)</li>
+          <li><code>fmt.Fprintln(os.Stderr, ...)</code> writes to standard error
+              instead of standard output — the Unix-conventional channel for
+              errors.</li>
+        </ul>
+
+        <p>Check the exit code after running:</p>
+        <pre><code class="language-bash">go run .          # prints usage, exits 1
+echo $?           # prints: 1
+go run . Alice    # prints "Hello, Alice"
+echo $?           # prints: 0</code></pre>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="cross-compile">
+        <h2>Cross-compilation</h2>
+        <p>Go can build binaries for other operating systems and CPU architectures
+           from your current machine. Two environment variables control this:
+           <code>GOOS</code> and <code>GOARCH</code>.</p>
+
+        <pre><code class="language-bash"># From a Mac, build a Linux binary
+GOOS=linux  GOARCH=amd64  go build -o hello-linux   .
+
+# ...a Windows binary
+GOOS=windows GOARCH=amd64 go build -o hello.exe      .
+
+# ...a Raspberry Pi (ARM) binary
+GOOS=linux  GOARCH=arm64  go build -o hello-pi      .</code></pre>
+
+        <p>See the full list with:</p>
+        <pre><code class="language-bash">go tool dist list</code></pre>
+
+        <p>This is why Go has become the go-to language for shipping CLI tools
+           and cloud-native infrastructure: one developer, on one laptop, can
+           produce binaries for every platform the tool needs to run on — no
+           Docker or cross-toolchain setup required.</p>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="quiz">
+        <h2>Check your understanding</h2>
+        <div class="quiz" data-quiz data-chapter-id="ch-04">
+          <script type="application/json" class="quiz-data">
+          {
+            "title": "Quick quiz",
+            "questions": [
+              {
+                "q": "Which function does Go execute first when you run a main-package program?",
+                "options": ["start()", "init() only", "main()", "run()"],
+                "answer": 2,
+                "explanation": "The `main` function in the `main` package is the entry point. (`init` functions in that package run before it — we'll meet those in Chapter 18.)"
+              },
+              {
+                "q": "What does `go run .` do?",
+                "options": [
+                  "Produces a binary called `.` in the current directory",
+                  "Compiles the current package to a temporary binary and runs it",
+                  "Starts a REPL",
+                  "Runs the last test"
+                ],
+                "answer": 1,
+                "explanation": "`go run .` compiles the current package and executes the resulting binary. The binary is discarded after execution."
+              },
+              {
+                "q": "Which file is created by `go mod init example.com/hello`?",
+                "options": ["go.work", "main.go", "go.mod", "package.json"],
+                "answer": 2,
+                "explanation": "`go mod init` creates a `go.mod` file with the module path and the Go version."
+              },
+              {
+                "q": "Which command would you use to install a community CLI tool and have it end up on your PATH?",
+                "options": ["go run", "go build", "go install", "go get"],
+                "answer": 2,
+                "explanation": "`go install path@version` places the resulting binary in `$GOPATH/bin` (usually `~/go/bin`), which should be on your PATH."
+              },
+              {
+                "q": "How do you cross-compile a Windows amd64 binary from a Mac?",
+                "options": [
+                  "go build -target windows",
+                  "GOOS=windows GOARCH=amd64 go build .",
+                  "go cross windows",
+                  "You can't without installing a Windows VM."
+                ],
+                "answer": 1,
+                "explanation": "Set the GOOS and GOARCH environment variables before `go build`. Go ships with every target it supports — no extra setup required."
+              }
+            ]
+          }
+          </script>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="exercises">
+        <h2>Practice exercises</h2>
+
+        <div class="exercise">
+          <div class="exercise-header">
+            <span class="badge">EXERCISE 1</span>
+            <h3>Make it yours</h3>
+          </div>
+          <div class="exercise-task">
+            <p>Modify the Hello World program so that:</p>
+            <ul>
+              <li>If given a command-line argument, greet that person by name.</li>
+              <li>If given two arguments, greet both: <code>"Hello, Alice and Bob!"</code></li>
+              <li>If given zero arguments, greet the world.</li>
+            </ul>
+            <p>Run it with <code>go run . Alice</code>, then
+               <code>go run . Alice Bob</code>, then <code>go run .</code>.</p>
+          </div>
+          <details class="exercise-solution">
+            <summary>Show a working solution</summary>
+            <pre><code class="language-go">package main
+
+import (
+    "fmt"
+    "os"
+    "strings"
+)
+
+func main() {
+    names := os.Args[1:]
+    switch len(names) {
+    case 0:
+        fmt.Println("Hello, World!")
+    case 1:
+        fmt.Printf("Hello, %s!\n", names[0])
+    default:
+        fmt.Printf("Hello, %s!\n", strings.Join(names, " and "))
+    }
+}
+</code></pre>
+            <p>You'll see <code>strings.Join</code>, <code>switch</code>, and
+               slicing again in future chapters. Don't worry if the syntax feels
+               new — you're pattern-matching, which is exactly the right skill.</p>
+          </details>
+        </div>
+
+        <div class="exercise">
+          <div class="exercise-header">
+            <span class="badge">EXERCISE 2</span>
+            <h3>Ship a real binary</h3>
+          </div>
+          <div class="exercise-task">
+            <p>Build your greeter as an actual binary, then run it without Go.</p>
+            <pre><code class="language-bash">go build -o greet .
+./greet Alice</code></pre>
+            <p>Bonus: cross-compile for a different OS and verify you get a file
+               with the right extension:</p>
+            <pre><code class="language-bash">GOOS=linux GOARCH=amd64 go build -o greet-linux .
+file greet-linux    # should say: ELF 64-bit LSB executable</code></pre>
+          </div>
+          <details class="exercise-solution">
+            <summary>What you've just done</summary>
+            <p>You produced a self-contained binary with no runtime dependencies
+               — the same kind of artifact Docker, Kubernetes, and Terraform
+               ship. The <code>file</code> command confirms the binary matches
+               the target OS.</p>
+            <p>This pattern (cross-compile to a target, upload, run) is the core
+               of Go's deployment story.</p>
+          </details>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="further" class="further-reading">
+        <h3>Further reading</h3>
+        <ul>
+          <li><a href="https://go.dev/doc/tutorial/getting-started" target="_blank" rel="noopener">Tutorial: Getting started with Go</a></li>
+          <li><a href="https://go.dev/ref/mod" target="_blank" rel="noopener">Go modules reference</a></li>
+          <li><a href="https://pkg.go.dev/fmt" target="_blank" rel="noopener">The <code>fmt</code> package on pkg.go.dev</a></li>
+          <li><a href="https://go.dev/blog/using-go-modules" target="_blank" rel="noopener">Using Go Modules (official blog)</a></li>
+        </ul>
+      </section>
+
+      <div class="complete-box">
+        <p>First program shipped — well done.</p>
+        <button class="complete-btn" type="button" data-chapter-id="ch-04">✓ Mark this chapter complete</button>
+      </div>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a class="prev" href="03-installation.html">
+          <div class="nav-label">Previous</div>
+          <div class="nav-title">Chapter 3 — Installing Go</div>
+        </a>
+        <a class="next" href="05-variables.html">
+          <div class="nav-label">Next</div>
+          <div class="nav-title">Chapter 5 — Variables &amp; Constants</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-line">
+      Made with <span class="heart">❤️</span> by
+      <a href="https://github.com/cyrus2281" target="_blank" rel="noopener">Cyrus Mobini</a>
+    </div>
+    <a class="bmac" href="https://buymeacoffee.com/cyrus2281" target="_blank" rel="noopener" aria-label="Support Cyrus on Buy Me a Coffee">
+      <span class="bmac-icon" aria-hidden="true">☕</span>
+      Buy me a coffee
+    </a>
+  </footer>
+
+  <script src="../assets/js/progress.js" defer></script>
+  <script src="../assets/js/prism.js" defer></script>
+  <script src="../assets/js/app.js" defer></script>
+  <script src="../assets/js/quiz.js" defer></script>
+  <script src="../assets/js/search.js" defer></script>
+</body>
+</html>

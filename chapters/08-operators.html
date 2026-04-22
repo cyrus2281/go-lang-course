@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6YPTC2B9NR"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 8 · Operators &amp; Expressions — Learn Go by Cyrus Mobini</title>
+  <meta name="description" content="Arithmetic, comparison, logical, bitwise, and assignment operators in Go — including precedence, short-circuit evaluation, and the &^ AND-NOT operator.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Chapter 8 · Operators — Learn Go">
+  <meta property="og:description" content="All of Go's operators, with the precedence table and short-circuit rules every textbook leaves out.">
+  <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/08-operators.html">
+  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Chapter 8 · Operators — Learn Go">
+  <meta name="twitter:description" content="All of Go's operators with precedence and short-circuit rules.">
+  <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/08-operators.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/prism.css">
+  <script>(function(){try{var t=localStorage.getItem('go-course-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body>
+
+  <header class="site-header">
+    <a href="../index.html" class="brand">
+      <span class="brand-mark">Go</span>
+      <span class="brand-name">Learn <span class="brand-accent">Go</span></span>
+    </a>
+    <button id="menu-toggle" class="icon-btn menu-toggle" aria-label="Toggle chapter menu" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="header-spacer"></div>
+    <div class="search" role="search">
+      <input id="search-input" type="search" placeholder="Search chapters…" autocomplete="off" aria-label="Search across all chapters">
+      <kbd class="search-hint">/</kbd>
+      <div id="search-results" class="search-results"></div>
+    </div>
+    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" type="button"></button>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="chapter-sidebar">
+      <div class="side-title">On this page</div>
+      <ul>
+        <li><a href="#objectives">Learning objectives</a></li>
+        <li><a href="#arithmetic">Arithmetic</a></li>
+        <li><a href="#comparison">Comparison</a></li>
+        <li><a href="#logical">Logical &amp; short-circuit</a></li>
+        <li><a href="#bitwise">Bitwise</a></li>
+        <li><a href="#assignment">Assignment &amp; compound</a></li>
+        <li><a href="#incdec">Increment / decrement</a></li>
+        <li><a href="#address">Address-of &amp; receive</a></li>
+        <li><a href="#precedence">Precedence table</a></li>
+        <li><a href="#no-ternary">No ternary — use <code>if</code></a></li>
+        <li><a href="#quiz">Quiz</a></li>
+        <li><a href="#exercises">Exercises</a></li>
+        <li><a href="#further">Further reading</a></li>
+      </ul>
+      <div class="side-title">Navigate</div>
+      <ul>
+        <li><a href="07-strings-runes-unicode.html">← Previous: Strings, Runes &amp; Unicode</a></li>
+        <li><a href="09-conditionals.html">Next: Conditional Flow →</a></li>
+        <li><a href="../index.html">Table of contents</a></li>
+      </ul>
+    </aside>
+
+    <main class="chapter-main" data-chapter-id="ch-08">
+      <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 08 · CORE LANGUAGE</div>
+      <h1>Operators &amp; Expressions</h1>
+      <p>Operators are the verbs of an expression. Go has the usual arithmetic
+         and logical operators, plus a few quirks worth knowing — like
+         <code>&amp;^</code> (AND-NOT), <code>++</code> being a statement (not an
+         expression), and the absence of a ternary <code>? :</code>.</p>
+
+      <section id="objectives" class="learning-objectives">
+        <h3>Learning objectives</h3>
+        <ul>
+          <li>Use arithmetic, comparison, logical, and bitwise operators correctly.</li>
+          <li>Understand integer-division behavior and modulo with negatives.</li>
+          <li>Know that <code>++</code> and <code>--</code> are statements, not expressions.</li>
+          <li>Read the precedence table well enough to add parentheses preemptively.</li>
+          <li>Recognize the <code>&amp;</code>, <code>*</code>, and <code>&lt;-</code> operators that we'll explain later (pointers and channels).</li>
+        </ul>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="arithmetic">
+        <h2>Arithmetic operators</h2>
+        <table>
+          <thead><tr><th>Op</th><th>Meaning</th><th>Works on</th></tr></thead>
+          <tbody>
+            <tr><td><code>+</code></td><td>add</td><td>numbers, strings (concatenation)</td></tr>
+            <tr><td><code>-</code></td><td>subtract / negate</td><td>numbers</td></tr>
+            <tr><td><code>*</code></td><td>multiply</td><td>numbers</td></tr>
+            <tr><td><code>/</code></td><td>divide</td><td>numbers</td></tr>
+            <tr><td><code>%</code></td><td>modulo (remainder)</td><td>integers</td></tr>
+          </tbody>
+        </table>
+
+        <pre><code class="language-go">package main
+
+import "fmt"
+
+func main() {
+    a, b := 10, 3
+    fmt.Println(a+b, a-b, a*b)   // 13 7 30
+    fmt.Println(a/b)             // 3   ← integer division
+    fmt.Println(a%b)             // 1
+
+    // Same with floats — full precision
+    fmt.Println(10.0 / 3.0)      // 3.3333333333333335
+
+    // String concat
+    fmt.Println("Hello, " + "World")
+}
+</code></pre>
+
+        <div class="callout pitfall">
+          <div class="ico">!</div>
+          <div>
+            <span class="callout-title">Integer division truncates toward zero</span>
+            <code>5 / 2</code> is <code>2</code>, not <code>2.5</code>.
+            <code>-7 / 2</code> is <code>-3</code>, not <code>-4</code>. The
+            modulo operator's sign follows the dividend: <code>-7 % 2 == -1</code>.
+            Convert to a float (or use <code>math.Mod</code>) when you need real
+            division.
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="comparison">
+        <h2>Comparison operators</h2>
+        <p>All return a <code>bool</code>:</p>
+        <table>
+          <thead><tr><th>Op</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>==</code> / <code>!=</code></td><td>equal / not equal</td></tr>
+            <tr><td><code>&lt;</code> / <code>&gt;</code></td><td>less / greater</td></tr>
+            <tr><td><code>&lt;=</code> / <code>&gt;=</code></td><td>less or equal / greater or equal</td></tr>
+          </tbody>
+        </table>
+
+        <p>Strings compare lexicographically by byte value:</p>
+        <pre><code class="language-go">fmt.Println("apple" < "banana")    // true
+fmt.Println("apple" == "Apple")    // false (case-sensitive)
+</code></pre>
+
+        <p>Slices and maps cannot be compared with <code>==</code> (only against
+           <code>nil</code>). For deep equality, use
+           <code>reflect.DeepEqual</code> or a per-type loop.</p>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="logical">
+        <h2>Logical &amp; short-circuit</h2>
+        <table>
+          <thead><tr><th>Op</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>&amp;&amp;</code></td><td>logical AND</td></tr>
+            <tr><td><code>||</code></td><td>logical OR</td></tr>
+            <tr><td><code>!</code></td><td>logical NOT</td></tr>
+          </tbody>
+        </table>
+
+        <p>Both <code>&amp;&amp;</code> and <code>||</code> <strong>short-circuit</strong>:
+           the right operand is only evaluated if necessary. This is critical for
+           safe nil checks:</p>
+
+        <pre><code class="language-go">if u != nil && u.IsAdmin {
+    // u.IsAdmin only evaluated when u != nil — no nil deref panic
+}
+</code></pre>
+
+        <pre><code class="language-go">if cached, ok := lookupCache(key); ok || expensiveCheck(key) {
+    // expensiveCheck only runs when the cached lookup says false
+}
+</code></pre>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="bitwise">
+        <h2>Bitwise operators</h2>
+        <p>Operate on the binary bits of integers:</p>
+
+        <table>
+          <thead><tr><th>Op</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>&amp;</code></td><td>AND</td></tr>
+            <tr><td><code>|</code></td><td>OR</td></tr>
+            <tr><td><code>^</code></td><td>XOR (binary) / NOT (unary)</td></tr>
+            <tr><td><code>&amp;^</code></td><td>AND-NOT (clear bits)</td></tr>
+            <tr><td><code>&lt;&lt;</code></td><td>left shift</td></tr>
+            <tr><td><code>&gt;&gt;</code></td><td>right shift</td></tr>
+          </tbody>
+        </table>
+
+        <pre><code class="language-go">package main
+
+import "fmt"
+
+func main() {
+    x, y := 0b0110, 0b0011    // 6 and 3 in binary
+
+    fmt.Printf("%04b\n", x & y)   // 0010   AND
+    fmt.Printf("%04b\n", x | y)   // 0111   OR
+    fmt.Printf("%04b\n", x ^ y)   // 0101   XOR
+    fmt.Printf("%04b\n", x &^ y)  // 0100   AND-NOT (x with bits set in y cleared)
+
+    fmt.Printf("%04b\n", x << 1)  // 1100   shift left
+    fmt.Printf("%04b\n", x >> 1)  // 0011   shift right
+}
+</code></pre>
+
+        <p><code>&amp;^</code> is unique to Go (most languages need
+           <code>x &amp; ~y</code>). It clears the bits of <code>x</code> that
+           are set in <code>y</code>. Handy when you have flag bitmasks.</p>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="assignment">
+        <h2>Assignment &amp; compound</h2>
+        <p><code>=</code> assigns. The compound forms combine an arithmetic or
+           bitwise op with assignment:</p>
+
+        <pre><code class="language-go">x := 10
+x += 5    // x = x + 5  → 15
+x -= 3    // 12
+x *= 2    // 24
+x /= 4    // 6
+x %= 5    // 1
+
+bits := uint8(0b1010)
+bits |= 0b0001     // set the lowest bit
+bits &= 0b0011     // mask to lowest 2 bits
+bits ^= 0xFF       // invert all bits
+</code></pre>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="incdec">
+        <h2>Increment &amp; decrement</h2>
+        <p><code>x++</code> and <code>x--</code> exist, but they are
+           <strong>statements</strong>, not expressions. You can't use them inside
+           bigger expressions:</p>
+
+        <pre><code class="language-go">i := 0
+i++             // ✓ statement
+// y := i++    // ❌ won't compile
+</code></pre>
+
+        <p>This rules out the C/Java pattern <code>arr[i++]</code>, which Go
+           considers a readability hazard.</p>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="address">
+        <h2>Address-of, dereference, and channel operators (preview)</h2>
+        <p>Three operators we'll meet properly later but mention here so you
+           recognize them in code:</p>
+
+        <ul>
+          <li><strong><code>&amp;x</code></strong> — take the address of <code>x</code>. Produces a pointer (Chapter 16).</li>
+          <li><strong><code>*p</code></strong> — dereference pointer <code>p</code>. Produces the underlying value (Chapter 16).</li>
+          <li><strong><code>&lt;-ch</code></strong> — receive a value from channel <code>ch</code> (Chapter 25).</li>
+          <li><strong><code>ch &lt;- v</code></strong> — send <code>v</code> on channel <code>ch</code>.</li>
+        </ul>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="precedence">
+        <h2>Precedence (only 5 levels — easy to memorize)</h2>
+        <p>Go has a deliberately small precedence table — fewer levels means
+           fewer surprises. From highest to lowest:</p>
+
+        <table>
+          <thead><tr><th>Level</th><th>Operators</th></tr></thead>
+          <tbody>
+            <tr><td>5 (highest)</td><td><code>*</code> <code>/</code> <code>%</code> <code>&lt;&lt;</code> <code>&gt;&gt;</code> <code>&amp;</code> <code>&amp;^</code></td></tr>
+            <tr><td>4</td><td><code>+</code> <code>-</code> <code>|</code> <code>^</code></td></tr>
+            <tr><td>3</td><td><code>==</code> <code>!=</code> <code>&lt;</code> <code>&lt;=</code> <code>&gt;</code> <code>&gt;=</code></td></tr>
+            <tr><td>2</td><td><code>&amp;&amp;</code></td></tr>
+            <tr><td>1 (lowest)</td><td><code>||</code></td></tr>
+          </tbody>
+        </table>
+
+        <p>Unary operators (<code>+</code>, <code>-</code>, <code>!</code>,
+           <code>^</code>, <code>*</code>, <code>&amp;</code>, <code>&lt;-</code>)
+           bind tightest of all.</p>
+
+        <pre><code class="language-go">x := 1 + 2*3        // 7  — * before +
+y := a == b || c    // (a == b) || c
+z := !found && ok   // (!found) && ok
+</code></pre>
+
+        <div class="callout tip">
+          <div class="ico">✓</div>
+          <div>
+            <span class="callout-title">When in doubt, parenthesize</span>
+            Compilers don't charge you for parentheses, but readers <em>will</em>
+            charge you for hidden precedence bugs. Wrap mixed-operator expressions
+            for clarity.
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="no-ternary">
+        <h2>No ternary — use <code>if</code></h2>
+        <p>Go has no <code>cond ? a : b</code> operator. Use a regular
+           <code>if/else</code> (Chapter 9):</p>
+
+        <pre><code class="language-go">var label string
+if score >= 60 {
+    label = "pass"
+} else {
+    label = "fail"
+}
+</code></pre>
+
+        <p>For one-liners, you can write a tiny helper:</p>
+
+        <pre><code class="language-go">func ifElse[T any](cond bool, a, b T) T {
+    if cond { return a }
+    return b
+}
+
+label := ifElse(score >= 60, "pass", "fail")
+</code></pre>
+
+        <p>(That's a generic function — Chapter 22.)</p>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="quiz">
+        <h2>Check your understanding</h2>
+        <div class="quiz" data-quiz data-chapter-id="ch-08">
+          <script type="application/json" class="quiz-data">
+          {
+            "title": "Quick quiz",
+            "questions": [
+              {
+                "q": "What does `7 / 2` evaluate to in Go (assuming both are int)?",
+                "options": ["3", "3.5", "4", "compile error"],
+                "answer": 0,
+                "explanation": "Integer division truncates toward zero. 7 / 2 = 3. To get 3.5 you'd need at least one operand to be a float: 7.0 / 2 = 3.5."
+              },
+              {
+                "q": "What's true about `i++` in Go?",
+                "options": [
+                  "It's an expression that returns the new value",
+                  "It's an expression that returns the old value",
+                  "It's a statement, not an expression",
+                  "It doesn't exist in Go"
+                ],
+                "answer": 2,
+                "explanation": "Unlike C/Java, Go's `++` and `--` are statements. You can't write `arr[i++]` or `y = i++` — Go considers those patterns hard to read."
+              },
+              {
+                "q": "Why is `if u != nil && u.IsAdmin` safe even if `u` is nil?",
+                "options": [
+                  "Go's runtime catches nil dereferences automatically",
+                  "Short-circuit: `u.IsAdmin` is only evaluated if `u != nil` is true",
+                  "Because && treats nil as false",
+                  "It isn't safe — it'll panic"
+                ],
+                "answer": 1,
+                "explanation": "The && operator short-circuits — if the left side is false, the right is never evaluated. This is why the order of nil checks matters."
+              },
+              {
+                "q": "What does the `&^` operator do?",
+                "options": [
+                  "Bitwise NAND",
+                  "Take address of, then negate",
+                  "AND-NOT — clear in x the bits that are set in y",
+                  "It's not a valid Go operator"
+                ],
+                "answer": 2,
+                "explanation": "`x &^ y` produces an integer where any bit set in y is cleared in x. Equivalent to `x & ^y` in other languages."
+              },
+              {
+                "q": "Without parentheses, how is `a + b * c == d || e` evaluated?",
+                "options": [
+                  "((a + (b * c)) == d) || e",
+                  "(a + b) * (c == d) || e",
+                  "a + b * (c == d || e)",
+                  "Compile error"
+                ],
+                "answer": 0,
+                "explanation": "Precedence: `*` binds tightest, then `+`, then `==`, then `||`. So it's `((a + (b*c)) == d) || e`. When in doubt, parenthesize."
+              }
+            ]
+          }
+          </script>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="exercises">
+        <h2>Practice exercises</h2>
+
+        <div class="exercise">
+          <div class="exercise-header">
+            <span class="badge">EXERCISE 1</span>
+            <h3>FizzBuzz</h3>
+          </div>
+          <div class="exercise-task">
+            <p>The classic. Print the numbers 1 to 30, but for multiples of 3
+               print "Fizz", multiples of 5 print "Buzz", and multiples of both
+               print "FizzBuzz".</p>
+            <p>Use the <code>%</code> operator and an <code>if-else if</code> chain.</p>
+          </div>
+          <details class="exercise-solution">
+            <summary>Show one possible solution</summary>
+            <pre><code class="language-go">package main
+
+import "fmt"
+
+func main() {
+    for i := 1; i <= 30; i++ {
+        switch {
+        case i%15 == 0:
+            fmt.Println("FizzBuzz")
+        case i%3 == 0:
+            fmt.Println("Fizz")
+        case i%5 == 0:
+            fmt.Println("Buzz")
+        default:
+            fmt.Println(i)
+        }
+    }
+}
+</code></pre>
+            <p>The "tagless switch" idiom (next chapter!) is cleaner than
+               <code>if-else if</code> for this kind of cascade.</p>
+          </details>
+        </div>
+
+        <div class="exercise">
+          <div class="exercise-header">
+            <span class="badge">EXERCISE 2</span>
+            <h3>Bit-flag toggling</h3>
+          </div>
+          <div class="exercise-task">
+            <p>Imagine a permissions byte where bit 0 is "read", bit 1 is "write",
+               bit 2 is "execute". Write functions <code>set</code>,
+               <code>clear</code>, and <code>has</code> that take a permission
+               byte and a flag byte and return the new state (or a bool).</p>
+          </div>
+          <details class="exercise-solution">
+            <summary>Show one possible solution</summary>
+            <pre><code class="language-go">package main
+
+import "fmt"
+
+const (
+    Read    uint8 = 1 << iota   // 0b001
+    Write                       // 0b010
+    Execute                     // 0b100
+)
+
+func set(p, flag uint8) uint8   { return p | flag }
+func clear(p, flag uint8) uint8 { return p &^ flag }
+func has(p, flag uint8) bool    { return p&flag != 0 }
+
+func main() {
+    var perm uint8
+    perm = set(perm, Read|Write)
+    fmt.Printf("%03b\n", perm)         // 011
+    fmt.Println(has(perm, Read))       // true
+    fmt.Println(has(perm, Execute))    // false
+    perm = clear(perm, Write)
+    fmt.Printf("%03b\n", perm)         // 001
+}
+</code></pre>
+          </details>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="further" class="further-reading">
+        <h3>Further reading</h3>
+        <ul>
+          <li><a href="https://go.dev/ref/spec#Operators" target="_blank" rel="noopener">Go spec — Operators</a></li>
+          <li><a href="https://go.dev/ref/spec#Operator_precedence" target="_blank" rel="noopener">Go spec — Operator precedence</a></li>
+        </ul>
+      </section>
+
+      <div class="complete-box">
+        <p>Operators in the bag.</p>
+        <button class="complete-btn" type="button" data-chapter-id="ch-08">✓ Mark this chapter complete</button>
+      </div>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a class="prev" href="07-strings-runes-unicode.html">
+          <div class="nav-label">Previous</div>
+          <div class="nav-title">Chapter 7 — Strings, Runes &amp; Unicode</div>
+        </a>
+        <a class="next" href="09-conditionals.html">
+          <div class="nav-label">Next</div>
+          <div class="nav-title">Chapter 9 — Conditional Flow</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-line">
+      Made with <span class="heart">❤️</span> by
+      <a href="https://github.com/cyrus2281" target="_blank" rel="noopener">Cyrus Mobini</a>
+    </div>
+    <a class="bmac" href="https://buymeacoffee.com/cyrus2281" target="_blank" rel="noopener" aria-label="Support Cyrus on Buy Me a Coffee">
+      <span class="bmac-icon" aria-hidden="true">☕</span>
+      Buy me a coffee
+    </a>
+  </footer>
+
+  <script src="../assets/js/progress.js" defer></script>
+  <script src="../assets/js/prism.js" defer></script>
+  <script src="../assets/js/app.js" defer></script>
+  <script src="../assets/js/quiz.js" defer></script>
+  <script src="../assets/js/search.js" defer></script>
+</body>
+</html>

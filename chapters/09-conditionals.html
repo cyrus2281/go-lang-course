@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6YPTC2B9NR"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 9 · Conditional Flow — Learn Go by Cyrus Mobini</title>
+  <meta name="description" content="if, else, switch, type-switch preview, fallthrough, and short statements — everything Go gives you to make decisions.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Chapter 9 · Conditional Flow — Learn Go">
+  <meta property="og:description" content="if, switch, fallthrough, type-switch preview, and the short-statement form.">
+  <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/09-conditionals.html">
+  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Chapter 9 · Conditional Flow — Learn Go">
+  <meta name="twitter:description" content="if, switch, fallthrough, type switch.">
+  <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/09-conditionals.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/prism.css">
+  <script>(function(){try{var t=localStorage.getItem('go-course-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body>
+
+  <header class="site-header">
+    <a href="../index.html" class="brand">
+      <span class="brand-mark">Go</span>
+      <span class="brand-name">Learn <span class="brand-accent">Go</span></span>
+    </a>
+    <button id="menu-toggle" class="icon-btn menu-toggle" aria-label="Toggle chapter menu" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="header-spacer"></div>
+    <div class="search" role="search">
+      <input id="search-input" type="search" placeholder="Search chapters…" autocomplete="off" aria-label="Search across all chapters">
+      <kbd class="search-hint">/</kbd>
+      <div id="search-results" class="search-results"></div>
+    </div>
+    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" type="button"></button>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="chapter-sidebar">
+      <div class="side-title">On this page</div>
+      <ul>
+        <li><a href="#objectives">Learning objectives</a></li>
+        <li><a href="#if"><code>if</code> / <code>else</code></a></li>
+        <li><a href="#short">Short statement form</a></li>
+        <li><a href="#switch"><code>switch</code></a></li>
+        <li><a href="#tagless">Tagless switch</a></li>
+        <li><a href="#fallthrough"><code>fallthrough</code></a></li>
+        <li><a href="#type-switch">Type switch (preview)</a></li>
+        <li><a href="#style">Style notes</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+        <li><a href="#exercises">Exercises</a></li>
+        <li><a href="#further">Further reading</a></li>
+      </ul>
+      <div class="side-title">Navigate</div>
+      <ul>
+        <li><a href="08-operators.html">← Previous: Operators</a></li>
+        <li><a href="10-loops.html">Next: Loops →</a></li>
+        <li><a href="../index.html">Table of contents</a></li>
+      </ul>
+    </aside>
+
+    <main class="chapter-main" data-chapter-id="ch-09">
+      <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 09 · CORE LANGUAGE</div>
+      <h1>Conditional Flow</h1>
+      <p>Decisions! Go's conditional toolkit is small: <code>if</code>,
+         <code>else</code>, and <code>switch</code>. There are no parentheses
+         around conditions, no ternary operator, and braces are mandatory. The
+         small surface area is intentional: there are fewer ways to write the
+         same thing.</p>
+
+      <section id="objectives" class="learning-objectives">
+        <h3>Learning objectives</h3>
+        <ul>
+          <li>Write <code>if</code>, <code>if-else</code>, and chained <code>else if</code> statements.</li>
+          <li>Use the short-statement form to scope a variable to its <code>if</code>.</li>
+          <li>Choose between <code>switch</code> and an <code>if-else</code> chain.</li>
+          <li>Recognize the <em>tagless switch</em> idiom and the <code>fallthrough</code> keyword.</li>
+          <li>Spot a type switch and know what it's for.</li>
+        </ul>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="if">
+        <h2><code>if</code> / <code>else</code></h2>
+        <pre><code class="language-go">package main
+
+import "fmt"
+
+func main() {
+    age := 18
+
+    if age >= 18 {
+        fmt.Println("adult")
+    } else if age >= 13 {
+        fmt.Println("teen")
+    } else {
+        fmt.Println("child")
+    }
+}
+</code></pre>
+
+        <p>Things to notice:</p>
+        <ul>
+          <li><strong>No parentheses</strong> around the condition.</li>
+          <li><strong>Braces required</strong>, even for one-line bodies.</li>
+          <li>The opening <code>{</code> must be on the same line as the <code>if</code>/<code>else</code>.</li>
+          <li>The condition must be a <code>bool</code> — no truthy/falsy.</li>
+        </ul>
+
+        <div class="callout pitfall">
+          <div class="ico">!</div>
+          <div>
+            <span class="callout-title">Curly braces aren't optional</span>
+            Coming from C? You can't omit braces around a single-statement body.
+            This rules out a class of <a href="https://en.wikipedia.org/wiki/Goto_fail" target="_blank" rel="noopener">famous bugs</a>
+            where missing braces silently change behavior.
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="short">
+        <h2>Short statement form</h2>
+        <p>Go lets you put an initialization statement before the condition,
+           separated by a semicolon. The initialized variable is scoped to the
+           <code>if</code>/<code>else</code> blocks:</p>
+
+        <pre><code class="language-go">if n := compute(); n > 0 {
+    fmt.Println("positive:", n)
+} else {
+    fmt.Println("non-positive:", n)
+}
+// n is NOT in scope here
+</code></pre>
+
+        <p>This is incredibly common in idiomatic Go for handling errors:</p>
+
+        <pre><code class="language-go">if err := saveUser(u); err != nil {
+    return fmt.Errorf("save: %w", err)
+}
+// err is gone — it lived only inside the if
+</code></pre>
+
+        <p>Tightly scoping the error variable avoids "leaking" it into the rest
+           of the function and keeps your code easy to follow.</p>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="switch">
+        <h2><code>switch</code></h2>
+        <p>For matching one value against many candidates, <code>switch</code>
+           is cleaner than an <code>if-else if</code> ladder:</p>
+
+        <pre><code class="language-go">switch day {
+case "Mon", "Tue", "Wed", "Thu", "Fri":
+    fmt.Println("weekday")
+case "Sat", "Sun":
+    fmt.Println("weekend")
+default:
+    fmt.Println("unknown day")
+}
+</code></pre>
+
+        <p>Two important differences from C/Java:</p>
+        <ol>
+          <li><strong>No implicit fallthrough.</strong> Each case ends after its body.</li>
+          <li><strong>Multiple values per case</strong> are comma-separated, no need for stacked <code>case</code> labels.</li>
+        </ol>
+
+        <p>Cases can be expressions, too — they don't have to be constants:</p>
+
+        <pre><code class="language-go">switch n := rand.Intn(100); {
+case n < 50:
+    fmt.Println("small")
+case n < 90:
+    fmt.Println("medium")
+default:
+    fmt.Println("large")
+}
+</code></pre>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="tagless">
+        <h2>Tagless switch</h2>
+        <p>Drop the value and you get a <em>tagless switch</em> — a much cleaner
+           replacement for long <code>if-else if</code> chains:</p>
+
+        <pre><code class="language-go">switch {
+case temp < 0:
+    fmt.Println("freezing")
+case temp < 10:
+    fmt.Println("cold")
+case temp < 25:
+    fmt.Println("comfortable")
+default:
+    fmt.Println("hot")
+}
+</code></pre>
+
+        <p>The tagless switch is one of those small Go niceties that, once you
+           use it, you start wishing other languages had. It's the same as
+           <code>switch true</code>.</p>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="fallthrough">
+        <h2><code>fallthrough</code> (rarely needed)</h2>
+        <p>If you really want C-style fall-through into the next case, use
+           <code>fallthrough</code>:</p>
+
+        <pre><code class="language-go">switch n {
+case 1:
+    fmt.Println("one")
+    fallthrough
+case 2:
+    fmt.Println("two")    // also runs when n == 1
+}
+</code></pre>
+
+        <p>Use it sparingly. Most cases where you'd reach for it are clearer
+           written with multiple comma-separated case values.</p>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="type-switch">
+        <h2>Type switch (preview)</h2>
+        <p>A <em>type switch</em> matches on the dynamic type of an interface
+           value, not on its value. We'll meet interfaces properly in Chapter 21,
+           but here's the syntax for recognition:</p>
+
+        <pre><code class="language-go">func describe(v any) {
+    switch x := v.(type) {
+    case int:
+        fmt.Printf("int %d\n", x)
+    case string:
+        fmt.Printf("string %q (len %d)\n", x, len(x))
+    case []byte:
+        fmt.Printf("byte slice (len %d)\n", len(x))
+    case nil:
+        fmt.Println("nil")
+    default:
+        fmt.Printf("unknown type %T\n", x)
+    }
+}
+
+func main() {
+    describe(42)
+    describe("hello")
+    describe([]byte{1, 2, 3})
+    describe(nil)
+}
+</code></pre>
+
+        <p>The <code>v.(type)</code> syntax only works inside a switch. Inside
+           each case, <code>x</code> already has the matched type — no further
+           assertions needed.</p>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="style">
+        <h2>Style notes</h2>
+        <ul>
+          <li><strong>Prefer early returns over deep nesting.</strong> Instead of <code>if ok { ... } else { return err }</code>, write <code>if !ok { return err }</code> first and let the happy path stay flat.</li>
+          <li><strong>Don't compare booleans to <code>true</code>/<code>false</code>.</strong> Write <code>if isReady</code>, not <code>if isReady == true</code>.</li>
+          <li><strong>Use a switch when you have more than two branches</strong> on the same value — easier to read than nested if-else.</li>
+        </ul>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="quiz">
+        <h2>Check your understanding</h2>
+        <div class="quiz" data-quiz data-chapter-id="ch-09">
+          <script type="application/json" class="quiz-data">
+          {
+            "title": "Quick quiz",
+            "questions": [
+              {
+                "q": "Are parentheses around the if condition required in Go?",
+                "options": ["Required", "Forbidden", "Optional", "Required only with else"],
+                "answer": 1,
+                "explanation": "Go does not allow parens around if conditions. `if (x > 0)` is a syntax style choice some languages allow; Go does not."
+              },
+              {
+                "q": "What is the scope of `n` in `if n := f(); n > 0 { ... } else { ... }`?",
+                "options": [
+                  "The enclosing function",
+                  "Both the if and else blocks",
+                  "Just the if block",
+                  "Just the else block"
+                ],
+                "answer": 1,
+                "explanation": "The short statement variable is scoped to the if AND its else (and any else-if chained off it). Outside that whole construct, n is gone."
+              },
+              {
+                "q": "By default, what happens after a Go `case` body completes?",
+                "options": [
+                  "Falls through to the next case (like C)",
+                  "Falls through only if the next case has no body",
+                  "Exits the switch",
+                  "Re-evaluates the condition"
+                ],
+                "answer": 2,
+                "explanation": "Go switches do NOT fall through by default. The case ends and execution leaves the switch. To fall through explicitly, use the `fallthrough` keyword."
+              },
+              {
+                "q": "What does a `switch` with no expression after `switch` do?",
+                "options": [
+                  "It's a syntax error",
+                  "It behaves like switch true — cases must be boolean expressions",
+                  "It loops forever",
+                  "It picks a random case"
+                ],
+                "answer": 1,
+                "explanation": "A tagless switch is equivalent to `switch true`. Each case is a boolean expression — the first true one runs."
+              },
+              {
+                "q": "What does `switch x := v.(type)` enable?",
+                "options": [
+                  "Pattern matching on string content",
+                  "Branching on the dynamic type of an interface value",
+                  "Casting v to type",
+                  "Calling v's type method"
+                ],
+                "answer": 1,
+                "explanation": "A type switch dispatches based on the concrete type stored in an interface. Each case binds x to the matched type within that case's scope."
+              }
+            ]
+          }
+          </script>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="exercises">
+        <h2>Practice exercises</h2>
+
+        <div class="exercise">
+          <div class="exercise-header">
+            <span class="badge">EXERCISE 1</span>
+            <h3>Grade calculator</h3>
+          </div>
+          <div class="exercise-task">
+            <p>Write a function <code>grade(score int) string</code> that returns
+               "A" for 90+, "B" for 80–89, "C" for 70–79, "D" for 60–69, and "F"
+               otherwise. Use a tagless switch.</p>
+          </div>
+          <details class="exercise-solution">
+            <summary>Show one possible solution</summary>
+            <pre><code class="language-go">package main
+
+import "fmt"
+
+func grade(score int) string {
+    switch {
+    case score >= 90:
+        return "A"
+    case score >= 80:
+        return "B"
+    case score >= 70:
+        return "C"
+    case score >= 60:
+        return "D"
+    default:
+        return "F"
+    }
+}
+
+func main() {
+    fmt.Println(grade(95))   // A
+    fmt.Println(grade(75))   // C
+    fmt.Println(grade(40))   // F
+}
+</code></pre>
+          </details>
+        </div>
+
+        <div class="exercise">
+          <div class="exercise-header">
+            <span class="badge">EXERCISE 2</span>
+            <h3>Type-switch on `any`</h3>
+          </div>
+          <div class="exercise-task">
+            <p>Write a function <code>describe(v any) string</code> that returns a
+               short string describing the value: <code>"int N"</code>,
+               <code>"float F"</code>, <code>"string S (len L)"</code>,
+               <code>"bool B"</code>, or <code>"unknown"</code>.</p>
+          </div>
+          <details class="exercise-solution">
+            <summary>Show one possible solution</summary>
+            <pre><code class="language-go">package main
+
+import "fmt"
+
+func describe(v any) string {
+    switch x := v.(type) {
+    case int:
+        return fmt.Sprintf("int %d", x)
+    case float64:
+        return fmt.Sprintf("float %g", x)
+    case string:
+        return fmt.Sprintf("string %q (len %d)", x, len(x))
+    case bool:
+        return fmt.Sprintf("bool %t", x)
+    default:
+        return "unknown"
+    }
+}
+
+func main() {
+    for _, v := range []any{1, 1.5, "hi", true, []int{1, 2}} {
+        fmt.Println(describe(v))
+    }
+}
+</code></pre>
+          </details>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="further" class="further-reading">
+        <h3>Further reading</h3>
+        <ul>
+          <li><a href="https://go.dev/ref/spec#If_statements" target="_blank" rel="noopener">Go spec — If statements</a></li>
+          <li><a href="https://go.dev/ref/spec#Switch_statements" target="_blank" rel="noopener">Go spec — Switch statements</a></li>
+          <li><a href="https://go.dev/doc/effective_go#switch" target="_blank" rel="noopener">Effective Go — Switch</a></li>
+        </ul>
+      </section>
+
+      <div class="complete-box">
+        <p>Decisions made.</p>
+        <button class="complete-btn" type="button" data-chapter-id="ch-09">✓ Mark this chapter complete</button>
+      </div>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a class="prev" href="08-operators.html">
+          <div class="nav-label">Previous</div>
+          <div class="nav-title">Chapter 8 — Operators</div>
+        </a>
+        <a class="next" href="10-loops.html">
+          <div class="nav-label">Next</div>
+          <div class="nav-title">Chapter 10 — Loops</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-line">
+      Made with <span class="heart">❤️</span> by
+      <a href="https://github.com/cyrus2281" target="_blank" rel="noopener">Cyrus Mobini</a>
+    </div>
+    <a class="bmac" href="https://buymeacoffee.com/cyrus2281" target="_blank" rel="noopener" aria-label="Support Cyrus on Buy Me a Coffee">
+      <span class="bmac-icon" aria-hidden="true">☕</span>
+      Buy me a coffee
+    </a>
+  </footer>
+
+  <script src="../assets/js/progress.js" defer></script>
+  <script src="../assets/js/prism.js" defer></script>
+  <script src="../assets/js/app.js" defer></script>
+  <script src="../assets/js/quiz.js" defer></script>
+  <script src="../assets/js/search.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6YPTC2B9NR"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 2 · The Story of Go — Learn Go by Cyrus Mobini</title>
+  <meta name="description" content="Why Go was created at Google in 2007, who built it, what problems it set out to solve, and the modern infrastructure it powers today.">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Chapter 2 · The Story of Go — Learn Go">
+  <meta property="og:description" content="Why Go was created at Google, what problems it solves, and the infrastructure it now powers.">
+  <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/02-story-of-go.html">
+  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Chapter 2 · The Story of Go — Learn Go">
+  <meta name="twitter:description" content="Why Go was created at Google, what problems it solves, and the infrastructure it now powers.">
+  <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+
+  <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/02-story-of-go.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/prism.css">
+  <script>
+    (function(){ try { var t = localStorage.getItem('go-course-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t); } catch(e){} })();
+  </script>
+</head>
+<body>
+
+  <header class="site-header">
+    <a href="../index.html" class="brand">
+      <span class="brand-mark">Go</span>
+      <span class="brand-name">Learn <span class="brand-accent">Go</span></span>
+    </a>
+    <button id="menu-toggle" class="icon-btn menu-toggle" aria-label="Toggle chapter menu" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="header-spacer"></div>
+    <div class="search" role="search">
+      <input id="search-input" type="search" placeholder="Search chapters…" autocomplete="off" aria-label="Search across all chapters">
+      <kbd class="search-hint">/</kbd>
+      <div id="search-results" class="search-results"></div>
+    </div>
+    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" type="button"></button>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="chapter-sidebar">
+      <div class="side-title">On this page</div>
+      <ul>
+        <li><a href="#objectives">Learning objectives</a></li>
+        <li><a href="#birth">The birth of Go</a></li>
+        <li><a href="#why">Why Go was created</a></li>
+        <li><a href="#benefits">Main benefits</a></li>
+        <li><a href="#timeline">A short timeline</a></li>
+        <li><a href="#in-the-wild">Go in the wild</a></li>
+        <li><a href="#philosophy">The Go philosophy</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+        <li><a href="#exercises">Exercises</a></li>
+        <li><a href="#further">Further reading</a></li>
+      </ul>
+      <div class="side-title">Navigate</div>
+      <ul>
+        <li><a href="01-what-is-coding.html">← Previous: What is Coding?</a></li>
+        <li><a href="03-installation.html">Next: Installing Go →</a></li>
+        <li><a href="../index.html">Table of contents</a></li>
+      </ul>
+    </aside>
+
+    <main class="chapter-main" data-chapter-id="ch-02">
+      <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 02 · FOUNDATIONS</div>
+      <h1>The Story of Go</h1>
+      <p>You're about to spend a lot of time with Go. It helps to know <em>why</em>
+         it exists. Most languages are designed by individuals or small academic
+         teams; Go is unusual in that it was built by a tiny group of Unix legends
+         to solve a very specific industrial pain. Understanding that origin
+         explains a lot of the choices you'll see throughout the language.</p>
+
+      <section id="objectives" class="learning-objectives">
+        <h3>Learning objectives</h3>
+        <ul>
+          <li>Know who created Go, when, and the company behind it.</li>
+          <li>Identify the three concrete pain points that motivated the language.</li>
+          <li>Recall Go's main strengths in a single elevator pitch.</li>
+          <li>Name several major projects written in Go.</li>
+          <li>Recognize the design philosophy ("less is more") that shapes every chapter ahead.</li>
+        </ul>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="birth">
+        <h2>The birth of Go</h2>
+        <p>Go was started in <strong>September 2007</strong> at Google by three
+           engineers with serious systems pedigree:</p>
+
+        <ul>
+          <li><strong>Robert Griesemer</strong> — co-designed the V8 JavaScript
+              engine and Java HotSpot's compiler.</li>
+          <li><strong>Rob Pike</strong> — co-creator of Plan 9 and UTF-8, long-time
+              member of the original Unix team at Bell Labs.</li>
+          <li><strong>Ken Thompson</strong> — co-author of Unix itself, co-creator
+              of the B language (a precursor to C), Turing Award winner.</li>
+        </ul>
+
+        <p>The project was made public in <strong>November 2009</strong>. Go
+           <strong>1.0</strong> shipped in March 2012 with a famous compatibility
+           promise: any program that compiles under Go 1 should keep compiling and
+           working under every later release of Go 1. More than a decade later,
+           that promise has held. Code written in 2012 still builds today.</p>
+
+        <div class="callout info">
+          <div class="ico">i</div>
+          <div>
+            <span class="callout-title">"Go" or "Golang"?</span>
+            The language is named <strong>Go</strong>. "Golang" is a search-friendly
+            nickname (because "Go" is a tough word to Google) that the community
+            adopted. The official site uses both: <code>go.dev</code> for the
+            project, <code>golang.org</code> still resolves. Either name is fine.
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="why">
+        <h2>Why Go was created</h2>
+        <p>Google in the mid-2000s was wrestling with three problems on its
+           massive C++ codebase:</p>
+
+        <ol>
+          <li><strong>Compile times measured in minutes</strong>. C++ at Google
+              scale meant builds that ate huge chunks of an engineer's day. Slow
+              feedback loops kill productivity.</li>
+          <li><strong>Brittle dependency management</strong>. Header files, the
+              preprocessor, and tangled include graphs made even small changes
+              expensive.</li>
+          <li><strong>Concurrency was painful</strong>. Multi-core CPUs were the
+              norm, but the available concurrency tools (raw threads, locks,
+              callback hell) were error-prone and hard to reason about.</li>
+        </ol>
+
+        <p>Existing languages each fixed some of these but none all three. C++ was
+           fast but slow to compile and tricky for concurrency. Java was easier
+           but heavy. Python was fluent but slow at runtime. <strong>Go was an
+           attempt to keep the speed and reliability of C++, the simplicity of a
+           scripting language, and bake in modern concurrency primitives from
+           day one.</strong></p>
+
+        <div class="callout info">
+          <div class="ico">i</div>
+          <div>
+            <span class="callout-title">The original sketch</span>
+            Pike has told the story that the idea coalesced while waiting on a
+            massive C++ build. Go's near-instant compilation was the first feature
+            on the wishlist — and it remains true today: even large Go projects
+            typically rebuild in seconds.
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="benefits">
+        <h2>Main benefits of using Go</h2>
+
+        <p>If you have to pitch Go to a teammate, this is the elevator pitch:</p>
+
+        <ul>
+          <li><strong>Simple, readable syntax</strong>. The language spec is short
+              by design. Fewer features means fewer ways to write something — code
+              looks similar across teams and projects.</li>
+          <li><strong>Fast compilation</strong>. Even big repos build in seconds.</li>
+          <li><strong>Statically typed, garbage collected</strong>. You get the
+              safety of static types without managing memory by hand.</li>
+          <li><strong>First-class concurrency</strong>. The <code>go</code> keyword
+              and channels are part of the language, not bolt-on libraries.</li>
+          <li><strong>Excellent standard library</strong>. HTTP servers, JSON,
+              templating, crypto, archives, testing — all in the box.</li>
+          <li><strong>Single binary deployment</strong>. <code>go build</code>
+              produces one self-contained executable. No runtime to install on
+              the target machine.</li>
+          <li><strong>Cross-compilation</strong>. Build a Linux binary from your
+              Mac with one environment variable.</li>
+          <li><strong>Tooling included</strong>. Formatter, vet, test runner,
+              benchmark runner, doc tool, race detector — all ship with the
+              compiler.</li>
+        </ul>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="timeline">
+        <h2>A short timeline</h2>
+        <figure class="diagram">
+          <svg viewBox="0 0 760 320" width="100%" height="320" role="img"
+               aria-label="Timeline of major Go releases from 2007 to 2024">
+            <g font-family="var(--sans)" font-size="13" fill="var(--fg)">
+              <line x1="60" y1="160" x2="700" y2="160" stroke="var(--accent)" stroke-width="3"/>
+
+              <!-- 2007 -->
+              <circle cx="80"  cy="160" r="8" fill="var(--accent)"/>
+              <text x="80"  y="140" text-anchor="middle" font-weight="700" font-size="13">2007</text>
+              <text x="80"  y="190" text-anchor="middle" font-size="11" fill="var(--fg-muted)">project</text>
+              <text x="80"  y="204" text-anchor="middle" font-size="11" fill="var(--fg-muted)">starts</text>
+
+              <!-- 2009 -->
+              <circle cx="170" cy="160" r="8" fill="var(--accent)"/>
+              <text x="170" y="140" text-anchor="middle" font-weight="700" font-size="13">Nov 2009</text>
+              <text x="170" y="190" text-anchor="middle" font-size="11" fill="var(--fg-muted)">open-sourced</text>
+
+              <!-- 2012 -->
+              <circle cx="260" cy="160" r="8" fill="var(--accent)"/>
+              <text x="260" y="140" text-anchor="middle" font-weight="700" font-size="13">Mar 2012</text>
+              <text x="260" y="190" text-anchor="middle" font-size="11" fill="var(--fg-muted)">Go 1.0</text>
+              <text x="260" y="204" text-anchor="middle" font-size="11" fill="var(--fg-muted)">compat promise</text>
+
+              <!-- 2014 Docker -->
+              <circle cx="350" cy="160" r="8" fill="var(--accent)"/>
+              <text x="350" y="140" text-anchor="middle" font-weight="700" font-size="13">2014</text>
+              <text x="350" y="190" text-anchor="middle" font-size="11" fill="var(--fg-muted)">Kubernetes</text>
+              <text x="350" y="204" text-anchor="middle" font-size="11" fill="var(--fg-muted)">released</text>
+
+              <!-- 2018 modules -->
+              <circle cx="450" cy="160" r="8" fill="var(--accent)"/>
+              <text x="450" y="140" text-anchor="middle" font-weight="700" font-size="13">2018</text>
+              <text x="450" y="190" text-anchor="middle" font-size="11" fill="var(--fg-muted)">Go modules</text>
+              <text x="450" y="204" text-anchor="middle" font-size="11" fill="var(--fg-muted)">(go.mod)</text>
+
+              <!-- 2022 generics -->
+              <circle cx="550" cy="160" r="8" fill="var(--accent)"/>
+              <text x="550" y="140" text-anchor="middle" font-weight="700" font-size="13">Mar 2022</text>
+              <text x="550" y="190" text-anchor="middle" font-size="11" fill="var(--fg-muted)">Go 1.18</text>
+              <text x="550" y="204" text-anchor="middle" font-size="11" fill="var(--fg-muted)">generics</text>
+
+              <!-- 2024 -->
+              <circle cx="660" cy="160" r="8" fill="var(--accent)"/>
+              <text x="660" y="140" text-anchor="middle" font-weight="700" font-size="13">today</text>
+              <text x="660" y="190" text-anchor="middle" font-size="11" fill="var(--fg-muted)">Go 1.22+</text>
+              <text x="660" y="204" text-anchor="middle" font-size="11" fill="var(--fg-muted)">range-over-int,</text>
+              <text x="660" y="218" text-anchor="middle" font-size="11" fill="var(--fg-muted)">workspaces</text>
+            </g>
+          </svg>
+          <figcaption class="diagram-caption">17+ years on, every program written for Go 1.0 still compiles.</figcaption>
+        </figure>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="in-the-wild">
+        <h2>Go in the wild</h2>
+        <p>Go's killer use case turned out to be <strong>cloud and infrastructure
+           tooling</strong>. A single static binary is perfect for distributing
+           tools that need to run on many machines without depending on any
+           runtime being installed.</p>
+
+        <p>A small sample of well-known Go projects:</p>
+
+        <table>
+          <thead>
+            <tr><th>Project</th><th>Category</th><th>What it does</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Docker</strong></td><td>Containers</td><td>Runs applications in isolated environments</td></tr>
+            <tr><td><strong>Kubernetes</strong></td><td>Orchestration</td><td>Schedules and operates containerized apps</td></tr>
+            <tr><td><strong>Terraform</strong></td><td>IaC</td><td>Provisions cloud infrastructure declaratively</td></tr>
+            <tr><td><strong>Prometheus</strong></td><td>Monitoring</td><td>Time-series database for metrics</td></tr>
+            <tr><td><strong>etcd</strong></td><td>Distributed KV</td><td>Powers Kubernetes' control plane</td></tr>
+            <tr><td><strong>CockroachDB</strong></td><td>Database</td><td>Distributed SQL</td></tr>
+            <tr><td><strong>InfluxDB</strong></td><td>Database</td><td>Time-series database</td></tr>
+            <tr><td><strong>Caddy</strong></td><td>Web server</td><td>Modern HTTPS-by-default web server</td></tr>
+            <tr><td><strong>Hugo</strong></td><td>Static sites</td><td>Lightning-fast static site generator</td></tr>
+            <tr><td><strong>gRPC</strong></td><td>RPC</td><td>High-performance RPC framework</td></tr>
+            <tr><td><strong>Tailscale</strong></td><td>Networking</td><td>Mesh VPN built on WireGuard</td></tr>
+            <tr><td><strong>Syncthing</strong></td><td>File sync</td><td>Open-source continuous file sync</td></tr>
+          </tbody>
+        </table>
+
+        <p>The companies betting on Go are similarly broad: Google, Cloudflare,
+           Netflix, Uber, Twitch, Dropbox, Stripe, MongoDB, GitHub, Shopify,
+           Mozilla, Heroku, and many more use Go for production backends and
+           internal tooling.</p>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="philosophy">
+        <h2>The Go philosophy</h2>
+        <p>Go's designers made several deliberate choices that surprise people
+           coming from other languages. Some of them:</p>
+
+        <ul>
+          <li><strong>No inheritance.</strong> Composition (embedding) is preferred. You'll see this in Chapter 15.</li>
+          <li><strong>No exceptions.</strong> Errors are values returned from functions. (Chapter 23.)</li>
+          <li><strong>No generics</strong> — until 2022, when they were added very carefully (Chapter 22).</li>
+          <li><strong>One canonical formatting</strong> via <code>gofmt</code>. There are no style debates in Go projects, because there's no style choice. (Chapter 19.)</li>
+          <li><strong>Unused imports and variables are compile errors.</strong> Annoying at first, valuable forever.</li>
+          <li><strong>The standard library is enough for most things.</strong> You can build a real web server with zero third-party dependencies.</li>
+        </ul>
+
+        <p>The unifying principle is <em>"less is exponentially more"</em> (a
+           Pike-ism). Each absent feature is a deliberate choice to keep the
+           language small enough that an engineer can hold the entire spec in
+           their head. As you go through the next 32 chapters, you'll bump into
+           these choices repeatedly. Once you internalize the philosophy, the
+           language clicks.</p>
+
+        <div class="callout tip">
+          <div class="ico">✓</div>
+          <div>
+            <span class="callout-title">The "Go proverbs"</span>
+            Rob Pike gave a famous talk titled "Go Proverbs" at Gopherfest 2015.
+            A few favorites:
+            <em>"Don't communicate by sharing memory; share memory by
+            communicating." · "Errors are values." · "Clear is better than clever."</em>
+            Worth a 15-minute watch once you've finished the course.
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="quiz">
+        <h2>Check your understanding</h2>
+        <div class="quiz" data-quiz data-chapter-id="ch-02">
+          <script type="application/json" class="quiz-data">
+          {
+            "title": "Quick quiz",
+            "questions": [
+              {
+                "q": "Who originally created Go?",
+                "options": [
+                  "Linus Torvalds, Brian Kernighan, Dennis Ritchie",
+                  "Robert Griesemer, Rob Pike, Ken Thompson",
+                  "Guido van Rossum, James Gosling, Bjarne Stroustrup",
+                  "A committee at the IETF"
+                ],
+                "answer": 1,
+                "explanation": "Griesemer, Pike, and Thompson started Go at Google in 2007. All three were already systems-programming legends."
+              },
+              {
+                "q": "Which of these was NOT one of the original motivations for Go?",
+                "options": [
+                  "Long compile times in large C++ codebases",
+                  "Painful manual memory management in C",
+                  "Difficulty writing concurrent programs",
+                  "Adding object-oriented inheritance to systems languages"
+                ],
+                "answer": 3,
+                "explanation": "Go deliberately omits classical inheritance — it favors composition and interfaces. The pain points it set out to fix were build speed, dependency management, and concurrency."
+              },
+              {
+                "q": "What does Go's 'compatibility promise' (Go 1) mean in practice?",
+                "options": [
+                  "Go programs run inside the JVM.",
+                  "Code that compiles under Go 1 should keep compiling and working in any later Go 1 release.",
+                  "Go is forwards-compatible with C++.",
+                  "Each new Go release deprecates the previous one."
+                ],
+                "answer": 1,
+                "explanation": "Code written for Go 1.0 in 2012 still works on the latest Go 1.x. This is unusually rare in mainstream languages and is one of Go's biggest selling points for long-lived codebases."
+              },
+              {
+                "q": "Which of the following is NOT primarily written in Go?",
+                "options": ["Kubernetes", "Docker", "Terraform", "Linux kernel"],
+                "answer": 3,
+                "explanation": "The Linux kernel is written in C (with some assembly). Kubernetes, Docker, and Terraform are all flagship Go projects."
+              },
+              {
+                "q": "Why does Go produce a single static binary by default?",
+                "options": [
+                  "Because it can't link to libraries.",
+                  "To make deployment trivial — no runtime, JVM, or interpreter needed on the target machine.",
+                  "Because static binaries are required by the language spec.",
+                  "Because dynamic linking is impossible on Linux."
+                ],
+                "answer": 1,
+                "explanation": "A static binary is just a file you copy. This dramatically simplifies shipping software, especially for cloud and CLI tooling — which is why Go dominates that niche."
+              }
+            ]
+          }
+          </script>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="exercises">
+        <h2>Practice exercises</h2>
+
+        <div class="exercise">
+          <div class="exercise-header">
+            <span class="badge">EXERCISE 1</span>
+            <h3>Find a Go project you use</h3>
+          </div>
+          <div class="exercise-task">
+            <p>You almost certainly use Go-built software every day, even if
+               indirectly. Take 5 minutes to look at the tools and platforms in
+               your daily life (Docker, your CLI tools, your favorite static-site
+               generator, your VPN, your CI provider, your monitoring stack…) and
+               find at least two that are written in Go.</p>
+            <p>Goal: realize that you're not just learning a language — you're
+               learning the <em>de facto</em> language of modern infrastructure.</p>
+          </div>
+          <details class="exercise-solution">
+            <summary>Tips on where to look</summary>
+            <ul>
+              <li>Open your <code>~/Applications</code> or <code>/usr/local/bin</code> — anything from Docker, Hugo, kubectl, Helm, Tailscale, Syncthing, gh (GitHub CLI), terraform, vault, consul is Go.</li>
+              <li>Look at your CI/CD: GitHub Actions runners, Drone, Concourse — Go.</li>
+              <li>Check your servers: Caddy, Traefik, NATS — Go.</li>
+              <li>Most cloud-vendor CLIs (<code>aws</code>, <code>gcloud</code>, <code>az</code>) have major components in Go.</li>
+            </ul>
+          </details>
+        </div>
+
+        <div class="exercise">
+          <div class="exercise-header">
+            <span class="badge">EXERCISE 2</span>
+            <h3>Pitch Go in one sentence</h3>
+          </div>
+          <div class="exercise-task">
+            <p>Imagine a coworker asks: "Why are you learning Go instead of
+               Python / Rust / Java?" Write a one-sentence answer based on what
+               you learned in this chapter. The constraint: keep it under 25 words
+               and avoid empty buzzwords ("modern", "powerful", "scalable" —
+               nope).</p>
+          </div>
+          <details class="exercise-solution">
+            <summary>A few sample answers</summary>
+            <ul>
+              <li>"It compiles to a single static binary, has built-in concurrency, and forces my whole team to write code that looks the same."</li>
+              <li>"It's the language Kubernetes, Docker, and most cloud infra are written in — and it builds in seconds, not minutes."</li>
+              <li>"I want C-level deployment simplicity without the C-level footguns or compile times."</li>
+            </ul>
+            <p>Yours is probably better than these — the point of the exercise is
+               to make sure you've internalized <em>why</em>, not which exact words you use.</p>
+          </details>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="further" class="further-reading">
+        <h3>Further reading</h3>
+        <ul>
+          <li><a href="https://go.dev/talks/2012/splash.article" target="_blank" rel="noopener">Rob Pike — Go at Google: Language Design in the Service of Software Engineering</a></li>
+          <li><a href="https://go.dev/doc/go1compat" target="_blank" rel="noopener">Go 1 and the Future of Go Programs</a> — the compatibility promise itself.</li>
+          <li><a href="https://go-proverbs.github.io/" target="_blank" rel="noopener">Go Proverbs</a> — Pike's pithy distillation of Go's philosophy.</li>
+          <li><a href="https://github.com/avelino/awesome-go" target="_blank" rel="noopener">Awesome Go</a> — community-curated list of notable Go libraries and projects.</li>
+        </ul>
+      </section>
+
+      <div class="complete-box">
+        <p>Got the big picture?</p>
+        <button class="complete-btn" type="button" data-chapter-id="ch-02">✓ Mark this chapter complete</button>
+      </div>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a class="prev" href="01-what-is-coding.html">
+          <div class="nav-label">Previous</div>
+          <div class="nav-title">Chapter 1 — What is Coding?</div>
+        </a>
+        <a class="next" href="03-installation.html">
+          <div class="nav-label">Next</div>
+          <div class="nav-title">Chapter 3 — Installing Go</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-line">
+      Made with <span class="heart">❤️</span> by
+      <a href="https://github.com/cyrus2281" target="_blank" rel="noopener">Cyrus Mobini</a>
+    </div>
+    <a class="bmac" href="https://buymeacoffee.com/cyrus2281" target="_blank" rel="noopener" aria-label="Support Cyrus on Buy Me a Coffee">
+      <span class="bmac-icon" aria-hidden="true">☕</span>
+      Buy me a coffee
+    </a>
+  </footer>
+
+  <script src="../assets/js/progress.js" defer></script>
+  <script src="../assets/js/prism.js" defer></script>
+  <script src="../assets/js/app.js" defer></script>
+  <script src="../assets/js/quiz.js" defer></script>
+  <script src="../assets/js/search.js" defer></script>
+</body>
+</html>

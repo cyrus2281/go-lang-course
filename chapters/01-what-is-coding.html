@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6YPTC2B9NR"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 1 · What is Coding? — Learn Go by Cyrus Mobini</title>
+  <meta name="description" content="Start with the fundamentals: what code is, how computers actually run it, compiled vs interpreted languages, and where Go fits in the landscape.">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Chapter 1 · What is Coding? — Learn Go">
+  <meta property="og:description" content="Start with the fundamentals: what code is, how computers actually run it, and where Go fits.">
+  <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/01-what-is-coding.html">
+  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Chapter 1 · What is Coding? — Learn Go">
+  <meta name="twitter:description" content="Start with the fundamentals: what code is, how computers actually run it, and where Go fits.">
+  <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+
+  <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/01-what-is-coding.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/prism.css">
+  <script>
+    (function(){ try { var t = localStorage.getItem('go-course-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t); } catch(e){} })();
+  </script>
+</head>
+<body>
+
+  <header class="site-header">
+    <a href="../index.html" class="brand">
+      <span class="brand-mark">Go</span>
+      <span class="brand-name">Learn <span class="brand-accent">Go</span></span>
+    </a>
+    <button id="menu-toggle" class="icon-btn menu-toggle" aria-label="Toggle chapter menu" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="header-spacer"></div>
+    <div class="search" role="search">
+      <input id="search-input" type="search" placeholder="Search chapters…" autocomplete="off" aria-label="Search across all chapters">
+      <kbd class="search-hint">/</kbd>
+      <div id="search-results" class="search-results"></div>
+    </div>
+    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" type="button"></button>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="chapter-sidebar">
+      <div class="side-title">On this page</div>
+      <ul>
+        <li><a href="#objectives">Learning objectives</a></li>
+        <li><a href="#what-is-coding">What is coding?</a></li>
+        <li><a href="#how-computers">How computers run code</a>
+          <ul>
+            <li><a href="#layers">From source to silicon</a></li>
+            <li><a href="#binary">Why binary?</a></li>
+          </ul>
+        </li>
+        <li><a href="#compiled-interpreted">Compiled vs interpreted</a></li>
+        <li><a href="#families">Types of programming languages</a></li>
+        <li><a href="#go-fits">Where Go fits</a></li>
+        <li><a href="#why-learn">Why learn to code?</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+        <li><a href="#exercises">Exercises</a></li>
+        <li><a href="#further">Further reading</a></li>
+      </ul>
+      <div class="side-title">Navigate</div>
+      <ul>
+        <li><a href="../index.html">← Back to table of contents</a></li>
+        <li><a href="02-story-of-go.html">Next: The Story of Go →</a></li>
+      </ul>
+    </aside>
+
+    <main class="chapter-main" data-chapter-id="ch-01">
+      <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 01 · FOUNDATIONS</div>
+      <h1>What is Coding?</h1>
+      <p>Before we write a single line of Go, let's zoom out. <strong>Coding</strong>
+         — also called programming or software development — is the act of writing
+         precise instructions that a computer can carry out. Those instructions add
+         up to everything from a tiny shell script to the app store in your pocket,
+         from a spreadsheet to a jet's autopilot.</p>
+      <p>This chapter answers four questions that will make the rest of the course
+         make sense: <em>what</em> is code, <em>how</em> does a computer actually
+         run it, <em>what kinds</em> of languages exist, and <em>where</em> does
+         Go sit among them.</p>
+
+      <section id="objectives" class="learning-objectives">
+        <h3>Learning objectives</h3>
+        <ul>
+          <li>Explain, in one sentence, what code is.</li>
+          <li>Describe the path source code takes from your editor to the CPU.</li>
+          <li>Distinguish <strong>compiled</strong>, <strong>interpreted</strong>, and <strong>bytecode/JIT</strong> languages — and know which bucket Go is in.</li>
+          <li>Recognize the major language families (systems, scripting, functional, markup, query).</li>
+          <li>Articulate why Go was a deliberate choice for this course.</li>
+        </ul>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="what-is-coding">
+        <h2>What is coding?</h2>
+        <p>At its core, a program is a <strong>recipe</strong>: a numbered list of
+           steps detailed enough that a machine with no common sense can follow it
+           and get the same result every time. You write the recipe in a
+           <strong>programming language</strong> — a notation humans can read that
+           can be translated into something the computer understands.</p>
+
+        <p>A trivial example in Go looks like this:</p>
+        <pre><code class="language-go">package main
+
+import "fmt"
+
+func main() {
+    name := "world"
+    fmt.Println("Hello,", name)
+}
+</code></pre>
+
+        <p>That's six lines of precise instruction: declare a program, bring in a
+           tool for printing, define an entry point, store the word
+           <code>"world"</code> in a labeled box called <code>name</code>, and print
+           a greeting. We'll unpack every part of this program in Chapter 4 —
+           for now, just notice that the code <em>describes</em> behavior using
+           English-looking words and punctuation, not 1s and 0s.</p>
+
+        <div class="callout info">
+          <div class="ico">i</div>
+          <div>
+            <span class="callout-title">"Programming" vs "coding" vs "software engineering"</span>
+            These words are used interchangeably. Technically, <em>coding</em> is the
+            act of writing instructions, <em>programming</em> is the broader activity
+            including design and debugging, and <em>software engineering</em> wraps
+            it all in process (requirements, testing, maintenance). In practice,
+            nobody nitpicks. This course uses all three.
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="how-computers">
+        <h2>How computers actually run code</h2>
+        <p>Deep down, a CPU only understands one thing:
+           <strong>binary instructions</strong>. Every program you've ever run —
+           your browser, your game, this very web page's JavaScript — ends its life
+           as a stream of 1s and 0s shuffling through silicon.</p>
+
+        <h3 id="layers">From source to silicon</h3>
+        <p>A sequence of translations gets us from human-readable code to
+           CPU-executable electricity:</p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 720 220" width="100%" height="220" role="img"
+               aria-label="Source code → compiler/interpreter → machine code → CPU">
+            <defs>
+              <marker id="arr1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)"/>
+              </marker>
+            </defs>
+            <g font-family="var(--sans)" font-size="14" fill="var(--fg)">
+              <rect x="20"  y="60" width="150" height="100" rx="12" fill="var(--bg-elev)" stroke="var(--accent)" stroke-width="2"/>
+              <text x="95"  y="95"  text-anchor="middle" font-weight="700" font-size="15">Source code</text>
+              <text x="95"  y="118" text-anchor="middle" fill="var(--fg-muted)" font-size="12">you write this</text>
+              <text x="95"  y="138" text-anchor="middle" fill="var(--fg-muted)" font-size="11" font-family="var(--mono)">main.go</text>
+
+              <rect x="200" y="60" width="150" height="100" rx="12" fill="var(--bg-elev)" stroke="var(--accent)" stroke-width="2"/>
+              <text x="275" y="95"  text-anchor="middle" font-weight="700" font-size="15">Translator</text>
+              <text x="275" y="118" text-anchor="middle" fill="var(--fg-muted)" font-size="12">compiler</text>
+              <text x="275" y="136" text-anchor="middle" fill="var(--fg-muted)" font-size="12">or interpreter</text>
+
+              <rect x="380" y="60" width="150" height="100" rx="12" fill="var(--bg-elev)" stroke="var(--accent)" stroke-width="2"/>
+              <text x="455" y="95"  text-anchor="middle" font-weight="700" font-size="15">Machine code</text>
+              <text x="455" y="118" text-anchor="middle" fill="var(--fg-muted)" font-size="12">binary instructions</text>
+              <text x="455" y="138" text-anchor="middle" fill="var(--fg-muted)" font-size="11" font-family="var(--mono)">01001010…</text>
+
+              <rect x="560" y="60" width="150" height="100" rx="12" fill="var(--bg-elev)" stroke="var(--accent)" stroke-width="2"/>
+              <text x="635" y="95"  text-anchor="middle" font-weight="700" font-size="15">CPU</text>
+              <text x="635" y="118" text-anchor="middle" fill="var(--fg-muted)" font-size="12">executes it</text>
+              <text x="635" y="138" text-anchor="middle" fill="var(--fg-muted)" font-size="11">(your computer)</text>
+
+              <line x1="170" y1="110" x2="200" y2="110" stroke="var(--accent)" stroke-width="2" marker-end="url(#arr1)"/>
+              <line x1="350" y1="110" x2="380" y2="110" stroke="var(--accent)" stroke-width="2" marker-end="url(#arr1)"/>
+              <line x1="530" y1="110" x2="560" y2="110" stroke="var(--accent)" stroke-width="2" marker-end="url(#arr1)"/>
+            </g>
+          </svg>
+          <figcaption class="diagram-caption">
+            Every programming language is, at the end of the day, a way to reach the CPU.
+          </figcaption>
+        </figure>
+
+        <h3 id="binary">Why binary?</h3>
+        <p>Transistors — the building blocks of a CPU — are essentially switches:
+           they're either <strong>on</strong> or <strong>off</strong>. We call
+           those states <code>1</code> and <code>0</code>. A modern CPU contains
+           <em>billions</em> of them. By combining them into patterns, the hardware
+           can represent numbers, characters, colors, and (crucially) the
+           <em>operations</em> it should perform.</p>
+
+        <p>Here's a whirlwind translation of our <code>Hello, world!</code> in three
+           layers, from the most human to the least:</p>
+
+        <pre><code class="language-go">// Level 1 — Go source (what you read and write)
+fmt.Println("Hello,", "world")</code></pre>
+
+        <pre><code class="language-bash"># Level 2 — x86-64 assembly (roughly — a human-readable sketch of machine code)
+MOV    RDI, addr_of_string
+CALL   fmt.Println
+</code></pre>
+
+        <pre><code class="language-bash"># Level 3 — Raw machine code (what the CPU actually decodes)
+48 8D 3D 00 00 00 00
+E8 00 00 00 00
+</code></pre>
+
+        <p>You will <em>never</em> write level 3 by hand (and level 2 only in
+           very niche situations). That's the whole point of a high-level language
+           like Go: it keeps you in level 1 while handling levels 2 and 3
+           automatically.</p>
+
+        <div class="callout tip">
+          <div class="ico">✓</div>
+          <div>
+            <span class="callout-title">Peek under the hood (for later)</span>
+            Go ships with a built-in disassembler. Once you've written your first
+            program, you can run <code>go tool objdump -s main.main ./hello</code>
+            to see the actual machine instructions Go generated from your code.
+            Don't worry about this now — but know that Go is never a black box.
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="compiled-interpreted">
+        <h2>Compiled vs interpreted</h2>
+        <p>Languages differ in <em>when</em> the translation from source code to
+           machine code happens. The three broad models are:</p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 760 280" width="100%" height="280" role="img"
+               aria-label="Compiled, interpreted, and JIT-compiled languages compared">
+            <defs>
+              <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)"/>
+              </marker>
+            </defs>
+            <g font-family="var(--sans)" font-size="13" fill="var(--fg)">
+              <!-- Compiled -->
+              <text x="20" y="22" font-weight="700" fill="var(--accent)" font-size="14">COMPILED  (Go, C, Rust)</text>
+              <rect x="20"  y="34" width="110" height="44" rx="8" fill="var(--bg-elev)" stroke="var(--accent)"/>
+              <text x="75"  y="60" text-anchor="middle" font-size="12">source</text>
+              <line x1="130" y1="56" x2="165" y2="56" stroke="var(--accent)" stroke-width="1.8" marker-end="url(#arr2)"/>
+              <rect x="170" y="34" width="110" height="44" rx="8" fill="var(--bg-elev)" stroke="var(--accent)"/>
+              <text x="225" y="55" text-anchor="middle" font-size="12">compiler</text>
+              <text x="225" y="70" text-anchor="middle" font-size="10" fill="var(--fg-muted)">(once)</text>
+              <line x1="280" y1="56" x2="315" y2="56" stroke="var(--accent)" stroke-width="1.8" marker-end="url(#arr2)"/>
+              <rect x="320" y="34" width="110" height="44" rx="8" fill="var(--bg-elev)" stroke="var(--accent)"/>
+              <text x="375" y="55" text-anchor="middle" font-size="12">binary</text>
+              <text x="375" y="70" text-anchor="middle" font-size="10" fill="var(--fg-muted)">ready to ship</text>
+              <line x1="430" y1="56" x2="465" y2="56" stroke="var(--accent)" stroke-width="1.8" marker-end="url(#arr2)"/>
+              <rect x="470" y="34" width="110" height="44" rx="8" fill="var(--bg-elev)" stroke="var(--accent)"/>
+              <text x="525" y="60" text-anchor="middle" font-size="12">CPU runs it</text>
+              <text x="600" y="60" fill="var(--fg-muted)" font-size="11">fast · must recompile per OS/CPU</text>
+
+              <!-- Interpreted -->
+              <text x="20" y="120" font-weight="700" fill="var(--accent)" font-size="14">INTERPRETED  (Python, Ruby, JavaScript*)</text>
+              <rect x="20"  y="132" width="110" height="44" rx="8" fill="var(--bg-elev)" stroke="var(--accent)"/>
+              <text x="75"  y="158" text-anchor="middle" font-size="12">source</text>
+              <line x1="130" y1="154" x2="165" y2="154" stroke="var(--accent)" stroke-width="1.8" marker-end="url(#arr2)"/>
+              <rect x="170" y="132" width="260" height="44" rx="8" fill="var(--bg-elev)" stroke="var(--accent)"/>
+              <text x="300" y="153" text-anchor="middle" font-size="12">interpreter reads + runs line by line</text>
+              <text x="300" y="168" text-anchor="middle" font-size="10" fill="var(--fg-muted)">(every time you run the program)</text>
+              <line x1="430" y1="154" x2="465" y2="154" stroke="var(--accent)" stroke-width="1.8" marker-end="url(#arr2)"/>
+              <rect x="470" y="132" width="110" height="44" rx="8" fill="var(--bg-elev)" stroke="var(--accent)"/>
+              <text x="525" y="158" text-anchor="middle" font-size="12">output</text>
+              <text x="600" y="158" fill="var(--fg-muted)" font-size="11">flexible · typically slower</text>
+
+              <!-- JIT -->
+              <text x="20" y="218" font-weight="700" fill="var(--accent)" font-size="14">BYTECODE + JIT  (Java, C#, modern JS engines)</text>
+              <rect x="20"  y="230" width="110" height="44" rx="8" fill="var(--bg-elev)" stroke="var(--accent)"/>
+              <text x="75"  y="256" text-anchor="middle" font-size="12">source</text>
+              <line x1="130" y1="252" x2="165" y2="252" stroke="var(--accent)" stroke-width="1.8" marker-end="url(#arr2)"/>
+              <rect x="170" y="230" width="110" height="44" rx="8" fill="var(--bg-elev)" stroke="var(--accent)"/>
+              <text x="225" y="256" text-anchor="middle" font-size="12">bytecode</text>
+              <line x1="280" y1="252" x2="315" y2="252" stroke="var(--accent)" stroke-width="1.8" marker-end="url(#arr2)"/>
+              <rect x="320" y="230" width="110" height="44" rx="8" fill="var(--bg-elev)" stroke="var(--accent)"/>
+              <text x="375" y="252" text-anchor="middle" font-size="12">VM + JIT</text>
+              <text x="375" y="267" text-anchor="middle" font-size="10" fill="var(--fg-muted)">warms up</text>
+              <line x1="430" y1="252" x2="465" y2="252" stroke="var(--accent)" stroke-width="1.8" marker-end="url(#arr2)"/>
+              <rect x="470" y="230" width="110" height="44" rx="8" fill="var(--bg-elev)" stroke="var(--accent)"/>
+              <text x="525" y="256" text-anchor="middle" font-size="12">CPU runs it</text>
+              <text x="600" y="256" fill="var(--fg-muted)" font-size="11">portable · peak speed after warmup</text>
+            </g>
+          </svg>
+          <figcaption class="diagram-caption">
+            When does translation happen? That's the key difference. *Modern JavaScript engines use bytecode + JIT, not pure interpretation.
+          </figcaption>
+        </figure>
+
+        <h3>What each model trades off</h3>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Translation</th>
+              <th>Runtime speed</th>
+              <th>Portability</th>
+              <th>Examples</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Compiled</strong></td>
+              <td>Once, ahead of time</td>
+              <td>Fastest</td>
+              <td>One binary per OS/CPU</td>
+              <td>Go, C, C++, Rust</td>
+            </tr>
+            <tr>
+              <td><strong>Interpreted</strong></td>
+              <td>Every run, line by line</td>
+              <td>Slowest (often)</td>
+              <td>Runs anywhere the interpreter does</td>
+              <td>Python, Ruby, Bash</td>
+            </tr>
+            <tr>
+              <td><strong>Bytecode + JIT</strong></td>
+              <td>Ahead of time to bytecode, JIT at runtime</td>
+              <td>Close to compiled, after warm-up</td>
+              <td>Run anywhere the VM runs</td>
+              <td>Java, C#, Kotlin, modern JS</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p><strong>Go is firmly in the compiled camp.</strong> When you run
+           <code>go build</code>, Go produces a single, self-contained binary file
+           — the CPU runs it directly. No virtual machine, no interpreter, no
+           "node_modules", no JVM. This is a big reason Go programs start so
+           quickly and ship so easily (Chapter 4 will show this in action).</p>
+
+        <div class="callout pitfall">
+          <div class="ico">!</div>
+          <div>
+            <span class="callout-title">The lines are fuzzy</span>
+            In practice, most languages blend models. Python "compiles" to
+            bytecode (<code>.pyc</code> files) before interpreting. JavaScript
+            engines like V8 use aggressive JIT compilation. Even Go has a
+            <em>runtime</em> for goroutine scheduling and garbage collection. Don't
+            let purists fight over precise definitions — the table above captures
+            the practical differences.
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="families">
+        <h2>Types of programming languages</h2>
+        <p>Besides <em>when</em> they translate (compiled vs interpreted), languages
+           differ in <em>what</em> they're designed for. You'll hear people group
+           them by <strong>family</strong>:</p>
+
+        <ul>
+          <li><strong>Systems / general-purpose</strong> — build pretty much anything;
+              performance-sensitive code, infrastructure, CLIs.
+              <em>Examples:</em> Go, C, C++, Rust, Java.</li>
+          <li><strong>Scripting / dynamic</strong> — quick automation, glue code,
+              prototypes, data analysis.
+              <em>Examples:</em> Python, Ruby, Bash, Lua.</li>
+          <li><strong>Functional</strong> — emphasize pure functions and
+              immutability. <em>Examples:</em> Haskell, Elixir, OCaml, Clojure.</li>
+          <li><strong>Markup</strong> — describe <em>structure</em> rather than
+              behavior. Not really programming languages, but you'll read and
+              write them constantly. <em>Examples:</em> HTML, XML, Markdown.</li>
+          <li><strong>Query</strong> — ask questions of data stores.
+              <em>Examples:</em> SQL, GraphQL, SPARQL.</li>
+          <li><strong>Domain-specific</strong> — hyper-specialized.
+              <em>Examples:</em> Dockerfile, Terraform HCL, regex, CSS.</li>
+        </ul>
+
+        <p>Many languages fit in more than one box. Go, for instance, is
+           general-purpose but especially loved for backend services, CLIs, and
+           networked infrastructure.</p>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="go-fits">
+        <h2>Where Go fits</h2>
+        <p>If you squint at the families above, you can see why someone would pick
+           one over another for a given job. Where does Go sit?</p>
+
+        <ul>
+          <li><strong>Speed of a compiled language</strong> — Go compiles to a
+              static binary that runs as fast as C or C++ for most day-to-day code.</li>
+          <li><strong>Simplicity of a scripting language</strong> — the syntax is
+              intentionally small. You can read a Go program you've never seen and
+              roughly understand it. This is by design.</li>
+          <li><strong>Concurrency built in</strong> — <code>go</code> and channels
+              are language keywords. No extra libraries needed. (Chapters 24–26.)</li>
+          <li><strong>Ergonomic tooling</strong> — formatter, linter, test runner,
+              benchmark runner, and doc generator all ship with the compiler.</li>
+          <li><strong>A single deployable file</strong> — the classic Go pitch:
+              build once, copy the binary, run anywhere.</li>
+        </ul>
+
+        <p>That's why Go powers so much modern infrastructure: Docker, Kubernetes,
+           Terraform, Prometheus, etcd, CockroachDB, Caddy, Hugo, and so on. When
+           you need a fast, reliable backend service or command-line tool, Go is
+           a strong default. You'll meet each of these strengths firsthand
+           throughout this course.</p>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="why-learn">
+        <h2>Why learn to code?</h2>
+        <p>A quick aside worth reading if you're on the fence:</p>
+
+        <ol>
+          <li><strong>Problem-solving muscle.</strong> Coding teaches you to break
+              fuzzy problems into tiny, precise steps. This skill transfers to
+              basically everything else.</li>
+          <li><strong>Leverage.</strong> A short script can do in seconds what would
+              take a human hours — every week, forever.</li>
+          <li><strong>Career optionality.</strong> Software touches every industry;
+              coding skills expand what jobs and roles are available to you.</li>
+          <li><strong>Creation, not just consumption.</strong> Knowing how software
+              works changes you from a user into a maker. You can build the tool
+              you wished existed.</li>
+        </ol>
+
+        <div class="callout tip">
+          <div class="ico">✓</div>
+          <div>
+            <span class="callout-title">How to actually learn in this course</span>
+            Read a chapter, then run the example. Read the next section, then
+            <em>change</em> the example and run it again. Reading without typing is
+            the single fastest way to convince yourself you understand something
+            you don't. Every page in this course has a Run button — use it.
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="quiz">
+        <h2>Check your understanding</h2>
+        <div class="quiz" data-quiz data-chapter-id="ch-01">
+          <script type="application/json" class="quiz-data">
+          {
+            "title": "Quick quiz",
+            "questions": [
+              {
+                "q": "What does a computer's CPU actually execute?",
+                "options": [
+                  "Go source code",
+                  "English sentences",
+                  "Binary (machine-code) instructions",
+                  "Markdown"
+                ],
+                "answer": 2,
+                "explanation": "CPUs only understand binary. Every programming language ultimately gets translated down to machine code so the CPU can execute it."
+              },
+              {
+                "q": "Which category does Go fall into?",
+                "options": [
+                  "Interpreted — the interpreter reads the source each time",
+                  "Compiled — translated ahead of time into a standalone binary",
+                  "Markup — it only describes document structure",
+                  "Query — it's for databases"
+                ],
+                "answer": 1,
+                "explanation": "Go is compiled. `go build` produces a single self-contained binary you can copy and run without any runtime installed."
+              },
+              {
+                "q": "Which of these is NOT typically considered a programming language?",
+                "options": ["Go", "Python", "HTML", "Rust"],
+                "answer": 2,
+                "explanation": "HTML is a markup language — it describes the structure of a document. It doesn't express behavior or computations the way programming languages do."
+              },
+              {
+                "q": "Which of the following is a fair trade-off of compiled languages vs interpreted ones?",
+                "options": [
+                  "Compiled languages are always easier to learn.",
+                  "Compiled languages usually run faster but need to be rebuilt for each target OS/CPU.",
+                  "Interpreted languages always use less memory.",
+                  "Compiled languages can't use variables."
+                ],
+                "answer": 1,
+                "explanation": "Classic trade-off: compiled languages tend to run faster because translation happens once, but you need a separate binary for each operating system and CPU architecture you want to ship to."
+              },
+              {
+                "q": "Why does Go compile to a single static binary rather than run on a virtual machine like Java?",
+                "options": [
+                  "Because CPUs can't run VMs anymore.",
+                  "For simpler deployment — one file runs anywhere compatible, no runtime installation required.",
+                  "Because Go can't do garbage collection.",
+                  "To support dynamic typing."
+                ],
+                "answer": 1,
+                "explanation": "Static binaries are a pragmatic deployment win: no JVM, no interpreter, no `node_modules` — just copy the file and run it. This is one of Go's signature strengths."
+              }
+            ]
+          }
+          </script>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="exercises">
+        <h2>Practice exercises</h2>
+
+        <div class="exercise">
+          <div class="exercise-header">
+            <span class="badge">EXERCISE 1</span>
+            <h3>Classify the language</h3>
+          </div>
+          <div class="exercise-task">
+            <p>For each of the following languages, write down whether you think it's
+               <strong>compiled</strong>, <strong>interpreted</strong>, or
+               <strong>bytecode + JIT</strong>. If unsure, guess — then look it up.</p>
+            <ol>
+              <li>Go</li>
+              <li>Python</li>
+              <li>Rust</li>
+              <li>JavaScript (in a modern browser like V8)</li>
+              <li>Bash</li>
+              <li>Java</li>
+            </ol>
+            <p>No code to write — this is a thinking exercise.</p>
+          </div>
+          <details class="exercise-solution">
+            <summary>Show one possible answer</summary>
+            <div>
+              <ol>
+                <li><strong>Go</strong> — compiled. Produces a static binary via <code>go build</code>.</li>
+                <li><strong>Python</strong> — mostly interpreted (it compiles to <code>.pyc</code> bytecode behind the scenes, then interprets that).</li>
+                <li><strong>Rust</strong> — compiled. LLVM-backed, produces native binaries.</li>
+                <li><strong>JavaScript</strong> — bytecode + JIT in modern engines like V8. "Interpreted" is the textbook answer but practically inaccurate today.</li>
+                <li><strong>Bash</strong> — interpreted. The <code>bash</code> program reads and runs your script line by line.</li>
+                <li><strong>Java</strong> — bytecode + JIT. Compiled to <code>.class</code> files, run by the JVM which JITs hot code to native.</li>
+              </ol>
+            </div>
+          </details>
+        </div>
+
+        <div class="exercise">
+          <div class="exercise-header">
+            <span class="badge">EXERCISE 2</span>
+            <h3>Read (not write!) your first Go program</h3>
+          </div>
+          <div class="exercise-task">
+            <p>Below is a slightly bigger Go snippet than the one at the top of this
+               chapter. You don't know Go yet — but you know English. Read it slowly
+               and try to <em>predict</em>, in plain words, what it will print when
+               you click <strong>Run</strong>.</p>
+            <pre><code class="language-go">package main
+
+import "fmt"
+
+func main() {
+    languages := []string{"Go", "Python", "Rust", "JavaScript"}
+    fmt.Println("Languages I know about:")
+    for i, lang := range languages {
+        fmt.Printf("  %d. %s\n", i+1, lang)
+    }
+    fmt.Printf("That's %d languages total.\n", len(languages))
+}
+</code></pre>
+            <p>Then click Run and compare the output to your prediction. Did you
+               get it right? Anything surprising?</p>
+          </div>
+          <details class="exercise-solution">
+            <summary>Show expected output & notes</summary>
+            <pre><code class="language-bash">Languages I know about:
+  1. Go
+  2. Python
+  3. Rust
+  4. JavaScript
+That's 4 languages total.</code></pre>
+            <p><strong>Things to notice, even without "knowing" Go yet:</strong></p>
+            <ul>
+              <li><code>[]string{"Go", "Python", ...}</code> — a list of text items. Go calls these <em>slices</em> (Chapter 13).</li>
+              <li><code>for i, lang := range languages</code> — loop over the list, giving each item an index <code>i</code> and a value <code>lang</code>.</li>
+              <li><code>%d</code> is a placeholder for a number, <code>%s</code> for a string — same idea as <code>printf</code> in other languages.</li>
+              <li><code>len(...)</code> — the built-in length function.</li>
+            </ul>
+            <p>We'll meet every one of these in future chapters. Today, the goal is
+               just to see that <em>you can already mostly read Go</em>.</p>
+          </details>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="further" class="further-reading">
+        <h3>Further reading</h3>
+        <ul>
+          <li><a href="https://go.dev/" target="_blank" rel="noopener">go.dev</a> — the official home of Go.</li>
+          <li><a href="https://en.wikipedia.org/wiki/Compiled_language" target="_blank" rel="noopener">Compiled vs interpreted languages (Wikipedia)</a> — deeper dive into the spectrum.</li>
+          <li><a href="https://en.wikipedia.org/wiki/Machine_code" target="_blank" rel="noopener">Machine code (Wikipedia)</a> — what the CPU really speaks.</li>
+          <li><a href="https://research.swtch.com/interpreters" target="_blank" rel="noopener">Russ Cox — A primer on implementing languages</a> — an accessible compiler/interpreter essay from one of Go's core contributors.</li>
+        </ul>
+      </section>
+
+      <div class="complete-box">
+        <p>Felt solid? Lock it in.</p>
+        <button class="complete-btn" type="button" data-chapter-id="ch-01">✓ Mark this chapter complete</button>
+      </div>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a class="prev" href="../index.html">
+          <div class="nav-label">Previous</div>
+          <div class="nav-title">Table of contents</div>
+        </a>
+        <a class="next" href="02-story-of-go.html">
+          <div class="nav-label">Next</div>
+          <div class="nav-title">Chapter 2 — The Story of Go</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-line">
+      Made with <span class="heart">❤️</span> by
+      <a href="https://github.com/cyrus2281" target="_blank" rel="noopener">Cyrus Mobini</a>
+    </div>
+    <a class="bmac" href="https://buymeacoffee.com/cyrus2281" target="_blank" rel="noopener" aria-label="Support Cyrus on Buy Me a Coffee">
+      <span class="bmac-icon" aria-hidden="true">☕</span>
+      Buy me a coffee
+    </a>
+  </footer>
+
+  <script src="../assets/js/progress.js" defer></script>
+  <script src="../assets/js/prism.js" defer></script>
+  <script src="../assets/js/app.js" defer></script>
+  <script src="../assets/js/quiz.js" defer></script>
+  <script src="../assets/js/search.js" defer></script>
+</body>
+</html>

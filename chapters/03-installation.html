@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6YPTC2B9NR"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 3 · Installing Go — Learn Go by Cyrus Mobini</title>
+  <meta name="description" content="Install Go on macOS, Linux, and Windows. Pick an editor (VS Code with gopls is recommended), verify the install, and understand GOPATH vs modules.">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Chapter 3 · Installing Go — Learn Go">
+  <meta property="og:description" content="Install Go and set up your editor for an excellent dev experience.">
+  <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/03-installation.html">
+  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Chapter 3 · Installing Go — Learn Go">
+  <meta name="twitter:description" content="Install Go and set up your editor for an excellent dev experience.">
+  <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+
+  <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/03-installation.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/prism.css">
+  <script>
+    (function(){ try { var t = localStorage.getItem('go-course-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t); } catch(e){} })();
+  </script>
+</head>
+<body>
+
+  <header class="site-header">
+    <a href="../index.html" class="brand">
+      <span class="brand-mark">Go</span>
+      <span class="brand-name">Learn <span class="brand-accent">Go</span></span>
+    </a>
+    <button id="menu-toggle" class="icon-btn menu-toggle" aria-label="Toggle chapter menu" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="header-spacer"></div>
+    <div class="search" role="search">
+      <input id="search-input" type="search" placeholder="Search chapters…" autocomplete="off" aria-label="Search across all chapters">
+      <kbd class="search-hint">/</kbd>
+      <div id="search-results" class="search-results"></div>
+    </div>
+    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" type="button"></button>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="chapter-sidebar">
+      <div class="side-title">On this page</div>
+      <ul>
+        <li><a href="#objectives">Learning objectives</a></li>
+        <li><a href="#download">Download Go</a></li>
+        <li><a href="#install">Install by OS</a>
+          <ul>
+            <li><a href="#macos">macOS</a></li>
+            <li><a href="#linux">Linux</a></li>
+            <li><a href="#windows">Windows</a></li>
+          </ul>
+        </li>
+        <li><a href="#verify">Verify the install</a></li>
+        <li><a href="#editor">Set up your editor</a></li>
+        <li><a href="#gopath">GOPATH vs modules</a></li>
+        <li><a href="#troubleshoot">Troubleshooting</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+        <li><a href="#exercises">Exercises</a></li>
+        <li><a href="#further">Further reading</a></li>
+      </ul>
+      <div class="side-title">Navigate</div>
+      <ul>
+        <li><a href="02-story-of-go.html">← Previous: The Story of Go</a></li>
+        <li><a href="04-hello-world.html">Next: Hello, World →</a></li>
+        <li><a href="../index.html">Table of contents</a></li>
+      </ul>
+    </aside>
+
+    <main class="chapter-main" data-chapter-id="ch-03">
+      <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 03 · FOUNDATIONS</div>
+      <h1>Installing Go &amp; Setting Up Your Editor</h1>
+      <p>The fastest way to learn Go is to <em>run</em> Go. This chapter gets a
+         working compiler on your machine and an editor configured so you get
+         autocomplete, jump-to-definition, and error squiggles as you type.</p>
+      <p>If you'd rather not install anything yet, every snippet in this course
+         has a <strong>Run</strong> button that opens the Go Playground in your
+         browser. But for chapters 4 onward you'll get more out of running things
+         locally, and a 2-minute install pays back forever.</p>
+
+      <section id="objectives" class="learning-objectives">
+        <h3>Learning objectives</h3>
+        <ul>
+          <li>Install Go on macOS, Linux, or Windows.</li>
+          <li>Verify the install with <code>go version</code>.</li>
+          <li>Configure VS Code (or an editor of your choice) with the Go extension and <code>gopls</code>.</li>
+          <li>Understand the difference between the legacy <code>GOPATH</code> workflow and modern Go modules — and know that you only need modules.</li>
+        </ul>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="download">
+        <h2>Download Go</h2>
+        <p>The official downloads live at <a href="https://go.dev/dl/" target="_blank" rel="noopener">go.dev/dl</a>.
+           As of writing, the current release is in the <strong>1.22+</strong> family.
+           Always grab the latest stable release unless you have a specific reason
+           not to — Go's compatibility promise (Chapter 2) means newer versions
+           don't break your existing code.</p>
+
+        <p>You have three broad install paths:</p>
+        <ul>
+          <li><strong>Official installer</strong> — the recommended default, especially on macOS and Windows.</li>
+          <li><strong>Package manager</strong> — Homebrew (macOS), apt/snap/dnf (Linux), winget/Chocolatey (Windows). Convenient if you already use one.</li>
+          <li><strong>Manual tarball</strong> — most common on Linux.</li>
+        </ul>
+
+        <p>Pick the one that matches your platform below.</p>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="install">
+        <h2>Install by operating system</h2>
+
+        <h3 id="macos">macOS</h3>
+        <p><strong>Option A — Homebrew (recommended if you have it):</strong></p>
+        <pre><code class="language-bash">brew install go</code></pre>
+
+        <p><strong>Option B — Official installer:</strong></p>
+        <ol>
+          <li>Download the <code>.pkg</code> file for macOS from <a href="https://go.dev/dl/" target="_blank" rel="noopener">go.dev/dl</a>.</li>
+          <li>Double-click and follow the prompts. The installer puts Go at <code>/usr/local/go</code> and adds <code>/usr/local/go/bin</code> to your <code>PATH</code>.</li>
+          <li>Open a fresh terminal so the new <code>PATH</code> is loaded.</li>
+        </ol>
+
+        <h3 id="linux">Linux</h3>
+        <p><strong>Option A — Distro package manager</strong> (often older but easiest):</p>
+        <pre><code class="language-bash"># Debian / Ubuntu
+sudo apt update && sudo apt install golang-go
+
+# Fedora
+sudo dnf install golang
+
+# Arch
+sudo pacman -S go</code></pre>
+
+        <p><strong>Option B — Official tarball</strong> (recommended for the latest version):</p>
+        <pre><code class="language-bash"># 1. Download — substitute the version you want
+wget https://go.dev/dl/go1.22.0.linux-amd64.tar.gz
+
+# 2. Remove any previous Go install and unpack to /usr/local
+sudo rm -rf /usr/local/go
+sudo tar -C /usr/local -xzf go1.22.0.linux-amd64.tar.gz
+
+# 3. Add Go to your PATH (append to ~/.bashrc or ~/.zshrc)
+echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
+source ~/.bashrc</code></pre>
+
+        <h3 id="windows">Windows</h3>
+        <p><strong>Option A — winget (Windows 10+):</strong></p>
+        <pre><code class="language-bash">winget install -e --id GoLang.Go</code></pre>
+
+        <p><strong>Option B — Official installer:</strong></p>
+        <ol>
+          <li>Download the <code>.msi</code> from <a href="https://go.dev/dl/" target="_blank" rel="noopener">go.dev/dl</a>.</li>
+          <li>Run it and accept the defaults. Go installs to <code>C:\Program Files\Go</code> and is added to <code>PATH</code>.</li>
+          <li><strong>Important:</strong> close and reopen any terminal windows so they pick up the new <code>PATH</code>.</li>
+        </ol>
+
+        <p>If you're a WSL2 user, install Go inside WSL using the Linux instructions
+           above — that's almost always the better experience.</p>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="verify">
+        <h2>Verify the install</h2>
+        <p>Open a brand-new terminal and run:</p>
+        <pre><code class="language-bash">go version</code></pre>
+        <p>You should see something like:</p>
+        <pre><code class="language-bash">go version go1.22.0 darwin/arm64</code></pre>
+
+        <p>That confirms the binary is on your <code>PATH</code> and reports its
+           OS/architecture. To see Go's full environment configuration:</p>
+        <pre><code class="language-bash">go env</code></pre>
+
+        <p>You don't need to memorize any of those values. The two worth recognizing
+           early are <code>GOROOT</code> (where Go itself lives) and
+           <code>GOPATH</code> (where Go puts downloaded modules and installed
+           binaries — defaults to <code>~/go</code>).</p>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="editor">
+        <h2>Set up your editor</h2>
+        <p>Go has a language server called <strong><code>gopls</code></strong>
+           (pronounced "go please"). With a single click, it gives you
+           autocomplete, go-to-definition, find references, rename, hover docs,
+           live error diagnostics, and automatic formatting on save. <em>Use it.</em>
+           Coding without it is needlessly hard.</p>
+
+        <h3>VS Code (recommended for beginners)</h3>
+        <ol>
+          <li>Install <a href="https://code.visualstudio.com/" target="_blank" rel="noopener">VS Code</a>.</li>
+          <li>Open Extensions and install the official <strong>Go</strong> extension by Google.</li>
+          <li>Open any <code>.go</code> file. VS Code will prompt you to install the
+              required tools (<code>gopls</code>, <code>dlv</code> for debugging,
+              <code>staticcheck</code>, etc). Click <em>Install All</em>.</li>
+          <li>Done. Start typing.</li>
+        </ol>
+
+        <h3>Other editors</h3>
+        <ul>
+          <li><strong>GoLand</strong> by JetBrains — paid, heavyweight, but excellent.</li>
+          <li><strong>Neovim</strong> — install <code>gopls</code> with <code>go install golang.org/x/tools/gopls@latest</code>, then configure your LSP plugin (e.g. <code>nvim-lspconfig</code>) to use it.</li>
+          <li><strong>Zed / Sublime / Helix</strong> — all support <code>gopls</code> via their LSP integrations.</li>
+        </ul>
+
+        <div class="callout tip">
+          <div class="ico">✓</div>
+          <div>
+            <span class="callout-title">Format on save — turn it on</span>
+            Configure your editor to run <code>gofmt</code> (or
+            <code>goimports</code>) on every save. Code in this course assumes
+            consistent formatting. The VS Code Go extension does this by default.
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="gopath">
+        <h2>GOPATH vs Go modules</h2>
+        <p>You'll see references to <code>GOPATH</code> in older blog posts. Here's
+           the short version so you can ignore it:</p>
+
+        <ul>
+          <li><strong>Pre-2018:</strong> all your Go code had to live inside a
+              specific directory tree (<code>$GOPATH/src/github.com/you/...</code>).
+              Painful and limiting.</li>
+          <li><strong>2018+:</strong> Go modules. Run <code>go mod init</code> in
+              any directory and that directory becomes a Go project. Full stop.
+              You can keep your code anywhere on disk.</li>
+        </ul>
+
+        <p>Modern Go is module-based. We'll use <code>go mod init</code> in
+           Chapter 4. You can pretend GOPATH doesn't exist (it does, but only as
+           a cache for downloaded dependencies and installed tools).</p>
+
+        <div class="callout pitfall">
+          <div class="ico">!</div>
+          <div>
+            <span class="callout-title">Old tutorials trap</span>
+            If a tutorial tells you to put your code under
+            <code>~/go/src/something</code> for it to "work", that tutorial is
+            from before 2018. Skip it. Modern Go just needs a directory with a
+            <code>go.mod</code> file in it.
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="troubleshoot">
+        <h2>Troubleshooting</h2>
+        <table>
+          <thead><tr><th>Symptom</th><th>Likely cause &amp; fix</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>command not found: go</code></td>
+              <td>Go's <code>bin</code> directory isn't on your <code>PATH</code>. Re-check the install steps for your OS, then open a <em>new</em> terminal.</td>
+            </tr>
+            <tr>
+              <td>Wrong version reported</td>
+              <td>You probably have two installs (e.g. brew + manual). <code>which go</code> tells you which one is being used. Remove the old one.</td>
+            </tr>
+            <tr>
+              <td>VS Code says "Failed to install gopls"</td>
+              <td>Make sure <code>$GOPATH/bin</code> (defaults to <code>~/go/bin</code>) is on your <code>PATH</code>. Then run <em>Go: Install/Update Tools</em> from the command palette.</td>
+            </tr>
+            <tr>
+              <td>"GOPATH not set" warnings on Linux</td>
+              <td>Modern Go sets a sensible default (<code>~/go</code>). You can ignore this warning, or explicitly export <code>GOPATH=$HOME/go</code> in your shell rc.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="quiz">
+        <h2>Check your understanding</h2>
+        <div class="quiz" data-quiz data-chapter-id="ch-03">
+          <script type="application/json" class="quiz-data">
+          {
+            "title": "Quick quiz",
+            "questions": [
+              {
+                "q": "Which command verifies that Go is installed and reports its version?",
+                "options": ["go --check", "go version", "go info", "go --v"],
+                "answer": 1,
+                "explanation": "`go version` prints the installed Go version and the OS/architecture it was built for."
+              },
+              {
+                "q": "What is gopls?",
+                "options": [
+                  "Go's package manager",
+                  "Go's official language server (autocomplete, jump-to-definition, etc.)",
+                  "A linter that replaces go vet",
+                  "The Go playground"
+                ],
+                "answer": 1,
+                "explanation": "gopls (\"go please\") is the official Language Server Protocol implementation for Go. It powers editor features like autocomplete, hover docs, and refactoring."
+              },
+              {
+                "q": "Where do modern Go projects need to live on disk?",
+                "options": [
+                  "Always inside $GOPATH/src",
+                  "Anywhere — a directory with a go.mod file is a Go project",
+                  "In /usr/local/go/projects",
+                  "In ~/go/repos"
+                ],
+                "answer": 1,
+                "explanation": "Since Go 1.11, modules let you keep code anywhere on disk. The presence of a go.mod file is what marks a directory as a Go project."
+              },
+              {
+                "q": "On macOS with Homebrew already installed, what's the simplest install command?",
+                "options": ["brew tap go", "go install", "brew install go", "softwareupdate go"],
+                "answer": 2,
+                "explanation": "Homebrew packages Go: `brew install go` does it in one command and keeps it up to date with `brew upgrade go`."
+              }
+            ]
+          }
+          </script>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="exercises">
+        <h2>Practice exercises</h2>
+
+        <div class="exercise">
+          <div class="exercise-header">
+            <span class="badge">EXERCISE 1</span>
+            <h3>Verify your toolchain</h3>
+          </div>
+          <div class="exercise-task">
+            <p>From a fresh terminal, run all three commands below. They should all
+               work without errors.</p>
+            <pre><code class="language-bash">go version
+go env GOPATH
+go env GOROOT</code></pre>
+            <p>Note the values of <code>GOPATH</code> and <code>GOROOT</code>. You
+               won't usually need to think about them, but it's good to know
+               where Go puts things.</p>
+          </div>
+          <details class="exercise-solution">
+            <summary>Expected output (yours will differ in version &amp; paths)</summary>
+            <pre><code class="language-bash">$ go version
+go version go1.22.0 darwin/arm64
+
+$ go env GOPATH
+/Users/you/go
+
+$ go env GOROOT
+/opt/homebrew/Cellar/go/1.22.0/libexec</code></pre>
+          </details>
+        </div>
+
+        <div class="exercise">
+          <div class="exercise-header">
+            <span class="badge">EXERCISE 2</span>
+            <h3>Configure your editor</h3>
+          </div>
+          <div class="exercise-task">
+            <p>Install your editor of choice (VS Code if undecided), the Go
+               extension, and let it install <code>gopls</code> and friends. Then
+               open an empty <code>.go</code> file and confirm:</p>
+            <ul>
+              <li>Typing <code>fmt.</code> shows autocomplete suggestions.</li>
+              <li>Saving the file auto-formats it.</li>
+              <li>Hovering a function name shows its documentation.</li>
+            </ul>
+            <p>If any of those don't work, you'll save yourself a lot of pain later
+               by debugging it now.</p>
+          </div>
+          <details class="exercise-solution">
+            <summary>If something's off</summary>
+            <ul>
+              <li>Open the command palette and run <strong>Go: Install/Update Tools</strong>, select all, and reinstall.</li>
+              <li>Make sure your editor is opening a <em>folder</em>, not a single file — gopls needs project context.</li>
+              <li>Confirm <code>~/go/bin</code> (or whatever <code>go env GOPATH</code>'s value is + <code>/bin</code>) is on your <code>PATH</code>.</li>
+            </ul>
+          </details>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="further" class="further-reading">
+        <h3>Further reading</h3>
+        <ul>
+          <li><a href="https://go.dev/doc/install" target="_blank" rel="noopener">Official install guide</a> — always the source of truth for the latest steps.</li>
+          <li><a href="https://code.visualstudio.com/docs/languages/go" target="_blank" rel="noopener">VS Code — Go documentation</a></li>
+          <li><a href="https://github.com/golang/tools/blob/master/gopls/README.md" target="_blank" rel="noopener">gopls README</a></li>
+          <li><a href="https://go.dev/blog/using-go-modules" target="_blank" rel="noopener">Using Go Modules</a> — official blog series.</li>
+        </ul>
+      </section>
+
+      <div class="complete-box">
+        <p>Toolchain ready?</p>
+        <button class="complete-btn" type="button" data-chapter-id="ch-03">✓ Mark this chapter complete</button>
+      </div>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a class="prev" href="02-story-of-go.html">
+          <div class="nav-label">Previous</div>
+          <div class="nav-title">Chapter 2 — The Story of Go</div>
+        </a>
+        <a class="next" href="04-hello-world.html">
+          <div class="nav-label">Next</div>
+          <div class="nav-title">Chapter 4 — Hello, World</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-line">
+      Made with <span class="heart">❤️</span> by
+      <a href="https://github.com/cyrus2281" target="_blank" rel="noopener">Cyrus Mobini</a>
+    </div>
+    <a class="bmac" href="https://buymeacoffee.com/cyrus2281" target="_blank" rel="noopener" aria-label="Support Cyrus on Buy Me a Coffee">
+      <span class="bmac-icon" aria-hidden="true">☕</span>
+      Buy me a coffee
+    </a>
+  </footer>
+
+  <script src="../assets/js/progress.js" defer></script>
+  <script src="../assets/js/prism.js" defer></script>
+  <script src="../assets/js/app.js" defer></script>
+  <script src="../assets/js/quiz.js" defer></script>
+  <script src="../assets/js/search.js" defer></script>
+</body>
+</html>

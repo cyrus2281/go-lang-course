@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6YPTC2B9NR"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 7 · Strings, Runes &amp; Unicode — Learn Go by Cyrus Mobini</title>
+  <meta name="description" content="Understand Go's string-as-bytes model, the rune type, UTF-8 encoding, and how to correctly iterate, slice, and count characters.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Chapter 7 · Strings, Runes &amp; Unicode — Learn Go">
+  <meta property="og:description" content="Strings-as-bytes, runes, UTF-8, and how to iterate and slice correctly. The chapter nobody warns you about.">
+  <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/07-strings-runes-unicode.html">
+  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Chapter 7 · Strings, Runes &amp; Unicode — Learn Go">
+  <meta name="twitter:description" content="Strings-as-bytes, runes, UTF-8, and correct iteration.">
+  <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/07-strings-runes-unicode.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/prism.css">
+  <script>(function(){try{var t=localStorage.getItem('go-course-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body>
+
+  <header class="site-header">
+    <a href="../index.html" class="brand">
+      <span class="brand-mark">Go</span>
+      <span class="brand-name">Learn <span class="brand-accent">Go</span></span>
+    </a>
+    <button id="menu-toggle" class="icon-btn menu-toggle" aria-label="Toggle chapter menu" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="header-spacer"></div>
+    <div class="search" role="search">
+      <input id="search-input" type="search" placeholder="Search chapters…" autocomplete="off" aria-label="Search across all chapters">
+      <kbd class="search-hint">/</kbd>
+      <div id="search-results" class="search-results"></div>
+    </div>
+    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" type="button"></button>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="chapter-sidebar">
+      <div class="side-title">On this page</div>
+      <ul>
+        <li><a href="#objectives">Learning objectives</a></li>
+        <li><a href="#what">What a string actually is</a></li>
+        <li><a href="#utf8">UTF-8 in 90 seconds</a></li>
+        <li><a href="#byte-vs-rune">Bytes vs runes</a></li>
+        <li><a href="#indexing">Indexing &amp; slicing</a></li>
+        <li><a href="#range">Ranging correctly</a></li>
+        <li><a href="#length">Counting characters</a></li>
+        <li><a href="#literals">String literals</a></li>
+        <li><a href="#packages">Useful packages</a></li>
+        <li><a href="#builder">Efficient string building</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+        <li><a href="#exercises">Exercises</a></li>
+        <li><a href="#further">Further reading</a></li>
+      </ul>
+      <div class="side-title">Navigate</div>
+      <ul>
+        <li><a href="06-basic-types.html">← Previous: Basic Types</a></li>
+        <li><a href="08-operators.html">Next: Operators &amp; Expressions →</a></li>
+        <li><a href="../index.html">Table of contents</a></li>
+      </ul>
+    </aside>
+
+    <main class="chapter-main" data-chapter-id="ch-07">
+      <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 07 · CORE LANGUAGE</div>
+      <h1>Strings, Runes &amp; Unicode</h1>
+      <p>Every programming language has strings. Go's are simple on the surface
+         and quietly clever underneath. Once you understand the byte-vs-rune
+         split, a whole category of bugs evaporates — the kind where
+         <code>"café"</code> seems to have 5 characters instead of 4.</p>
+
+      <section id="objectives" class="learning-objectives">
+        <h3>Learning objectives</h3>
+        <ul>
+          <li>Explain what a Go <code>string</code> actually stores.</li>
+          <li>Define <em>byte</em>, <em>rune</em>, and <em>code point</em> and how UTF-8 ties them together.</li>
+          <li>Choose between indexing (<code>s[i]</code>) and ranging correctly.</li>
+          <li>Count characters of a string safely.</li>
+          <li>Use raw string literals for regex and JSON.</li>
+          <li>Build long strings efficiently with <code>strings.Builder</code>.</li>
+        </ul>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="what">
+        <h2>What a string actually is</h2>
+        <p>A Go <code>string</code> is an <strong>immutable sequence of bytes</strong>.
+           Two operations are guaranteed:</p>
+
+        <ol>
+          <li><code>len(s)</code> returns the number of bytes (not characters!).</li>
+          <li><code>s[i]</code> returns the <em>i</em>-th byte as a <code>byte</code>
+              (i.e. <code>uint8</code>).</li>
+        </ol>
+
+        <p>That's it. Immutable, countable, byte-indexable. A string <em>doesn't</em>
+           have a built-in notion of "characters" — because the definition of
+           character is tangled up in text encoding, and Go took a strong stance:
+           <strong>source code and strings default to UTF-8.</strong></p>
+
+        <pre><code class="language-go">package main
+
+import "fmt"
+
+func main() {
+    s := "hello"
+    fmt.Println(len(s))          // 5  (bytes)
+    fmt.Println(s[0])            // 104 — the byte value of 'h'
+    fmt.Printf("%c\n", s[0])     // h  — interpreted as a rune
+}
+</code></pre>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="utf8">
+        <h2>UTF-8 in 90 seconds</h2>
+        <p>Unicode is a catalog of "characters" (really: <em>code points</em>).
+           Each has a number. 'A' is U+0041. '€' is U+20AC. '😀' is U+1F600.
+           There are over 1.1 million possible code points.</p>
+
+        <p><strong>UTF-8</strong> is a way to encode those numbers into bytes.
+           It uses a variable-length scheme:</p>
+
+        <table>
+          <thead><tr><th>Code-point range</th><th>Bytes</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td>U+0000 – U+007F</td><td>1</td><td>'A' = <code>41</code></td></tr>
+            <tr><td>U+0080 – U+07FF</td><td>2</td><td>'é' = <code>C3 A9</code></td></tr>
+            <tr><td>U+0800 – U+FFFF</td><td>3</td><td>'€' = <code>E2 82 AC</code></td></tr>
+            <tr><td>U+10000 – U+10FFFF</td><td>4</td><td>'😀' = <code>F0 9F 98 80</code></td></tr>
+          </tbody>
+        </table>
+
+        <p>Two consequences that matter for Go strings:</p>
+        <ul>
+          <li><strong>ASCII is UTF-8.</strong> Old ASCII strings are valid UTF-8 — no conversion needed.</li>
+          <li><strong>One character ≠ one byte.</strong> <code>"é"</code> is <em>two</em> bytes. <code>"😀"</code> is <em>four</em>.</li>
+        </ul>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="byte-vs-rune">
+        <h2>Bytes vs runes</h2>
+        <p>Go gives you two named types that will save your sanity:</p>
+
+        <ul>
+          <li><strong><code>byte</code></strong> (alias for <code>uint8</code>) — one raw byte of data.</li>
+          <li><strong><code>rune</code></strong> (alias for <code>int32</code>) — one Unicode code point.</li>
+        </ul>
+
+        <p>Visualize it for the string <code>"café"</code>:</p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 720 200" width="100%" height="200" role="img"
+               aria-label="The string 'café' represented as bytes (5) and runes (4)">
+            <g font-family="var(--mono)" font-size="14">
+              <!-- bytes -->
+              <text x="20" y="30" fill="var(--fg-muted)" font-family="var(--sans)" font-size="13" font-weight="700">BYTES (len = 5)</text>
+              <g>
+                <rect x="20"  y="45" width="70" height="55" rx="6" fill="var(--bg-elev)" stroke="var(--accent)"/>
+                <text x="55"  y="70" text-anchor="middle" fill="var(--fg)">0x63</text>
+                <text x="55"  y="88" text-anchor="middle" fill="var(--fg-muted)" font-size="11">'c'</text>
+
+                <rect x="100" y="45" width="70" height="55" rx="6" fill="var(--bg-elev)" stroke="var(--accent)"/>
+                <text x="135" y="70" text-anchor="middle" fill="var(--fg)">0x61</text>
+                <text x="135" y="88" text-anchor="middle" fill="var(--fg-muted)" font-size="11">'a'</text>
+
+                <rect x="180" y="45" width="70" height="55" rx="6" fill="var(--bg-elev)" stroke="var(--accent)"/>
+                <text x="215" y="70" text-anchor="middle" fill="var(--fg)">0x66</text>
+                <text x="215" y="88" text-anchor="middle" fill="var(--fg-muted)" font-size="11">'f'</text>
+
+                <rect x="260" y="45" width="70" height="55" rx="6" fill="var(--bg-elev)" stroke="#e79a3b"/>
+                <text x="295" y="70" text-anchor="middle" fill="#e79a3b">0xC3</text>
+                <text x="295" y="88" text-anchor="middle" fill="var(--fg-muted)" font-size="10">é byte 1</text>
+
+                <rect x="340" y="45" width="70" height="55" rx="6" fill="var(--bg-elev)" stroke="#e79a3b"/>
+                <text x="375" y="70" text-anchor="middle" fill="#e79a3b">0xA9</text>
+                <text x="375" y="88" text-anchor="middle" fill="var(--fg-muted)" font-size="10">é byte 2</text>
+              </g>
+
+              <!-- runes -->
+              <text x="20" y="135" fill="var(--fg-muted)" font-family="var(--sans)" font-size="13" font-weight="700">RUNES (len = 4)</text>
+              <g>
+                <rect x="20"  y="150" width="70" height="40" rx="6" fill="var(--bg-elev)" stroke="var(--accent-700)"/>
+                <text x="55"  y="175" text-anchor="middle" fill="var(--fg)">'c'</text>
+
+                <rect x="100" y="150" width="70" height="40" rx="6" fill="var(--bg-elev)" stroke="var(--accent-700)"/>
+                <text x="135" y="175" text-anchor="middle" fill="var(--fg)">'a'</text>
+
+                <rect x="180" y="150" width="70" height="40" rx="6" fill="var(--bg-elev)" stroke="var(--accent-700)"/>
+                <text x="215" y="175" text-anchor="middle" fill="var(--fg)">'f'</text>
+
+                <rect x="260" y="150" width="150" height="40" rx="6" fill="var(--bg-elev)" stroke="#e79a3b"/>
+                <text x="335" y="175" text-anchor="middle" fill="#e79a3b">'é' (U+00E9)</text>
+              </g>
+            </g>
+          </svg>
+          <figcaption class="diagram-caption">
+            "café" — 5 bytes, 4 runes. That asymmetry is <em>the</em> thing to internalize.
+          </figcaption>
+        </figure>
+
+        <pre><code class="language-go">package main
+
+import (
+    "fmt"
+    "unicode/utf8"
+)
+
+func main() {
+    s := "café"
+    fmt.Println(len(s))                        // 5  — bytes
+    fmt.Println(utf8.RuneCountInString(s))     // 4  — runes
+}
+</code></pre>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="indexing">
+        <h2>Indexing &amp; slicing</h2>
+        <p>String indexing returns <em>bytes</em>, not runes. This is a foot-gun if
+           your string isn't pure ASCII:</p>
+
+        <pre><code class="language-go">package main
+
+import "fmt"
+
+func main() {
+    s := "café"
+    fmt.Printf("%T %v\n", s[3], s[3])     // uint8 195   — NOT 'é'
+}
+</code></pre>
+
+        <p>Slicing works on bytes too:</p>
+
+        <pre><code class="language-go">s := "café"
+fmt.Println(s[0:3])     // "caf"   — OK, those bytes map 1:1 to runes
+fmt.Println(s[0:4])     // "caf?"  — cuts an 'é' in half! Invalid UTF-8.
+</code></pre>
+
+        <div class="callout pitfall">
+          <div class="ico">!</div>
+          <div>
+            <span class="callout-title">Byte slicing isn't safe for arbitrary strings</span>
+            Slicing is cheap (it makes no copy — see Chapter 13) but operates on
+            <em>bytes</em>. Use it when you know your indexes land on rune
+            boundaries (e.g. you just found them with
+            <code>strings.Index</code>) or when the content is guaranteed ASCII.
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="range">
+        <h2>Ranging correctly</h2>
+        <p>The <code>for … range</code> loop over a string is <em>rune-aware</em>
+           — it decodes UTF-8 on the fly:</p>
+
+        <pre><code class="language-go">package main
+
+import "fmt"
+
+func main() {
+    s := "café"
+    for i, r := range s {
+        fmt.Printf("byte-index %d: %q (rune value %d)\n", i, r, r)
+    }
+}
+</code></pre>
+
+        <p>Output:</p>
+        <pre><code class="language-bash">byte-index 0: 'c' (rune value 99)
+byte-index 1: 'a' (rune value 97)
+byte-index 2: 'f' (rune value 102)
+byte-index 3: 'é' (rune value 233)</code></pre>
+
+        <p>Notice: the index <code>i</code> is a <strong>byte offset</strong>,
+           not a rune count. After 'é' (which is 2 bytes), the next iteration
+           would start at byte 5. This matters when you want to slice back into
+           the original string.</p>
+
+        <p>Compare to a C-style index loop:</p>
+
+        <pre><code class="language-go">// WRONG for non-ASCII — iterates bytes, not runes
+for i := 0; i < len(s); i++ {
+    fmt.Printf("%c ", s[i])     // will print garbage for multi-byte runes
+}
+</code></pre>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="length">
+        <h2>Counting characters</h2>
+
+        <p><code>len(s)</code> gives you <strong>bytes</strong>. To count runes,
+           use <code>utf8.RuneCountInString</code>:</p>
+
+        <pre><code class="language-go">package main
+
+import (
+    "fmt"
+    "unicode/utf8"
+)
+
+func main() {
+    s := "Hello, 世界! 👋"
+    fmt.Println(len(s))                        // 18 (bytes)
+    fmt.Println(utf8.RuneCountInString(s))     // 11 (runes)
+}
+</code></pre>
+
+        <div class="callout info">
+          <div class="ico">i</div>
+          <div>
+            <span class="callout-title">"Characters" is a surprisingly hard concept</span>
+            Even rune counts can be misleading. Some "characters" (like a flag
+            emoji, 🇺🇸) are built from multiple code points. User-perceived
+            "characters" are called <em>grapheme clusters</em> and require more
+            sophisticated handling (the <code>golang.org/x/text/unicode/norm</code>
+            and <code>rivo/uniseg</code> libraries do this). For most
+            application code, rune counts are good enough.
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="literals">
+        <h2>String literals</h2>
+
+        <p>Go has two flavors of string literal:</p>
+
+        <ol>
+          <li><strong>Interpreted</strong> — double-quoted, supports escape
+              sequences like <code>\n</code>, <code>\t</code>, <code>\uXXXX</code>.</li>
+          <li><strong>Raw</strong> — backtick-quoted, <em>no</em> escape sequences.
+              Great for Windows paths, regex, and multi-line content.</li>
+        </ol>
+
+        <pre><code class="language-go">normal := "line 1\nline 2\t(tabbed)"
+raw := `line 1
+line 2    but backslashes are literal: \n \t`
+regex := `^\d{3}-\d{4}$`      // raw string — don't escape the \
+</code></pre>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="packages">
+        <h2>Useful packages</h2>
+        <ul>
+          <li><strong><code>strings</code></strong> — <code>strings.Contains</code>,
+              <code>strings.Split</code>, <code>strings.ToLower</code>,
+              <code>strings.ReplaceAll</code>, <code>strings.Index</code>,
+              <code>strings.Fields</code>, <code>strings.TrimSpace</code>, and many more.</li>
+          <li><strong><code>unicode</code></strong> — rune classification:
+              <code>unicode.IsLetter</code>, <code>unicode.IsDigit</code>,
+              <code>unicode.IsSpace</code>, <code>unicode.ToUpper</code>.</li>
+          <li><strong><code>unicode/utf8</code></strong> — low-level UTF-8 operations:
+              <code>utf8.RuneCountInString</code>, <code>utf8.DecodeRuneInString</code>,
+              <code>utf8.ValidString</code>.</li>
+          <li><strong><code>strconv</code></strong> — string ↔ number conversions
+              (we met this in Chapter 6).</li>
+        </ul>
+
+        <pre><code class="language-go">package main
+
+import (
+    "fmt"
+    "strings"
+)
+
+func main() {
+    words := strings.Fields("   the   quick  brown fox   ")
+    fmt.Println(words)                           // [the quick brown fox]
+
+    s := strings.ToUpper(strings.Join(words, "-"))
+    fmt.Println(s)                               // THE-QUICK-BROWN-FOX
+}
+</code></pre>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="builder">
+        <h2>Efficient string building</h2>
+
+        <p>Since strings are immutable, every <code>+</code> concatenation allocates
+           a new string. That's fine for a few pieces but bad in a loop. Use
+           <code>strings.Builder</code>:</p>
+
+        <pre><code class="language-go">package main
+
+import (
+    "fmt"
+    "strings"
+)
+
+func main() {
+    var b strings.Builder
+    for i := 1; i <= 5; i++ {
+        fmt.Fprintf(&amp;b, "line %d\n", i)
+    }
+    fmt.Print(b.String())
+}
+</code></pre>
+
+        <p><code>strings.Builder</code> minimizes copies by writing to an
+           internal <code>[]byte</code> and only converting to a string at the
+           end. For building up large strings programmatically, it's much faster
+           than <code>+=</code>.</p>
+
+        <div class="callout tip">
+          <div class="ico">✓</div>
+          <div>
+            <span class="callout-title">Also worth knowing</span>
+            <code>fmt.Sprintf</code> is fine for small formatted strings. For
+            serializing structured data, reach for <code>encoding/json</code>
+            (Chapter 29) or <code>text/template</code>. Build-loops with
+            <code>+=</code> are a classic Go anti-pattern — spotting them is
+            a quick code-review win.
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="quiz">
+        <h2>Check your understanding</h2>
+        <div class="quiz" data-quiz data-chapter-id="ch-07">
+          <script type="application/json" class="quiz-data">
+          {
+            "title": "Quick quiz",
+            "questions": [
+              {
+                "q": "What does `len(\"café\")` return in Go?",
+                "options": ["4", "5", "6", "It depends on the locale"],
+                "answer": 1,
+                "explanation": "`len` returns the number of bytes. 'é' is 2 bytes in UTF-8, so 'c'+'a'+'f'+'é' = 3+2 = 5 bytes."
+              },
+              {
+                "q": "What is `rune` an alias for?",
+                "options": ["byte", "int8", "int32", "string"],
+                "answer": 2,
+                "explanation": "`rune` is an alias for `int32`. Unicode code points fit in 21 bits, so a 32-bit signed int has plenty of room."
+              },
+              {
+                "q": "Which of these correctly iterates characters in a string containing non-ASCII text?",
+                "options": [
+                  "for i := 0; i < len(s); i++ { ...s[i]... }",
+                  "for i, r := range s { ...r... }",
+                  "for _, b := range []byte(s) { ...b... }",
+                  "All of the above"
+                ],
+                "answer": 1,
+                "explanation": "`for _, r := range s` decodes UTF-8 and yields runes (code points). The others iterate bytes and will produce broken output for multi-byte characters."
+              },
+              {
+                "q": "In `for i, r := range \"café\"`, after consuming 'é', what is the next value of `i`?",
+                "options": ["4", "5", "3", "-1"],
+                "answer": 1,
+                "explanation": "`i` is the byte index. After 'é' (which is 2 bytes starting at byte index 3), the next rune would start at byte index 5."
+              },
+              {
+                "q": "Why should you use `strings.Builder` in a build-a-string loop?",
+                "options": [
+                  "It's required by go vet",
+                  "It avoids allocating a new string on every concatenation",
+                  "It sorts the output alphabetically",
+                  "It handles multi-line strings"
+                ],
+                "answer": 1,
+                "explanation": "Strings are immutable in Go, so `s += \"x\"` allocates a new string each time. `strings.Builder` appends to an internal byte buffer, avoiding those allocations."
+              }
+            ]
+          }
+          </script>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="exercises">
+        <h2>Practice exercises</h2>
+
+        <div class="exercise">
+          <div class="exercise-header">
+            <span class="badge">EXERCISE 1</span>
+            <h3>Reverse a string (correctly)</h3>
+          </div>
+          <div class="exercise-task">
+            <p>Write a function <code>reverse(s string) string</code> that returns
+               <code>s</code> reversed. Make sure it handles non-ASCII input
+               correctly: <code>reverse("abc")</code> → <code>"cba"</code>,
+               <code>reverse("héllo 🌍")</code> → <code>"🌍 olléh"</code>.</p>
+            <p><em>Hint:</em> convert the string to <code>[]rune</code> first, reverse the slice, then convert back.</p>
+          </div>
+          <details class="exercise-solution">
+            <summary>Show a working solution</summary>
+            <pre><code class="language-go">package main
+
+import "fmt"
+
+func reverse(s string) string {
+    runes := []rune(s)
+    for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
+        runes[i], runes[j] = runes[j], runes[i]
+    }
+    return string(runes)
+}
+
+func main() {
+    fmt.Println(reverse("abc"))        // cba
+    fmt.Println(reverse("héllo 🌍"))   // 🌍 olléh
+}
+</code></pre>
+            <p>The trick: byte-level reversal would split multi-byte runes. Rune-level reversal always works.</p>
+          </details>
+        </div>
+
+        <div class="exercise">
+          <div class="exercise-header">
+            <span class="badge">EXERCISE 2</span>
+            <h3>Count letters vs digits</h3>
+          </div>
+          <div class="exercise-task">
+            <p>Write a function that takes a string and returns two counts: how
+               many letters and how many digits it contains. Use the
+               <code>unicode</code> package.</p>
+          </div>
+          <details class="exercise-solution">
+            <summary>Show a working solution</summary>
+            <pre><code class="language-go">package main
+
+import (
+    "fmt"
+    "unicode"
+)
+
+func classify(s string) (letters, digits int) {
+    for _, r := range s {
+        switch {
+        case unicode.IsLetter(r):
+            letters++
+        case unicode.IsDigit(r):
+            digits++
+        }
+    }
+    return
+}
+
+func main() {
+    l, d := classify("Hello 123 Gophers!")
+    fmt.Printf("letters=%d digits=%d\n", l, d)    // letters=12 digits=3
+}
+</code></pre>
+            <p>This uses <em>named returns</em> (Chapter 11) — handy when the
+               semantic of each return value is clear from its name.</p>
+          </details>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="further" class="further-reading">
+        <h3>Further reading</h3>
+        <ul>
+          <li><a href="https://go.dev/blog/strings" target="_blank" rel="noopener">The Go Blog — Strings, bytes, runes and characters</a> — Rob Pike's essential essay.</li>
+          <li><a href="https://pkg.go.dev/strings" target="_blank" rel="noopener"><code>strings</code> package docs</a></li>
+          <li><a href="https://pkg.go.dev/unicode/utf8" target="_blank" rel="noopener"><code>unicode/utf8</code> package docs</a></li>
+          <li><a href="https://home.unicode.org/" target="_blank" rel="noopener">Unicode.org</a> — the authoritative source on code points.</li>
+        </ul>
+      </section>
+
+      <div class="complete-box">
+        <p>You've learned the chapter everyone else skips.</p>
+        <button class="complete-btn" type="button" data-chapter-id="ch-07">✓ Mark this chapter complete</button>
+      </div>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a class="prev" href="06-basic-types.html">
+          <div class="nav-label">Previous</div>
+          <div class="nav-title">Chapter 6 — Basic Types</div>
+        </a>
+        <a class="next" href="08-operators.html">
+          <div class="nav-label">Next</div>
+          <div class="nav-title">Chapter 8 — Operators &amp; Expressions</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-line">
+      Made with <span class="heart">❤️</span> by
+      <a href="https://github.com/cyrus2281" target="_blank" rel="noopener">Cyrus Mobini</a>
+    </div>
+    <a class="bmac" href="https://buymeacoffee.com/cyrus2281" target="_blank" rel="noopener" aria-label="Support Cyrus on Buy Me a Coffee">
+      <span class="bmac-icon" aria-hidden="true">☕</span>
+      Buy me a coffee
+    </a>
+  </footer>
+
+  <script src="../assets/js/progress.js" defer></script>
+  <script src="../assets/js/prism.js" defer></script>
+  <script src="../assets/js/app.js" defer></script>
+  <script src="../assets/js/quiz.js" defer></script>
+  <script src="../assets/js/search.js" defer></script>
+</body>
+</html>
