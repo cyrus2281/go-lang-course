@@ -384,7 +384,7 @@ tbody tr:hover { background: var(--bg-elev); }
   padding: 12px 22px;
   border-radius: var(--radius-md);
   background: var(--accent);
-  color: white;
+  color: white!important;
   font-weight: 600;
   font-size: 1rem;
   transition: background var(--transition), transform var(--transition);
