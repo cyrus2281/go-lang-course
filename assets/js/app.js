@@ -51,13 +51,10 @@
   // ---- Copy + Playground for code blocks ---------------------------------
   const PLAYGROUND_BASE = 'https://go.dev/play/';
 
-  // Encode source for the Go Playground "share" URL pattern. The official
-  // playground accepts a snippet via POST /share returning a hash, but for
-  // a static site we fall back to opening the playground with the snippet
-  // packed into a URL hash that the playground reads via the `p:` scheme is
-  // not stable — so we use the most reliable approach: copy snippet to
-  // clipboard, then open the playground in a new tab and let the user paste.
-  // For embedded iframes, we use the official embed URL pattern.
+  // go.dev sets `frame-ancestors 'self'`, so the playground cannot be
+  // embedded in an iframe on this site. Instead, the button copies the
+  // snippet to the clipboard and opens go.dev/play in a new tab, where
+  // the user pastes (⌘/Ctrl+V) and clicks Run.
 
   function languageOf(code) {
     const cls = code.className || '';
@@ -100,9 +97,9 @@
         const runBtn = document.createElement('button');
         runBtn.className = 'code-btn run';
         runBtn.type = 'button';
-        runBtn.innerHTML = playIcon() + '<span>Run</span>';
-        runBtn.title = 'Open in Go Playground (or embed inline)';
-        runBtn.addEventListener('click', () => embedPlayground(wrap, codeEl.textContent));
+        runBtn.innerHTML = playIcon() + '<span>Open Go Playground</span>';
+        runBtn.title = 'Copy snippet and open the Go Playground in a new tab';
+        runBtn.addEventListener('click', () => openInPlayground(codeEl.textContent));
         actions.appendChild(runBtn);
       }
 
@@ -131,20 +128,22 @@
     return '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20"/></svg>';
   }
 
+  function writeClipboard(text, done) {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+    } else {
+      fallbackCopy(text, done);
+    }
+  }
   function copyToClipboard(text, btn) {
-    const done = () => {
+    writeClipboard(text, () => {
       btn.classList.add('copied');
       btn.innerHTML = checkIcon() + '<span>Copied</span>';
       setTimeout(() => {
         btn.classList.remove('copied');
         btn.innerHTML = copyIcon() + '<span>Copy</span>';
       }, 1800);
-    };
-    if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
-    } else {
-      fallbackCopy(text, done);
-    }
+    });
   }
   function fallbackCopy(text, done) {
     const ta = document.createElement('textarea');
@@ -158,39 +157,12 @@
     document.body.removeChild(ta);
   }
 
-  // Embed Go Playground for a snippet. Strategy:
-  // - The official Playground at go.dev/play does not have a stable
-  //   "code-via-URL" parameter for a clean iframe embed.
-  // - However, posting the snippet to /share returns a hash we can iframe
-  //   as go.dev/play/p/<hash>. Since we can't POST from a static site
-  //   without CORS, we use a hybrid: the user clicks "Run" -> we copy the
-  //   code AND open go.dev/play in a new tab AND show an inline iframe
-  //   to go.dev/play (clean playground) where the user can paste with one
-  //   keystroke. This is the most reliable cross-platform approach.
-  function embedPlayground(wrap, code) {
-    if (wrap.querySelector('.playground-embed')) return; // already embedded
-    // First, copy the code so the user can immediately paste in the iframe
-    copyToClipboard(code, wrap.querySelector('.code-btn.run') || document.createElement('button'));
-
-    const iframe = document.createElement('iframe');
-    iframe.className = 'playground-embed';
-    iframe.src = PLAYGROUND_BASE;
-    iframe.title = 'Go Playground';
-    iframe.loading = 'lazy';
-    iframe.setAttribute('sandbox', 'allow-scripts allow-forms allow-same-origin allow-popups');
-
-    const swap = document.createElement('div');
-    swap.className = 'playground-swap';
-    swap.innerHTML =
-      '<span>Code copied — paste (⌘/Ctrl+V) into the playground above and click <strong>Run</strong>.</span>' +
-      ' <button type="button">Hide playground</button>';
-    swap.querySelector('button').addEventListener('click', () => {
-      iframe.remove();
-      swap.remove();
-    });
-
-    wrap.appendChild(iframe);
-    wrap.appendChild(swap);
+  // Copy the snippet to the clipboard and open the Go Playground in a new
+  // tab. go.dev blocks iframe embedding via `frame-ancestors 'self'`, so a
+  // new tab is the only reliable option from a static site.
+  function openInPlayground(code) {
+    writeClipboard(code, () => {});
+    window.open(PLAYGROUND_BASE, '_blank', 'noopener');
   }
 
   // ---- Mobile sidebar toggle ---------------------------------------------
