@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6YPTC2B9NR"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 17 · Scope &amp; Shadowing — Learn Go by Cyrus Mobini</title>
+  <meta name="description" content="Block scope, package scope, and the famous variable-shadowing pitfall that stings every Go programmer at least once.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Chapter 17 · Scope &amp; Shadowing — Learn Go">
+  <meta property="og:description" content="How Go scopes variables, and how to avoid the classic shadowing bug.">
+  <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/17-scope.html">
+  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Chapter 17 · Scope &amp; Shadowing — Learn Go">
+  <meta name="twitter:description" content="Block scope, package scope, and avoiding shadowing bugs.">
+  <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/17-scope.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/prism.css">
+  <script>(function(){try{var t=localStorage.getItem('go-course-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="../index.html" class="brand"><span class="brand-mark">Go</span><span class="brand-name">Learn <span class="brand-accent">Go</span></span></a>
+    <button id="menu-toggle" class="icon-btn menu-toggle" aria-label="Toggle chapter menu" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="header-spacer"></div>
+    <div class="search" role="search"><input id="search-input" type="search" placeholder="Search chapters…" autocomplete="off" aria-label="Search across all chapters"><kbd class="search-hint">/</kbd><div id="search-results" class="search-results"></div></div>
+    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" type="button"></button>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="chapter-sidebar">
+      <div class="side-title">On this page</div>
+      <ul>
+        <li><a href="#objectives">Learning objectives</a></li>
+        <li><a href="#levels">Scope levels</a></li>
+        <li><a href="#blocks">Block scope</a></li>
+        <li><a href="#shadowing">Shadowing</a></li>
+        <li><a href="#the-trap">The classic trap</a></li>
+        <li><a href="#detect">Detecting with <code>go vet</code></a></li>
+        <li><a href="#style">Style tips</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+        <li><a href="#exercises">Exercises</a></li>
+        <li><a href="#further">Further reading</a></li>
+      </ul>
+      <div class="side-title">Navigate</div>
+      <ul>
+        <li><a href="16-pointers.html">← Previous: Pointers</a></li>
+        <li><a href="18-packages-modules.html">Next: Packages &amp; Modules →</a></li>
+        <li><a href="../index.html">Table of contents</a></li>
+      </ul>
+    </aside>
+
+    <main class="chapter-main" data-chapter-id="ch-17">
+      <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 17 · ORGANIZING CODE</div>
+      <h1>Scope &amp; Shadowing</h1>
+      <p><strong>Scope</strong> determines where a name is visible. Go's rules
+         are intuitive — the <em>innermost block</em> that contains a declaration
+         is its scope. The subtle gotcha is <strong>shadowing</strong>: declaring
+         a new variable with the same name as an outer one, which is legal,
+         common, and occasionally catastrophic.</p>
+
+      <section id="objectives" class="learning-objectives">
+        <h3>Learning objectives</h3>
+        <ul>
+          <li>Identify package-level, function-level, and block-level scopes.</li>
+          <li>Explain how <code>{}</code> creates a new scope.</li>
+          <li>Spot variable shadowing and know when it's a bug.</li>
+          <li>Use <code>go vet -vettool</code> or <code>shadow</code> to catch shadowing.</li>
+        </ul>
+      </section>
+
+      <section id="levels">
+        <h2>Scope levels</h2>
+        <p>Top to bottom, narrowest at the bottom:</p>
+        <ol>
+          <li><strong>Universe</strong> — built-ins like <code>int</code>, <code>len</code>, <code>nil</code>, <code>true</code>.</li>
+          <li><strong>Package</strong> — any name declared at file level, in any file of the package.</li>
+          <li><strong>File</strong> — imported package names.</li>
+          <li><strong>Function</strong> — parameters and results.</li>
+          <li><strong>Block</strong> — any <code>{ ... }</code> including the body of <code>if</code>, <code>for</code>, <code>switch</code>.</li>
+        </ol>
+      </section>
+
+      <section id="blocks">
+        <h2>Block scope</h2>
+        <pre><code class="language-go">package main
+
+import "fmt"
+
+var package = "hi"           // package scope
+
+func main() {
+    x := 10                   // function scope
+    if y := 20; y > x {       // y: if-scope
+        z := 30                // z: only in this block
+        fmt.Println(x, y, z)
+    }
+    // y and z are not accessible here
+}
+</code></pre>
+
+        <p>The short-statement form of <code>if</code>/<code>for</code>/<code>switch</code>
+           introduces a variable scoped to that statement only — a pattern we've
+           used all over this course.</p>
+      </section>
+
+      <section id="shadowing">
+        <h2>Shadowing</h2>
+        <pre><code class="language-go">x := 1
+{
+    x := 2          // a NEW variable named x — shadows the outer one
+    fmt.Println(x)   // 2
+}
+fmt.Println(x)       // 1 — outer x unchanged
+</code></pre>
+
+        <p>Perfectly legal. Sometimes useful. Sometimes a catastrophe.</p>
+      </section>
+
+      <section id="the-trap">
+        <h2>The classic trap</h2>
+        <p>This one bites everyone:</p>
+
+        <pre><code class="language-go">func readFile(path string) error {
+    f, err := os.Open(path)
+    if err != nil { return err }
+    defer f.Close()
+
+    if info, err := f.Stat(); err == nil {   // ⚠ new err!
+        fmt.Println(info.Size())
+    }
+    // If we reached here assuming err from Stat was handled... we didn't —
+    // the err we see now is still the OUTER one from os.Open.
+    return err
+}
+</code></pre>
+
+        <p>The <code>:=</code> in the nested <code>if</code> declares a <em>new</em>
+           <code>err</code> inside the if-block because at least one of the names
+           on the left (<code>info</code>) is new. The outer <code>err</code> is
+           never updated.</p>
+
+        <p>Fix: pre-declare <code>info</code> or use <code>=</code>:</p>
+        <pre><code class="language-go">var info os.FileInfo
+info, err = f.Stat()
+if err != nil { ... }
+</code></pre>
+      </section>
+
+      <section id="detect">
+        <h2>Detecting shadowing</h2>
+        <p><code>go vet</code> doesn't check shadowing by default. Install the
+           <code>shadow</code> analyzer:</p>
+
+        <pre><code class="language-bash">go install golang.org/x/tools/go/analysis/passes/shadow/cmd/shadow@latest
+shadow ./...</code></pre>
+
+        <p>It flags every shadowed variable. Running it in CI is an excellent
+           habit on any non-trivial project.</p>
+      </section>
+
+      <section id="style">
+        <h2>Style tips</h2>
+        <ul>
+          <li><strong>Declare as late as possible.</strong> Put variables close to where they're used; the shorter the lifespan, the less trouble.</li>
+          <li><strong>Prefer short-statement scope for errors.</strong> <code>if err := f(); err != nil { ... }</code> keeps <code>err</code> out of the surrounding function.</li>
+          <li><strong>Name consistently.</strong> If a variable is logically the "same" across a function, don't create a second one with the same name.</li>
+          <li><strong>Package-level variables are fine</strong> for shared state, config, or precomputed values. Don't overuse them, but don't fear them.</li>
+        </ul>
+      </section>
+
+      <section id="quiz">
+        <h2>Check your understanding</h2>
+        <div class="quiz" data-quiz data-chapter-id="ch-17">
+          <script type="application/json" class="quiz-data">
+          {
+            "title": "Quick quiz",
+            "questions": [
+              {"q":"In `if y := 20; y > 0 { ... }`, what's the scope of y?","options":["The enclosing function","Package","The if block (and its else if/else)","Universe"],"answer":2,"explanation":"The short statement declares y in a scope that covers the if's body plus any else if / else chained off it. Outside the whole construct, y is gone."},
+              {"q":"What does `x := 1; { x := 2; ... }` print inside and outside the block?","options":["1 then 1","2 then 1","2 then 2","Compile error: x redeclared"],"answer":1,"explanation":"The inner := creates a new variable also named x, shadowing the outer one. Inside the block we see 2; outside, the outer x is unchanged at 1."},
+              {"q":"If a := statement has at least one new name on its left, what happens to the existing ones?","options":["They're redeclared","They're assigned to — the existing vars are mutated, not shadowed (in the same scope)","They're ignored","Compile error"],"answer":1,"explanation":"In the SAME scope, := assigns to existing variables and declares new ones. In a DIFFERENT (inner) scope, := always declares fresh shadowed variables — that's where the shadowing bug bites."},
+              {"q":"How do you catch shadowing bugs automatically?","options":["go vet does it by default","Install and run the `shadow` analyzer (golang.org/x/tools/go/analysis/passes/shadow)","Use gofmt","You can't — it's a style choice"],"answer":1,"explanation":"The shadow analyzer isn't in go vet by default. Install it and run it (often in CI) to flag suspicious shadows."}
+            ]
+          }
+          </script>
+        </div>
+      </section>
+
+      <section id="exercises">
+        <h2>Practice exercises</h2>
+
+        <div class="exercise">
+          <div class="exercise-header"><span class="badge">EXERCISE 1</span><h3>Find the shadow</h3></div>
+          <div class="exercise-task"><p>Read the following snippet carefully. What does it print — and <em>why</em>?</p>
+          <pre><code class="language-go">package main
+
+import "fmt"
+
+func main() {
+    n := 1
+    for i := 0; i < 3; i++ {
+        n := n + i
+        fmt.Println(n)
+    }
+    fmt.Println("final:", n)
+}
+</code></pre></div>
+          <details class="exercise-solution"><summary>Show the answer</summary>
+          <p>Output:</p>
+          <pre><code class="language-bash">1
+2
+3
+final: 1</code></pre>
+          <p>Inside the loop, <code>n := n + i</code> declares a new <code>n</code>
+             scoped to the loop body (shadowing the outer <code>n</code>). Each
+             iteration computes <code>outer_n + i</code>. Outside the loop,
+             <code>n</code> is the unchanged <code>1</code>.</p>
+          <p>Fix: if you wanted the outer n to accumulate, write <code>n = n + i</code> (or <code>n += i</code>).</p>
+          </details>
+        </div>
+      </section>
+
+      <section id="further" class="further-reading">
+        <h3>Further reading</h3>
+        <ul>
+          <li><a href="https://go.dev/ref/spec#Declarations_and_scope" target="_blank" rel="noopener">Go spec — Declarations and scope</a></li>
+          <li><a href="https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/shadow" target="_blank" rel="noopener">shadow analyzer</a></li>
+        </ul>
+      </section>
+
+      <div class="complete-box"><p>Scope handled — no more silent variable swaps.</p><button class="complete-btn" type="button" data-chapter-id="ch-17">✓ Mark this chapter complete</button></div>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a class="prev" href="16-pointers.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 16 — Pointers</div></a>
+        <a class="next" href="18-packages-modules.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 18 — Packages &amp; Modules</div></a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-line">Made with <span class="heart">❤️</span> by <a href="https://github.com/cyrus2281" target="_blank" rel="noopener">Cyrus Mobini</a></div>
+    <a class="bmac" href="https://buymeacoffee.com/cyrus2281" target="_blank" rel="noopener"><span class="bmac-icon">☕</span> Buy me a coffee</a>
+  </footer>
+
+  <script src="../assets/js/progress.js" defer></script>
+  <script src="../assets/js/prism.js" defer></script>
+  <script src="../assets/js/app.js" defer></script>
+  <script src="../assets/js/quiz.js" defer></script>
+  <script src="../assets/js/search.js" defer></script>
+</body>
+</html>

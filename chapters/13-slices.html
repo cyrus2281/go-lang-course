@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6YPTC2B9NR"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 13 · Slices — Learn Go by Cyrus Mobini</title>
+  <meta name="description" content="The workhorse data structure in Go. Internals (ptr/len/cap), append semantics, aliasing pitfalls, nil vs empty, copying, and slicing of slices.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Chapter 13 · Slices — Learn Go">
+  <meta property="og:description" content="Slice internals, append behavior, aliasing pitfalls, nil vs empty, and everything you need to use slices confidently.">
+  <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/13-slices.html">
+  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Chapter 13 · Slices — Learn Go">
+  <meta name="twitter:description" content="Slice internals, append, aliasing, nil vs empty.">
+  <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/13-slices.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/prism.css">
+  <script>(function(){try{var t=localStorage.getItem('go-course-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="../index.html" class="brand"><span class="brand-mark">Go</span><span class="brand-name">Learn <span class="brand-accent">Go</span></span></a>
+    <button id="menu-toggle" class="icon-btn menu-toggle" aria-label="Toggle chapter menu" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="header-spacer"></div>
+    <div class="search" role="search"><input id="search-input" type="search" placeholder="Search chapters…" autocomplete="off" aria-label="Search across all chapters"><kbd class="search-hint">/</kbd><div id="search-results" class="search-results"></div></div>
+    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" type="button"></button>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="chapter-sidebar">
+      <div class="side-title">On this page</div>
+      <ul>
+        <li><a href="#objectives">Learning objectives</a></li>
+        <li><a href="#what">What a slice is</a></li>
+        <li><a href="#header">The slice header</a></li>
+        <li><a href="#create">Creating slices</a></li>
+        <li><a href="#slicing">Slicing syntax</a></li>
+        <li><a href="#append">append</a></li>
+        <li><a href="#copy">copy</a></li>
+        <li><a href="#aliasing">Aliasing pitfalls</a></li>
+        <li><a href="#nil">nil vs empty</a></li>
+        <li><a href="#multi">Multi-dimensional</a></li>
+        <li><a href="#common">Common idioms</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+        <li><a href="#exercises">Exercises</a></li>
+        <li><a href="#further">Further reading</a></li>
+      </ul>
+      <div class="side-title">Navigate</div>
+      <ul>
+        <li><a href="12-arrays.html">← Previous: Arrays</a></li>
+        <li><a href="14-maps.html">Next: Maps →</a></li>
+        <li><a href="../index.html">Table of contents</a></li>
+      </ul>
+    </aside>
+
+    <main class="chapter-main" data-chapter-id="ch-13">
+      <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 13 · COMPOSITE TYPES</div>
+      <h1>Slices — Internals &amp; Idioms</h1>
+      <p>Slices are Go's general-purpose sequence. They look simple — a dynamic
+         array with <code>append</code> and slicing syntax — but a few quirks
+         around <em>sharing</em> underlying memory cause the most common bugs
+         in beginner Go code. This chapter explains the internals once, so you
+         can confidently reason about every <code>append</code>.</p>
+
+      <section id="objectives" class="learning-objectives">
+        <h3>Learning objectives</h3>
+        <ul>
+          <li>Explain the three fields of a slice header: pointer, length, capacity.</li>
+          <li>Create slices with literals, <code>make</code>, and slicing.</li>
+          <li>Use <code>append</code> and <code>copy</code> correctly.</li>
+          <li>Recognize aliasing pitfalls when multiple slices share storage.</li>
+          <li>Distinguish <code>nil</code> from an empty slice (and know when it matters).</li>
+        </ul>
+      </section>
+
+      <section id="what">
+        <h2>What a slice <em>is</em></h2>
+        <p>Under the hood, a slice is a <strong>3-word struct</strong> that points
+           to a piece of an underlying array:</p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 620 220" width="100%" height="220" role="img" aria-label="A slice header contains a pointer, length, and capacity, pointing into an underlying array">
+            <g font-family="var(--mono)" font-size="13">
+              <rect x="20" y="30" width="210" height="110" rx="8" fill="var(--bg-elev)" stroke="var(--accent)"/>
+              <text x="125" y="50" text-anchor="middle" font-family="var(--sans)" font-weight="700" fill="var(--fg-muted)" font-size="12">SLICE HEADER (24 bytes)</text>
+              <rect x="35" y="60" width="180" height="22" fill="var(--bg)" stroke="var(--border)"/><text x="45" y="76" fill="var(--fg)">ptr  → &amp;arr[1]</text>
+              <rect x="35" y="84" width="180" height="22" fill="var(--bg)" stroke="var(--border)"/><text x="45" y="100" fill="var(--fg)">len  = 3</text>
+              <rect x="35" y="108" width="180" height="22" fill="var(--bg)" stroke="var(--border)"/><text x="45" y="124" fill="var(--fg)">cap  = 4</text>
+
+              <rect x="300" y="30" width="300" height="110" rx="8" fill="var(--bg-elev)" stroke="var(--accent-700)"/>
+              <text x="450" y="50" text-anchor="middle" font-family="var(--sans)" font-weight="700" fill="var(--fg-muted)" font-size="12">UNDERLYING ARRAY</text>
+              <g>
+                <rect x="310" y="65" width="55" height="55" fill="var(--bg)" stroke="var(--border)"/><text x="337" y="90" text-anchor="middle" fill="var(--fg-muted)">1</text><text x="337" y="108" text-anchor="middle" font-size="10" fill="var(--fg-subtle)">[0]</text>
+                <rect x="365" y="65" width="55" height="55" fill="color-mix(in srgb,var(--accent) 15%,transparent)" stroke="var(--accent)"/><text x="392" y="90" text-anchor="middle" fill="var(--fg)">2</text><text x="392" y="108" text-anchor="middle" font-size="10" fill="var(--fg-subtle)">[1]</text>
+                <rect x="420" y="65" width="55" height="55" fill="color-mix(in srgb,var(--accent) 15%,transparent)" stroke="var(--accent)"/><text x="447" y="90" text-anchor="middle" fill="var(--fg)">3</text><text x="447" y="108" text-anchor="middle" font-size="10" fill="var(--fg-subtle)">[2]</text>
+                <rect x="475" y="65" width="55" height="55" fill="color-mix(in srgb,var(--accent) 15%,transparent)" stroke="var(--accent)"/><text x="502" y="90" text-anchor="middle" fill="var(--fg)">4</text><text x="502" y="108" text-anchor="middle" font-size="10" fill="var(--fg-subtle)">[3]</text>
+                <rect x="530" y="65" width="55" height="55" fill="var(--bg)" stroke="var(--border)" stroke-dasharray="3 3"/><text x="557" y="90" text-anchor="middle" fill="var(--fg-muted)">5</text><text x="557" y="108" text-anchor="middle" font-size="10" fill="var(--fg-subtle)">[4]</text>
+              </g>
+              <line x1="215" y1="71" x2="368" y2="90" stroke="var(--accent)" stroke-width="1.5"/>
+              <text x="260" y="170" fill="var(--fg-muted)" font-family="var(--sans)" font-size="12">Slice [1:4] with cap up to [3] inclusive — len=3, cap=4, but [4] is beyond cap</text>
+            </g>
+          </svg>
+          <figcaption class="diagram-caption">A slice is a window into an array: <code>ptr</code>, <code>len</code>, <code>cap</code>.</figcaption>
+        </figure>
+      </section>
+
+      <section id="header">
+        <h2>The slice header</h2>
+        <ul>
+          <li><strong>ptr</strong> — address of the first element the slice sees.</li>
+          <li><strong>len</strong> — number of elements the slice currently has; <code>len(s)</code>.</li>
+          <li><strong>cap</strong> — elements in the underlying array from <code>ptr</code> to its end; <code>cap(s)</code>.</li>
+        </ul>
+        <p>When <code>append</code> exceeds <code>cap</code>, Go allocates a
+           bigger array, copies the elements over, and returns a slice pointing
+           to the new one. Otherwise it just bumps <code>len</code> in place.</p>
+      </section>
+
+      <section id="create">
+        <h2>Creating slices</h2>
+        <pre><code class="language-go">// Literal
+s := []int{1, 2, 3}
+
+// With length (and cap)
+t := make([]int, 3)          // len=3, cap=3
+u := make([]int, 3, 10)      // len=3, cap=10 — grow cheaply up to 10
+
+// Zero-valued
+var v []int                  // nil slice, len=cap=0
+</code></pre>
+      </section>
+
+      <section id="slicing">
+        <h2>Slicing syntax</h2>
+        <p>The form is <code>s[low:high:max]</code> (the last one is rare —
+           it caps the new slice's capacity):</p>
+        <pre><code class="language-go">arr := [5]int{10, 20, 30, 40, 50}
+s  := arr[1:4]         // len=3, cap=4 — [20 30 40]
+t  := arr[:2]          // [10 20]
+u  := arr[3:]          // [40 50]
+full := arr[:]         // view of the whole array
+bounded := arr[1:3:3]  // len=2, cap=2 — capped
+</code></pre>
+      </section>
+
+      <section id="append">
+        <h2><code>append</code></h2>
+        <pre><code class="language-go">s := []int{1, 2}
+s = append(s, 3)              // [1 2 3]
+s = append(s, 4, 5, 6)        // [1 2 3 4 5 6]
+
+other := []int{7, 8}
+s = append(s, other...)       // spread a slice into append
+</code></pre>
+
+        <p>Golden rule: <strong>always reassign the result of <code>append</code></strong>.
+           If the append triggered a reallocation, the old variable still points
+           to the old backing array.</p>
+
+        <div class="callout pitfall">
+          <div class="ico">!</div>
+          <div>
+            <span class="callout-title">Surprising growth behavior</span>
+            When <code>append</code> grows the slice, Go roughly doubles the capacity for small slices. But the exact pattern is an implementation detail — never rely on a specific growth factor. Use <code>make([]T, 0, N)</code> when you know <code>N</code> up front.
+          </div>
+        </div>
+      </section>
+
+      <section id="copy">
+        <h2><code>copy</code></h2>
+        <pre><code class="language-go">src := []int{1, 2, 3, 4, 5}
+dst := make([]int, 3)
+n := copy(dst, src)       // n == 3 (the min of len(src), len(dst))
+fmt.Println(dst, n)       // [1 2 3] 3
+</code></pre>
+
+        <p><code>copy</code> only copies the overlap — it never grows the destination. It's the right tool for <em>decoupling</em> two slices so changes to one don't affect the other.</p>
+      </section>
+
+      <section id="aliasing">
+        <h2>Aliasing pitfalls</h2>
+        <p>The most common slice bug: two slices share the same backing array, and modifying one mutates the other:</p>
+
+        <pre><code class="language-go">a := []int{1, 2, 3, 4, 5}
+b := a[1:4]                    // shares backing array
+b[0] = 99
+fmt.Println(a)                 // [1 99 3 4 5]  — surprised?
+</code></pre>
+
+        <p>Even scarier — <code>append</code> can sometimes visibly mutate another slice, sometimes not, depending on capacity:</p>
+
+        <pre><code class="language-go">a := []int{1, 2, 3, 4, 5}
+b := a[:3]                     // len 3, cap 5
+b = append(b, 99)              // fits in cap — mutates a!
+fmt.Println(a)                 // [1 2 3 99 5]
+</code></pre>
+
+        <p>Defensive copy when you need independence:</p>
+        <pre><code class="language-go">b := make([]int, len(a))
+copy(b, a)
+// ...or:
+b := append([]int(nil), a...)  // idiomatic one-liner
+</code></pre>
+      </section>
+
+      <section id="nil">
+        <h2><code>nil</code> vs empty</h2>
+        <pre><code class="language-go">var a []int            // nil slice
+b := []int{}           // empty but NOT nil slice
+
+fmt.Println(len(a), len(b))     // 0 0
+fmt.Println(a == nil, b == nil) // true false
+
+// Both can be append()ed to safely:
+a = append(a, 1)       // fine
+</code></pre>
+
+        <p>In JSON encoding, a <code>nil</code> slice marshals to <code>null</code>
+           while an empty slice marshals to <code>[]</code>. For public APIs,
+           consider which you want. Elsewhere they behave identically.</p>
+      </section>
+
+      <section id="multi">
+        <h2>Multi-dimensional (slices of slices)</h2>
+        <pre><code class="language-go">grid := [][]int{
+    {1, 2, 3},
+    {4, 5, 6},
+}
+fmt.Println(grid[1][2])     // 6
+</code></pre>
+
+        <p>Inner slices can have different lengths (a "jagged" slice). For a true
+           rectangular matrix, prefer <code>[]int</code> with manual indexing
+           (<code>grid[i*width+j]</code>) or a library like
+           <code>gonum.org/v1/gonum/mat</code>.</p>
+      </section>
+
+      <section id="common">
+        <h2>Common idioms</h2>
+
+        <h3>Remove element at index <em>i</em> (preserving order)</h3>
+        <pre><code class="language-go">s = append(s[:i], s[i+1:]...)
+</code></pre>
+
+        <h3>Insert at index <em>i</em></h3>
+        <pre><code class="language-go">s = append(s[:i], append([]int{x}, s[i:]...)...)
+</code></pre>
+
+        <h3>Filter in place (allocation-free)</h3>
+        <pre><code class="language-go">kept := s[:0]
+for _, v := range s {
+    if keep(v) {
+        kept = append(kept, v)
+    }
+}
+s = kept
+</code></pre>
+      </section>
+
+      <section id="quiz">
+        <h2>Check your understanding</h2>
+        <div class="quiz" data-quiz data-chapter-id="ch-13">
+          <script type="application/json" class="quiz-data">
+          {
+            "title": "Quick quiz",
+            "questions": [
+              {"q":"What three fields make up a slice header?","options":["pointer, length, capacity","pointer, start, end","array, length, type","data, size, hash"],"answer":0,"explanation":"A slice is (ptr, len, cap) — a small 3-word struct that points into a backing array."},
+              {"q":"Why do you always write `s = append(s, x)` rather than just `append(s, x)`?","options":["Because append is a macro","Because append may allocate a new backing array and return a new slice header","Because the slice is immutable","It's a stylistic preference"],"answer":1,"explanation":"When the slice grows past its capacity, append returns a new slice pointing to new storage. If you don't reassign, s still points to the old storage."},
+              {"q":"What prints? `a := []int{1,2,3}; b := a[:]; b[0] = 9; fmt.Println(a)`","options":["[1 2 3]","[9 2 3]","panic","[1 2 3 9]"],"answer":1,"explanation":"`a[:]` creates a slice that shares a's backing array. Modifying b[0] modifies a[0]."},
+              {"q":"`var s []int` — is `s == nil`?","options":["Yes","No","Only if len(s) > 0","Only on 64-bit systems"],"answer":0,"explanation":"An uninitialized slice variable is nil (its header has ptr=nil, len=0, cap=0). You can still append to it safely."},
+              {"q":"What's the idiomatic allocation-free way to filter a slice in place?","options":["Call a built-in Filter() function","Reuse the slice: `kept := s[:0]; for...append`","Recreate with copy()","You can't — filtering always allocates"],"answer":1,"explanation":"Take a zero-length slice that shares s's backing array and append the keepers. The result reuses s's memory."}
+            ]
+          }
+          </script>
+        </div>
+      </section>
+
+      <section id="exercises">
+        <h2>Practice exercises</h2>
+
+        <div class="exercise">
+          <div class="exercise-header"><span class="badge">EXERCISE 1</span><h3>Unique elements</h3></div>
+          <div class="exercise-task"><p>Write <code>unique(xs []int) []int</code> that returns a new slice with duplicates removed, preserving order of first occurrence. Use a <code>map[int]bool</code> to track seen elements.</p></div>
+          <details class="exercise-solution"><summary>Show solution</summary>
+          <pre><code class="language-go">func unique(xs []int) []int {
+    seen := make(map[int]bool, len(xs))
+    out := make([]int, 0, len(xs))
+    for _, v := range xs {
+        if !seen[v] {
+            seen[v] = true
+            out = append(out, v)
+        }
+    }
+    return out
+}
+</code></pre></details>
+        </div>
+
+        <div class="exercise">
+          <div class="exercise-header"><span class="badge">EXERCISE 2</span><h3>Rotate left by k</h3></div>
+          <div class="exercise-task"><p>Write <code>rotateLeft(xs []int, k int) []int</code> that returns a new slice rotated left by <code>k</code> positions. <code>rotateLeft([1,2,3,4,5], 2)</code> → <code>[3,4,5,1,2]</code>. Handle <code>k &gt; len(xs)</code>.</p></div>
+          <details class="exercise-solution"><summary>Show solution</summary>
+          <pre><code class="language-go">func rotateLeft(xs []int, k int) []int {
+    if len(xs) == 0 {
+        return xs
+    }
+    k = k % len(xs)
+    return append(append([]int{}, xs[k:]...), xs[:k]...)
+}
+</code></pre>
+          <p>We use <code>append([]int{}, ...)</code> to force a fresh backing array so the result doesn't alias <code>xs</code>.</p>
+          </details>
+        </div>
+      </section>
+
+      <section id="further" class="further-reading">
+        <h3>Further reading</h3>
+        <ul>
+          <li><a href="https://go.dev/blog/slices-intro" target="_blank" rel="noopener">Go slices: usage and internals</a> — the definitive post</li>
+          <li><a href="https://go.dev/blog/slices" target="_blank" rel="noopener">Arrays, slices (and strings): The mechanics of 'append'</a></li>
+          <li><a href="https://pkg.go.dev/slices" target="_blank" rel="noopener"><code>slices</code> package</a> — Go 1.21+ utilities (Contains, Sort, Min, Max, etc.)</li>
+        </ul>
+      </section>
+
+      <div class="complete-box"><p>Slices mastered — the #1 type in Go.</p><button class="complete-btn" type="button" data-chapter-id="ch-13">✓ Mark this chapter complete</button></div>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a class="prev" href="12-arrays.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 12 — Arrays</div></a>
+        <a class="next" href="14-maps.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 14 — Maps</div></a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-line">Made with <span class="heart">❤️</span> by <a href="https://github.com/cyrus2281" target="_blank" rel="noopener">Cyrus Mobini</a></div>
+    <a class="bmac" href="https://buymeacoffee.com/cyrus2281" target="_blank" rel="noopener"><span class="bmac-icon">☕</span> Buy me a coffee</a>
+  </footer>
+
+  <script src="../assets/js/progress.js" defer></script>
+  <script src="../assets/js/prism.js" defer></script>
+  <script src="../assets/js/app.js" defer></script>
+  <script src="../assets/js/quiz.js" defer></script>
+  <script src="../assets/js/search.js" defer></script>
+</body>
+</html>

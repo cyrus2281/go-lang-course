@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6YPTC2B9NR"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 12 · Arrays — Learn Go by Cyrus Mobini</title>
+  <meta name="description" content="Fixed-size arrays in Go: declaration, initialization, comparison, copy semantics, and why you'll almost always prefer slices.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Chapter 12 · Arrays — Learn Go">
+  <meta property="og:description" content="Fixed-size arrays, array types, and when (rarely) to prefer them over slices.">
+  <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/12-arrays.html">
+  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Chapter 12 · Arrays — Learn Go">
+  <meta name="twitter:description" content="Fixed-size arrays in Go.">
+  <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/12-arrays.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/prism.css">
+  <script>(function(){try{var t=localStorage.getItem('go-course-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="../index.html" class="brand"><span class="brand-mark">Go</span><span class="brand-name">Learn <span class="brand-accent">Go</span></span></a>
+    <button id="menu-toggle" class="icon-btn menu-toggle" aria-label="Toggle chapter menu" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="header-spacer"></div>
+    <div class="search" role="search"><input id="search-input" type="search" placeholder="Search chapters…" autocomplete="off" aria-label="Search across all chapters"><kbd class="search-hint">/</kbd><div id="search-results" class="search-results"></div></div>
+    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" type="button"></button>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="chapter-sidebar">
+      <div class="side-title">On this page</div>
+      <ul>
+        <li><a href="#objectives">Learning objectives</a></li>
+        <li><a href="#declare">Declaration</a></li>
+        <li><a href="#init">Initialization</a></li>
+        <li><a href="#access">Access &amp; modification</a></li>
+        <li><a href="#copy">Copy semantics</a></li>
+        <li><a href="#compare">Comparison</a></li>
+        <li><a href="#multi">Multi-dimensional</a></li>
+        <li><a href="#vs-slices">Arrays vs slices</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+        <li><a href="#exercises">Exercises</a></li>
+        <li><a href="#further">Further reading</a></li>
+      </ul>
+      <div class="side-title">Navigate</div>
+      <ul>
+        <li><a href="11-functions.html">← Previous: Functions</a></li>
+        <li><a href="13-slices.html">Next: Slices →</a></li>
+        <li><a href="../index.html">Table of contents</a></li>
+      </ul>
+    </aside>
+
+    <main class="chapter-main" data-chapter-id="ch-12">
+      <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 12 · COMPOSITE TYPES</div>
+      <h1>Arrays</h1>
+      <p>A Go array is a fixed-size sequence of elements of the same type. In
+         practice you'll use <em>slices</em> (next chapter) far more often than
+         arrays — but arrays are the foundation slices are built on, and they do
+         have niche uses of their own.</p>
+
+      <section id="objectives" class="learning-objectives">
+        <h3>Learning objectives</h3>
+        <ul>
+          <li>Declare, initialize, and access arrays.</li>
+          <li>Understand that array length is part of its type.</li>
+          <li>Know that arrays are copied on assignment and function calls.</li>
+          <li>Compare arrays with <code>==</code>.</li>
+          <li>Recognize when slices are the better choice (almost always).</li>
+        </ul>
+      </section>
+
+      <section id="declare">
+        <h2>Declaration</h2>
+        <p>Declare an array by specifying its length <em>and</em> element type:</p>
+        <pre><code class="language-go">var nums [5]int          // length 5, zero-valued
+fmt.Println(nums)         // [0 0 0 0 0]
+</code></pre>
+
+        <div class="callout pitfall">
+          <div class="ico">!</div>
+          <div>
+            <span class="callout-title">Length is part of the type</span>
+            <code>[3]int</code> and <code>[5]int</code> are different types.
+            You can't assign one to the other, and a function expecting
+            <code>[3]int</code> can't receive a <code>[5]int</code>. This is why
+            arrays feel rigid.
+          </div>
+        </div>
+      </section>
+
+      <section id="init">
+        <h2>Initialization</h2>
+        <pre><code class="language-go">// Explicit length
+a := [5]int{1, 2, 3, 4, 5}
+
+// Let Go count for you
+b := [...]int{10, 20, 30}
+fmt.Println(len(b))           // 3
+
+// Index-based init (sparse)
+c := [5]int{2: 99, 4: 88}     // [0 0 99 0 88]
+</code></pre>
+      </section>
+
+      <section id="access">
+        <h2>Access &amp; modification</h2>
+        <pre><code class="language-go">a := [3]string{"go", "rust", "python"}
+fmt.Println(a[0])             // go
+a[1] = "zig"
+fmt.Println(a)                // [go zig python]
+fmt.Println(len(a))           // 3
+</code></pre>
+
+        <p>Out-of-bounds access <strong>panics</strong> at runtime.</p>
+      </section>
+
+      <section id="copy">
+        <h2>Copy semantics</h2>
+        <p>Arrays are <em>value types</em>: assignment and function calls copy
+           them in full.</p>
+
+        <pre><code class="language-go">a := [3]int{1, 2, 3}
+b := a                 // full copy
+b[0] = 99
+fmt.Println(a, b)      // [1 2 3] [99 2 3]
+</code></pre>
+
+        <p>This can be expensive for large arrays. Passing <code>[1000000]int</code>
+           to a function means copying a million ints. Use slices or a pointer
+           (<code>*[N]int</code>) for big arrays.</p>
+      </section>
+
+      <section id="compare">
+        <h2>Comparison</h2>
+        <p>Arrays of comparable element types are <code>==</code>-comparable:</p>
+        <pre><code class="language-go">fmt.Println([3]int{1, 2, 3} == [3]int{1, 2, 3})   // true
+fmt.Println([3]int{1, 2, 3} == [3]int{1, 2, 4})   // false
+</code></pre>
+
+        <p>This is one thing slices can't do — slices are not comparable with
+           <code>==</code> (except to <code>nil</code>).</p>
+      </section>
+
+      <section id="multi">
+        <h2>Multi-dimensional</h2>
+        <pre><code class="language-go">var grid [3][3]int
+grid[1][2] = 7
+fmt.Println(grid)    // [[0 0 0] [0 0 7] [0 0 0]]
+</code></pre>
+      </section>
+
+      <section id="vs-slices">
+        <h2>Arrays vs slices (and when to use arrays)</h2>
+        <p>Slices are dynamic, share-by-reference, and can be passed around
+           cheaply. Arrays are fixed and value-typed. Prefer slices <strong>unless</strong>:</p>
+        <ul>
+          <li>The size is small, constant, and compile-time known (e.g. <code>[16]byte</code> for a hash).</li>
+          <li>You want value semantics — automatic copy on assignment.</li>
+          <li>You want <code>==</code> comparison.</li>
+          <li>You're matching a specific binary layout (network protocol, crypto).</li>
+        </ul>
+      </section>
+
+      <section id="quiz">
+        <h2>Check your understanding</h2>
+        <div class="quiz" data-quiz data-chapter-id="ch-12">
+          <script type="application/json" class="quiz-data">
+          {
+            "title": "Quick quiz",
+            "questions": [
+              {"q":"Can you assign a [3]int to a variable declared as [5]int?","options":["Yes","No — different types","Only if you use conversion","Only inside a function"],"answer":1,"explanation":"Array length is part of the type. [3]int and [5]int are distinct types."},
+              {"q":"What does `[...]int{1,2,3}` do?","options":["Creates an infinite array","Creates a slice","Declares an array whose length is inferred from the literal","Syntax error"],"answer":2,"explanation":"The `...` tells Go to count the elements and pick the length. Here the type becomes [3]int."},
+              {"q":"When you pass an array to a function, what does the function receive?","options":["A reference to the original array","A copy of the entire array","A pointer to the array","A slice view"],"answer":1,"explanation":"Arrays are value types: a full copy is passed. For big arrays use a slice or a pointer to avoid the copy."},
+              {"q":"Are arrays comparable with ==?","options":["Yes, if elements are comparable","No, never","Only if they have different lengths","Only in switch statements"],"answer":0,"explanation":"Arrays of comparable element types can be compared element-wise with ==. This is unique to arrays; slices can't (except to nil)."}
+            ]
+          }
+          </script>
+        </div>
+      </section>
+
+      <section id="exercises">
+        <h2>Practice exercises</h2>
+        <div class="exercise">
+          <div class="exercise-header"><span class="badge">EXERCISE 1</span><h3>Reverse an array</h3></div>
+          <div class="exercise-task"><p>Write a function <code>reverse(a [5]int) [5]int</code> that returns a new array with the elements in reverse order. Don't modify the input.</p></div>
+          <details class="exercise-solution"><summary>Show solution</summary>
+          <pre><code class="language-go">func reverse(a [5]int) [5]int {
+    var r [5]int
+    for i, v := range a {
+        r[len(a)-1-i] = v
+    }
+    return r
+}
+</code></pre></details>
+        </div>
+      </section>
+
+      <section id="further" class="further-reading">
+        <h3>Further reading</h3>
+        <ul>
+          <li><a href="https://go.dev/blog/slices-intro" target="_blank" rel="noopener">Go slices: usage and internals</a> — starts with arrays</li>
+          <li><a href="https://go.dev/ref/spec#Array_types" target="_blank" rel="noopener">Go spec — Array types</a></li>
+        </ul>
+      </section>
+
+      <div class="complete-box"><p>On to slices.</p><button class="complete-btn" type="button" data-chapter-id="ch-12">✓ Mark this chapter complete</button></div>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a class="prev" href="11-functions.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 11 — Functions</div></a>
+        <a class="next" href="13-slices.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 13 — Slices</div></a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-line">Made with <span class="heart">❤️</span> by <a href="https://github.com/cyrus2281" target="_blank" rel="noopener">Cyrus Mobini</a></div>
+    <a class="bmac" href="https://buymeacoffee.com/cyrus2281" target="_blank" rel="noopener"><span class="bmac-icon">☕</span> Buy me a coffee</a>
+  </footer>
+
+  <script src="../assets/js/progress.js" defer></script>
+  <script src="../assets/js/prism.js" defer></script>
+  <script src="../assets/js/app.js" defer></script>
+  <script src="../assets/js/quiz.js" defer></script>
+  <script src="../assets/js/search.js" defer></script>
+</body>
+</html>

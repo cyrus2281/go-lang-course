@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6YPTC2B9NR"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 14 · Maps — Learn Go by Cyrus Mobini</title>
+  <meta name="description" content="Go maps: creation, access, comma-ok, deletion, iteration order, reference semantics, and when to reach for sync.Map.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Chapter 14 · Maps — Learn Go">
+  <meta property="og:description" content="Everything about Go maps: comma-ok, random iteration, zero values, sync.Map.">
+  <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/14-maps.html">
+  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Chapter 14 · Maps — Learn Go">
+  <meta name="twitter:description" content="comma-ok, random iteration, zero values, sync.Map.">
+  <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/14-maps.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/prism.css">
+  <script>(function(){try{var t=localStorage.getItem('go-course-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="../index.html" class="brand"><span class="brand-mark">Go</span><span class="brand-name">Learn <span class="brand-accent">Go</span></span></a>
+    <button id="menu-toggle" class="icon-btn menu-toggle" aria-label="Toggle chapter menu" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="header-spacer"></div>
+    <div class="search" role="search"><input id="search-input" type="search" placeholder="Search chapters…" autocomplete="off" aria-label="Search across all chapters"><kbd class="search-hint">/</kbd><div id="search-results" class="search-results"></div></div>
+    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" type="button"></button>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="chapter-sidebar">
+      <div class="side-title">On this page</div>
+      <ul>
+        <li><a href="#objectives">Learning objectives</a></li>
+        <li><a href="#create">Creating maps</a></li>
+        <li><a href="#access">Access, add, update</a></li>
+        <li><a href="#commaok">The comma-ok idiom</a></li>
+        <li><a href="#delete">Deleting keys</a></li>
+        <li><a href="#iterate">Iteration (random order!)</a></li>
+        <li><a href="#nil">The nil map trap</a></li>
+        <li><a href="#keys">What can be a key?</a></li>
+        <li><a href="#ref">Maps are reference types</a></li>
+        <li><a href="#concurrency">Concurrent access &amp; sync.Map</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+        <li><a href="#exercises">Exercises</a></li>
+        <li><a href="#further">Further reading</a></li>
+      </ul>
+      <div class="side-title">Navigate</div>
+      <ul>
+        <li><a href="13-slices.html">← Previous: Slices</a></li>
+        <li><a href="15-structs.html">Next: Structs →</a></li>
+        <li><a href="../index.html">Table of contents</a></li>
+      </ul>
+    </aside>
+
+    <main class="chapter-main" data-chapter-id="ch-14">
+      <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 14 · COMPOSITE TYPES</div>
+      <h1>Maps</h1>
+      <p>Maps are Go's built-in hash tables. They associate <em>keys</em> with
+         <em>values</em>. Amortized O(1) lookup, insert, and delete. You'll use
+         them constantly.</p>
+
+      <section id="objectives" class="learning-objectives">
+        <h3>Learning objectives</h3>
+        <ul>
+          <li>Create a map with <code>make</code> or a literal.</li>
+          <li>Use the comma-ok idiom to distinguish "missing" from "zero value".</li>
+          <li>Delete keys and iterate in a deterministic order when needed.</li>
+          <li>Avoid the nil-map write panic.</li>
+          <li>Know what makes a valid key, and why slices can't be one.</li>
+        </ul>
+      </section>
+
+      <section id="create">
+        <h2>Creating maps</h2>
+        <pre><code class="language-go">// Literal — most common
+m := map[string]int{
+    "Alice": 30,
+    "Bob":   25,
+}
+
+// With make
+n := make(map[string]int)
+
+// With capacity hint (for many inserts)
+big := make(map[string]int, 1000)
+</code></pre>
+
+        <p>Maps have a <code>len</code> but no <code>cap</code>.</p>
+      </section>
+
+      <section id="access">
+        <h2>Access, add, update</h2>
+        <pre><code class="language-go">m["Charlie"] = 28     // add (or overwrite if key exists)
+fmt.Println(m["Alice"])  // 30
+</code></pre>
+
+        <p>If the key isn't in the map, Go returns the <strong>zero value</strong>
+           of the value type. This is subtle and a common source of bugs:</p>
+        <pre><code class="language-go">fmt.Println(m["Nobody"])  // 0  — but that could also mean "0 years old"!
+</code></pre>
+      </section>
+
+      <section id="commaok">
+        <h2>The comma-ok idiom</h2>
+        <p>To tell "missing" from "zero":</p>
+        <pre><code class="language-go">age, ok := m["Alice"]
+if ok {
+    fmt.Println("found:", age)
+} else {
+    fmt.Println("missing")
+}
+</code></pre>
+
+        <p>This is one of the most-used idioms in Go. Internalize it.</p>
+      </section>
+
+      <section id="delete">
+        <h2>Deleting keys</h2>
+        <pre><code class="language-go">delete(m, "Bob")
+</code></pre>
+        <p><code>delete</code> is a built-in function. It's safe to call even if
+           the key isn't in the map — no-op.</p>
+      </section>
+
+      <section id="iterate">
+        <h2>Iteration (randomized!)</h2>
+        <pre><code class="language-go">for k, v := range m {
+    fmt.Println(k, v)
+}
+</code></pre>
+
+        <div class="callout pitfall">
+          <div class="ico">!</div>
+          <div>
+            <span class="callout-title">Map order is intentionally randomized</span>
+            Go shuffles iteration order so you <em>can't</em> accidentally depend
+            on it. Need determinism? Collect keys, sort, iterate:
+            <code>keys := slices.Sorted(maps.Keys(m))</code> (Go 1.23+) or the
+            older <code>sort.Strings(keys)</code> pattern we saw in Chapter 10.
+          </div>
+        </div>
+      </section>
+
+      <section id="nil">
+        <h2>The nil-map trap</h2>
+        <pre><code class="language-go">var m map[string]int       // nil map
+fmt.Println(m["x"])         // 0 — READ is fine
+m["x"] = 1                  // PANIC: assignment to entry in nil map
+</code></pre>
+
+        <p>You can <em>read</em> from a nil map but not write to it. Always create
+           with <code>make</code> or a literal before assigning.</p>
+      </section>
+
+      <section id="keys">
+        <h2>What can be a key?</h2>
+        <p>Any <strong>comparable</strong> type: basic types, pointers, arrays
+           of comparable types, structs of comparable fields, interfaces.</p>
+        <p>Not allowed: slices, maps, functions. (They're not <code>==</code>-comparable.)</p>
+      </section>
+
+      <section id="ref">
+        <h2>Maps are reference types</h2>
+        <pre><code class="language-go">a := map[string]int{"x": 1}
+b := a
+b["y"] = 2
+fmt.Println(a)          // map[x:1 y:2]  — shared
+</code></pre>
+
+        <p>Like slices, maps are effectively a handle to shared storage.
+           Assigning doesn't copy. Pass them cheaply between functions.</p>
+      </section>
+
+      <section id="concurrency">
+        <h2>Concurrent access &amp; <code>sync.Map</code></h2>
+        <p>Maps are <strong>not</strong> safe for concurrent use. Two goroutines
+           writing to the same map simultaneously causes a runtime panic (with
+           the race detector) or data corruption (without).</p>
+
+        <p>Options for concurrent maps:</p>
+        <ul>
+          <li>Guard with a <code>sync.RWMutex</code> (most common).</li>
+          <li><code>sync.Map</code> — a specialized concurrent map in the stdlib. Good for "append-only" or "many readers, few writers" patterns.</li>
+          <li>Actor pattern: one goroutine owns the map, others send requests via a channel.</li>
+        </ul>
+
+        <p>Mutex pattern is covered in Chapter 24.</p>
+      </section>
+
+      <section id="quiz">
+        <h2>Check your understanding</h2>
+        <div class="quiz" data-quiz data-chapter-id="ch-14">
+          <script type="application/json" class="quiz-data">
+          {
+            "title": "Quick quiz",
+            "questions": [
+              {"q":"What does `m[\"missing\"]` return when the key isn't present?","options":["An error","The zero value of the value type","nil","It panics"],"answer":1,"explanation":"Go returns the zero value. Use comma-ok (`v, ok := m[k]`) to distinguish missing from zero."},
+              {"q":"Why does iterating a map give different orders on different runs?","options":["Go uses a linked list","The Go runtime deliberately randomizes iteration order","Maps are sorted by hash","Undefined behavior"],"answer":1,"explanation":"Go randomizes the starting index to discourage code from depending on iteration order. Sort keys when you need determinism."},
+              {"q":"What happens if you write to a nil map?","options":["The map is created automatically","The write is silently ignored","Panic: assignment to entry in nil map","The value is discarded"],"answer":2,"explanation":"Writing to a nil map panics. Always initialize with make() or a literal before writing. Reads from a nil map return the zero value and don't panic."},
+              {"q":"Which of these types can NOT be a map key?","options":["string","int","[3]int (array)","[]int (slice)"],"answer":3,"explanation":"Keys must be comparable with ==. Slices, maps, and functions aren't comparable, so they can't be keys. Arrays of comparable types are fine."},
+              {"q":"What does `delete(m, \"absent\")` do when the key isn't in the map?","options":["Panics","Returns an error","Nothing — it's a safe no-op","Creates the key"],"answer":2,"explanation":"delete silently does nothing if the key isn't present. You don't need to check first."}
+            ]
+          }
+          </script>
+        </div>
+      </section>
+
+      <section id="exercises">
+        <h2>Practice exercises</h2>
+
+        <div class="exercise">
+          <div class="exercise-header"><span class="badge">EXERCISE 1</span><h3>Word count</h3></div>
+          <div class="exercise-task"><p>Write a function <code>wordCount(s string) map[string]int</code> that splits a string into whitespace-separated words and returns a count of each. Use <code>strings.Fields</code>.</p></div>
+          <details class="exercise-solution"><summary>Show solution</summary>
+          <pre><code class="language-go">import "strings"
+
+func wordCount(s string) map[string]int {
+    counts := make(map[string]int)
+    for _, w := range strings.Fields(s) {
+        counts[w]++     // zero value 0 makes this work for new keys
+    }
+    return counts
+}
+</code></pre>
+          <p>The key insight: <code>counts[w]++</code> works for missing keys because the zero value is 0, then incremented to 1.</p></details>
+        </div>
+
+        <div class="exercise">
+          <div class="exercise-header"><span class="badge">EXERCISE 2</span><h3>Stable ordered iteration</h3></div>
+          <div class="exercise-task"><p>Given the word-count map from Exercise 1, print entries sorted by count (descending), then alphabetically on ties.</p></div>
+          <details class="exercise-solution"><summary>Show solution</summary>
+          <pre><code class="language-go">import "sort"
+
+type kv struct { Word string; Count int }
+
+func printSorted(m map[string]int) {
+    kvs := make([]kv, 0, len(m))
+    for w, c := range m {
+        kvs = append(kvs, kv{w, c})
+    }
+    sort.Slice(kvs, func(i, j int) bool {
+        if kvs[i].Count != kvs[j].Count {
+            return kvs[i].Count > kvs[j].Count
+        }
+        return kvs[i].Word < kvs[j].Word
+    })
+    for _, e := range kvs {
+        fmt.Printf("%-10s %d\n", e.Word, e.Count)
+    }
+}
+</code></pre></details>
+        </div>
+      </section>
+
+      <section id="further" class="further-reading">
+        <h3>Further reading</h3>
+        <ul>
+          <li><a href="https://go.dev/blog/maps" target="_blank" rel="noopener">The Go Blog — Go maps in action</a></li>
+          <li><a href="https://pkg.go.dev/sync#Map" target="_blank" rel="noopener"><code>sync.Map</code> reference</a></li>
+          <li><a href="https://pkg.go.dev/maps" target="_blank" rel="noopener"><code>maps</code> package</a> — Go 1.21+ helpers (Clone, Copy, Keys, Values, Equal)</li>
+        </ul>
+      </section>
+
+      <div class="complete-box"><p>Hashes done.</p><button class="complete-btn" type="button" data-chapter-id="ch-14">✓ Mark this chapter complete</button></div>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a class="prev" href="13-slices.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 13 — Slices</div></a>
+        <a class="next" href="15-structs.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 15 — Structs &amp; Embedding</div></a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-line">Made with <span class="heart">❤️</span> by <a href="https://github.com/cyrus2281" target="_blank" rel="noopener">Cyrus Mobini</a></div>
+    <a class="bmac" href="https://buymeacoffee.com/cyrus2281" target="_blank" rel="noopener"><span class="bmac-icon">☕</span> Buy me a coffee</a>
+  </footer>
+
+  <script src="../assets/js/progress.js" defer></script>
+  <script src="../assets/js/prism.js" defer></script>
+  <script src="../assets/js/app.js" defer></script>
+  <script src="../assets/js/quiz.js" defer></script>
+  <script src="../assets/js/search.js" defer></script>
+</body>
+</html>

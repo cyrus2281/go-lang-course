@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6YPTC2B9NR"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 16 · Pointers — Learn Go by Cyrus Mobini</title>
+  <meta name="description" content="Pointers in Go: address-of, dereference, pass-by-value, new() vs literal, when to use a pointer — and why Go has no pointer arithmetic.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Chapter 16 · Pointers — Learn Go">
+  <meta property="og:description" content="&, *, pass-by-value, nil safety, and when to reach for a pointer in Go.">
+  <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/16-pointers.html">
+  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Chapter 16 · Pointers — Learn Go">
+  <meta name="twitter:description" content="&, *, pass-by-value, and when to reach for a pointer.">
+  <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/16-pointers.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/prism.css">
+  <script>(function(){try{var t=localStorage.getItem('go-course-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="../index.html" class="brand"><span class="brand-mark">Go</span><span class="brand-name">Learn <span class="brand-accent">Go</span></span></a>
+    <button id="menu-toggle" class="icon-btn menu-toggle" aria-label="Toggle chapter menu" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="header-spacer"></div>
+    <div class="search" role="search"><input id="search-input" type="search" placeholder="Search chapters…" autocomplete="off" aria-label="Search across all chapters"><kbd class="search-hint">/</kbd><div id="search-results" class="search-results"></div></div>
+    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" type="button"></button>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="chapter-sidebar">
+      <div class="side-title">On this page</div>
+      <ul>
+        <li><a href="#objectives">Learning objectives</a></li>
+        <li><a href="#what">What's a pointer?</a></li>
+        <li><a href="#syntax"><code>&amp;</code> and <code>*</code></a></li>
+        <li><a href="#pass">Pass-by-value</a></li>
+        <li><a href="#nil">Nil &amp; safety</a></li>
+        <li><a href="#new"><code>new()</code> vs <code>&amp;T{}</code></a></li>
+        <li><a href="#struct-auto">Auto-deref on structs</a></li>
+        <li><a href="#when">When to use a pointer</a></li>
+        <li><a href="#no-arith">No pointer arithmetic</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+        <li><a href="#exercises">Exercises</a></li>
+        <li><a href="#further">Further reading</a></li>
+      </ul>
+      <div class="side-title">Navigate</div>
+      <ul>
+        <li><a href="15-structs.html">← Previous: Structs</a></li>
+        <li><a href="17-scope.html">Next: Scope &amp; Shadowing →</a></li>
+        <li><a href="../index.html">Table of contents</a></li>
+      </ul>
+    </aside>
+
+    <main class="chapter-main" data-chapter-id="ch-16">
+      <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 16 · COMPOSITE TYPES</div>
+      <h1>Pointers</h1>
+      <p>A pointer is a variable whose value is the memory address of another
+         variable. Go has pointers, but makes them easy and safe: no arithmetic,
+         no manual allocation (the garbage collector handles that), and automatic
+         dereferencing through struct fields. You'll use them mostly to share
+         state across function boundaries.</p>
+
+      <section id="objectives" class="learning-objectives">
+        <h3>Learning objectives</h3>
+        <ul>
+          <li>Explain what a pointer stores.</li>
+          <li>Use <code>&amp;</code> to take an address and <code>*</code> to dereference.</li>
+          <li>Understand why Go is pass-by-value — and how pointers give you indirection when you need it.</li>
+          <li>Know when to prefer a pointer vs a value.</li>
+          <li>Check for <code>nil</code> before dereferencing.</li>
+        </ul>
+      </section>
+
+      <section id="what">
+        <h2>What's a pointer?</h2>
+        <pre><code class="language-go">x := 42
+p := &amp;x            // p is a *int pointing to x
+fmt.Println(p)      // e.g. 0xc0000140b8 (an address)
+fmt.Println(*p)     // 42 — the value at that address
+</code></pre>
+
+        <p><code>&amp;x</code> means "address of x". <code>*p</code> means
+           "value at the address stored in p". That's the whole mechanism.</p>
+      </section>
+
+      <section id="syntax">
+        <h2>Declaring and using</h2>
+        <pre><code class="language-go">var p *int          // nil — doesn't point anywhere yet
+x := 10
+p = &amp;x
+*p = 20             // write through the pointer
+fmt.Println(x)      // 20 — x was modified
+</code></pre>
+      </section>
+
+      <section id="pass">
+        <h2>Pass-by-value — and why you'd want a pointer</h2>
+        <p>Go <em>always</em> passes arguments by value. A function gets its own
+           copy. So this doesn't do what it looks like:</p>
+
+        <pre><code class="language-go">func setToZero(x int) { x = 0 }   // modifies the copy
+
+n := 5
+setToZero(n)
+fmt.Println(n)     // 5 — unchanged
+</code></pre>
+
+        <p>Pass a pointer to mutate the original:</p>
+        <pre><code class="language-go">func setToZero(x *int) { *x = 0 }
+
+n := 5
+setToZero(&amp;n)
+fmt.Println(n)     // 0
+</code></pre>
+
+        <p>Slices, maps, and channels look like they're passed by reference, but
+           really Go passes a <em>copy of their header</em>. Since the header
+           points to shared storage, modifying elements through the copy still
+           affects the original — that's why modifying <code>s[0]</code> in a
+           callee shows up in the caller.</p>
+      </section>
+
+      <section id="nil">
+        <h2>Nil and safety</h2>
+        <pre><code class="language-go">var p *int
+fmt.Println(p == nil)    // true
+fmt.Println(*p)          // PANIC: runtime error: invalid memory address
+</code></pre>
+
+        <p>Dereferencing a nil pointer panics. Always guard:</p>
+        <pre><code class="language-go">if p != nil { fmt.Println(*p) }
+</code></pre>
+      </section>
+
+      <section id="new">
+        <h2><code>new(T)</code> vs <code>&amp;T{}</code></h2>
+        <pre><code class="language-go">// new(T) allocates a zero-valued T and returns a *T
+p := new(int)       // *int pointing at 0
+*p = 42
+
+// &T{...} is more common — literal syntax, often with fields set
+type Point struct { X, Y int }
+q := &amp;Point{X: 1, Y: 2}
+</code></pre>
+
+        <p>Idiomatically: use <code>&amp;T{...}</code> for structs (or
+           <code>make</code> for slice/map/channel), <code>new</code> only when
+           you truly want a zero-valued T and no extra initialization.</p>
+      </section>
+
+      <section id="struct-auto">
+        <h2>Auto-dereference on struct fields and methods</h2>
+        <p>You don't need <code>(*p).X</code>. Go auto-dereferences:</p>
+        <pre><code class="language-go">type Point struct { X, Y int }
+p := &amp;Point{1, 2}
+fmt.Println(p.X)       // 1 — not (*p).X
+p.X = 10                // writes through the pointer
+</code></pre>
+      </section>
+
+      <section id="when">
+        <h2>When to use a pointer</h2>
+        <ul>
+          <li>You need the callee to <strong>modify</strong> the caller's variable.</li>
+          <li>The struct is large and you want to avoid copying it on every call.</li>
+          <li>You need a sentinel <strong>absence</strong> value (<code>nil</code>) to distinguish "no value" from "zero value".</li>
+          <li>You're implementing a method that needs to modify the receiver (Chapter 20).</li>
+        </ul>
+
+        <p>Reasons <em>not</em> to use a pointer:</p>
+        <ul>
+          <li>Small values (int, bool, small structs) — copying is cheaper than indirection.</li>
+          <li>Immutable data — pointers confuse the reader.</li>
+          <li>Slices, maps, channels — they're already reference-like.</li>
+        </ul>
+      </section>
+
+      <section id="no-arith">
+        <h2>No pointer arithmetic</h2>
+        <p>You can't do <code>p + 1</code> in Go. This is a deliberate restriction
+           that prevents a huge class of memory-safety bugs. If you need raw byte
+           manipulation, there's the (<em>unsafe</em>) <code>unsafe.Pointer</code>
+           — but you'll never need it in normal application code.</p>
+      </section>
+
+      <section id="quiz">
+        <h2>Check your understanding</h2>
+        <div class="quiz" data-quiz data-chapter-id="ch-16">
+          <script type="application/json" class="quiz-data">
+          {
+            "title": "Quick quiz",
+            "questions": [
+              {"q":"What does `&x` evaluate to?","options":["The value of x","The address where x is stored","A copy of x","nil"],"answer":1,"explanation":"& is the address-of operator. &x is a pointer (*T) to x."},
+              {"q":"Given `func f(x int) { x = 0 }; n := 5; f(n); fmt.Println(n)`, what prints?","options":["0","5","undefined","panic"],"answer":1,"explanation":"Go passes by value. f got a copy of n. To mutate the original, pass &n and take *int."},
+              {"q":"What happens when you dereference a nil pointer?","options":["Returns the zero value","Returns nil","Panic — invalid memory address","Compile error"],"answer":2,"explanation":"Runtime panic: \"invalid memory address or nil pointer dereference\". Always check != nil before *."},
+              {"q":"Which is idiomatic for creating a new Point struct and getting a pointer to it?","options":["new(Point)","&Point{X:1, Y:2}","*Point{X:1, Y:2}","make(Point)"],"answer":1,"explanation":"&Point{...} is the idiomatic form for structs. It's equivalent to new(Point) but lets you set fields. make is only for slices, maps, and channels."},
+              {"q":"Why doesn't Go support pointer arithmetic?","options":["It's a bug","To avoid a large class of memory-safety issues and make programs easier to reason about","It's too slow","Go doesn't have pointers"],"answer":1,"explanation":"No pointer arithmetic eliminates whole categories of memory bugs (buffer overruns, use-after-free). If you really need raw memory manipulation, the unsafe package exists — but you almost never should."}
+            ]
+          }
+          </script>
+        </div>
+      </section>
+
+      <section id="exercises">
+        <h2>Practice exercises</h2>
+
+        <div class="exercise">
+          <div class="exercise-header"><span class="badge">EXERCISE 1</span><h3>Swap two values</h3></div>
+          <div class="exercise-task"><p>Write <code>swap(a, b *int)</code> that swaps the values <code>a</code> and <code>b</code> point to. Verify it works.</p></div>
+          <details class="exercise-solution"><summary>Show solution</summary>
+          <pre><code class="language-go">func swap(a, b *int) { *a, *b = *b, *a }
+
+func main() {
+    x, y := 1, 2
+    swap(&amp;x, &amp;y)
+    fmt.Println(x, y)   // 2 1
+}
+</code></pre><p>Go also supports the swap idiom without pointers for local variables: <code>x, y = y, x</code>. But across a function boundary, you need pointers.</p></details>
+        </div>
+
+        <div class="exercise">
+          <div class="exercise-header"><span class="badge">EXERCISE 2</span><h3>Optional field</h3></div>
+          <div class="exercise-task"><p>Design a struct where <code>MiddleName</code> is optional — use <code>*string</code>. Write a <code>FullName(u User) string</code> function that includes the middle name only if it's non-nil.</p></div>
+          <details class="exercise-solution"><summary>Show solution</summary>
+          <pre><code class="language-go">type User struct {
+    First, Last string
+    Middle      *string   // nil means "not provided"
+}
+
+func FullName(u User) string {
+    if u.Middle != nil {
+        return fmt.Sprintf("%s %s %s", u.First, *u.Middle, u.Last)
+    }
+    return fmt.Sprintf("%s %s", u.First, u.Last)
+}
+</code></pre>
+          <p>Using <code>*string</code> vs <code>string</code> gives you a way to distinguish "field not set" from "field set to empty string" — important for JSON (Chapter 29) and databases (Chapter 30).</p></details>
+        </div>
+      </section>
+
+      <section id="further" class="further-reading">
+        <h3>Further reading</h3>
+        <ul>
+          <li><a href="https://go.dev/tour/moretypes/1" target="_blank" rel="noopener">Tour of Go — Pointers</a></li>
+          <li><a href="https://go.dev/ref/spec#Pointer_types" target="_blank" rel="noopener">Go spec — Pointer types</a></li>
+          <li><a href="https://go.dev/doc/faq#pass_by_value" target="_blank" rel="noopener">Go FAQ — Why is pass-by-value everything?</a></li>
+        </ul>
+      </section>
+
+      <div class="complete-box"><p>Indirection under control.</p><button class="complete-btn" type="button" data-chapter-id="ch-16">✓ Mark this chapter complete</button></div>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a class="prev" href="15-structs.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 15 — Structs &amp; Embedding</div></a>
+        <a class="next" href="17-scope.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 17 — Scope &amp; Shadowing</div></a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-line">Made with <span class="heart">❤️</span> by <a href="https://github.com/cyrus2281" target="_blank" rel="noopener">Cyrus Mobini</a></div>
+    <a class="bmac" href="https://buymeacoffee.com/cyrus2281" target="_blank" rel="noopener"><span class="bmac-icon">☕</span> Buy me a coffee</a>
+  </footer>
+
+  <script src="../assets/js/progress.js" defer></script>
+  <script src="../assets/js/prism.js" defer></script>
+  <script src="../assets/js/app.js" defer></script>
+  <script src="../assets/js/quiz.js" defer></script>
+  <script src="../assets/js/search.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6YPTC2B9NR"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 19 · Naming Conventions &amp; Style — Learn Go by Cyrus Mobini</title>
+  <meta name="description" content="Go's idiomatic naming: MixedCase over snake_case, acronyms capitalized, short receiver names, package names, and gofmt/govet.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Chapter 19 · Naming &amp; Style — Learn Go">
+  <meta property="og:description" content="Go's naming rules and idioms, plus the tools (gofmt, go vet, staticcheck) that keep style consistent.">
+  <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/19-naming-and-style.html">
+  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Chapter 19 · Naming &amp; Style — Learn Go">
+  <meta name="twitter:description" content="Go's naming rules and idioms, plus gofmt / go vet / staticcheck.">
+  <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/19-naming-and-style.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/prism.css">
+  <script>(function(){try{var t=localStorage.getItem('go-course-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="../index.html" class="brand"><span class="brand-mark">Go</span><span class="brand-name">Learn <span class="brand-accent">Go</span></span></a>
+    <button id="menu-toggle" class="icon-btn menu-toggle" aria-label="Toggle chapter menu" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="header-spacer"></div>
+    <div class="search" role="search"><input id="search-input" type="search" placeholder="Search chapters…" autocomplete="off" aria-label="Search across all chapters"><kbd class="search-hint">/</kbd><div id="search-results" class="search-results"></div></div>
+    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" type="button"></button>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="chapter-sidebar">
+      <div class="side-title">On this page</div>
+      <ul>
+        <li><a href="#objectives">Learning objectives</a></li>
+        <li><a href="#principles">Principles</a></li>
+        <li><a href="#identifiers">Identifier casing</a></li>
+        <li><a href="#acronyms">Acronyms</a></li>
+        <li><a href="#packages">Package names</a></li>
+        <li><a href="#interfaces">Interface names</a></li>
+        <li><a href="#receivers">Receiver names</a></li>
+        <li><a href="#errors">Error naming</a></li>
+        <li><a href="#constants">Constants</a></li>
+        <li><a href="#reserved">Reserved words</a></li>
+        <li><a href="#tools">gofmt, vet, staticcheck</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+        <li><a href="#exercises">Exercises</a></li>
+        <li><a href="#further">Further reading</a></li>
+      </ul>
+      <div class="side-title">Navigate</div>
+      <ul>
+        <li><a href="18-packages-modules.html">← Previous: Packages &amp; Modules</a></li>
+        <li><a href="20-methods-receivers.html">Next: Methods &amp; Receivers →</a></li>
+        <li><a href="../index.html">Table of contents</a></li>
+      </ul>
+    </aside>
+
+    <main class="chapter-main" data-chapter-id="ch-19">
+      <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 19 · ORGANIZING CODE</div>
+      <h1>Naming Conventions &amp; Idiomatic Style</h1>
+      <p>Go has very few naming rules baked into the compiler — but the
+         <em>community</em> has strong conventions, enforced by tools and code
+         review. Follow them and your code will look like every other Go
+         project. Ignore them and you'll stand out for the wrong reason.</p>
+
+      <section id="objectives" class="learning-objectives">
+        <h3>Learning objectives</h3>
+        <ul>
+          <li>Use MixedCase (camelCase/PascalCase), never snake_case.</li>
+          <li>Capitalize acronyms correctly (URL, HTTP, ID).</li>
+          <li>Choose short, descriptive names for locals and short receiver names for methods.</li>
+          <li>Pick idiomatic package and interface names.</li>
+          <li>Let <code>gofmt</code>, <code>go vet</code>, and <code>staticcheck</code> do style enforcement for you.</li>
+        </ul>
+      </section>
+
+      <section id="principles">
+        <h2>Principles</h2>
+        <ul>
+          <li><strong>Short, not cryptic.</strong> <code>i</code> for an index in a loop is fine; <code>i</code> for an invoice object is not.</li>
+          <li><strong>Scope matters.</strong> Shorter names for shorter scopes. A two-line local can be <code>n</code>; a function argument used throughout should be <code>name</code>.</li>
+          <li><strong>Consistency beats novelty.</strong> If the stdlib calls it <code>Reader</code>, don't invent <code>IReadable</code>.</li>
+        </ul>
+      </section>
+
+      <section id="identifiers">
+        <h2>Identifier casing</h2>
+        <table>
+          <thead><tr><th>Kind</th><th>Style</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td>Exported (public)</td><td>PascalCase</td><td><code>UserID</code>, <code>ServeHTTP</code>, <code>MaxRetries</code></td></tr>
+            <tr><td>Unexported</td><td>camelCase</td><td><code>userID</code>, <code>serveHTTP</code>, <code>maxRetries</code></td></tr>
+            <tr><td>Constants</td><td>Same as above — just because it's const doesn't make it SHOUTY</td><td><code>MaxRetries</code>, not <code>MAX_RETRIES</code></td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout pitfall">
+          <div class="ico">!</div>
+          <div>
+            <span class="callout-title">No snake_case, no SHOUT_CASE</span>
+            Go doesn't use underscores in identifiers (except for the blank <code>_</code>). You'll see <code>MAX_RETRIES</code> in C, Python, Ruby — never in Go.
+          </div>
+        </div>
+      </section>
+
+      <section id="acronyms">
+        <h2>Acronyms are all one case</h2>
+        <pre><code class="language-go">// Right
+URL, ID, HTTP, JSON, DB, API, OS
+ServeHTTP, ReadJSON, UserID, APIKey, parseURL
+
+// Wrong
+Url, Id, Http, Json   // mixed within an acronym
+</code></pre>
+
+        <p>This applies to both exported and unexported: <code>userID</code>,
+           <code>parseURL</code>. The rule: if a word is an acronym, keep it in
+           one case throughout (all upper for exported, all lower for
+           unexported-at-start).</p>
+      </section>
+
+      <section id="packages">
+        <h2>Package names</h2>
+        <ul>
+          <li>Lower case, no underscores: <code>strings</code>, <code>nethttp</code> (not <code>net_http</code>).</li>
+          <li>Short and on-topic: <code>time</code>, <code>io</code>, <code>os</code> — not <code>timeutil_helpers</code>.</li>
+          <li>Singular: <code>util</code>, not <code>utils</code>; <code>store</code>, not <code>stores</code>.</li>
+          <li>Names appear as <code>pkg.Name</code> at call sites, so avoid redundancy: <code>strings.Reader</code>, not <code>strings.StringReader</code>.</li>
+        </ul>
+      </section>
+
+      <section id="interfaces">
+        <h2>Interface names</h2>
+        <p>Single-method interfaces are named after their method + "er":</p>
+        <pre><code class="language-go">type Reader interface   { Read(p []byte) (n int, err error) }
+type Writer interface   { Write(p []byte) (n int, err error) }
+type Closer interface   { Close() error }
+type Stringer interface { String() string }
+</code></pre>
+
+        <p>Multi-method interfaces get a descriptive name: <code>ReadWriter</code>,
+           <code>http.ResponseWriter</code>. Avoid Hungarian-notation prefixes
+           (<code>IReader</code>) — Go doesn't distinguish interface names from
+           type names at the call site.</p>
+      </section>
+
+      <section id="receivers">
+        <h2>Receiver names (for methods)</h2>
+        <p>Short, consistent across all methods of a type, typically one or two
+           letters:</p>
+        <pre><code class="language-go">func (u *User) FullName() string { ... }
+func (u *User) Email() string    { ... }
+// Consistent: always `u` for User
+</code></pre>
+
+        <p>Do NOT use <code>this</code> or <code>self</code>. They're idiomatic in
+           Java/Python; in Go they look out of place.</p>
+      </section>
+
+      <section id="errors">
+        <h2>Error naming</h2>
+        <p>Error <em>variables</em> start with <code>Err</code>:</p>
+        <pre><code class="language-go">var ErrNotFound    = errors.New("not found")
+var ErrUnauthorized = errors.New("unauthorized")
+</code></pre>
+
+        <p>Error <em>types</em> end with <code>Error</code>:</p>
+        <pre><code class="language-go">type ValidationError struct { Field, Reason string }
+func (e *ValidationError) Error() string { ... }
+</code></pre>
+      </section>
+
+      <section id="constants">
+        <h2>Constants</h2>
+        <pre><code class="language-go">const (
+    StatusOK       = 200        // PascalCase for exported
+    defaultTimeout = 30         // camelCase for unexported
+)
+</code></pre>
+      </section>
+
+      <section id="reserved">
+        <h2>Reserved words</h2>
+        <p>Just 25, which is remarkable — compare to Java's ~50 or Python's ~35:</p>
+        <pre><code class="language-bash">break    default     func   interface  select
+case     defer       go     map        struct
+chan     else        goto   package    switch
+const    fallthrough if     range      type
+continue for         import return     var</code></pre>
+      </section>
+
+      <section id="tools">
+        <h2>Let the tools keep you honest</h2>
+        <ul>
+          <li><strong><code>gofmt</code></strong> — formatting. You already run it on save (Chapter 4). Non-negotiable.</li>
+          <li><strong><code>go vet</code></strong> — catches common mistakes (misspellings, bad Printf args, unused results, impossible interface assertions). Run in CI.</li>
+          <li><strong><code>staticcheck</code></strong> — third-party, but the community standard. Finds style issues, anti-patterns, and real bugs that go vet misses.
+            <pre><code class="language-bash">go install honnef.co/go/tools/cmd/staticcheck@latest
+staticcheck ./...</code></pre></li>
+          <li><strong><code>golangci-lint</code></strong> — meta-linter that runs many analyzers at once. Most production projects use it.</li>
+        </ul>
+      </section>
+
+      <section id="quiz">
+        <h2>Check your understanding</h2>
+        <div class="quiz" data-quiz data-chapter-id="ch-19">
+          <script type="application/json" class="quiz-data">
+          {
+            "title": "Quick quiz",
+            "questions": [
+              {"q":"Which of these is idiomatic Go for an exported constant?","options":["MAX_RETRIES","maxRetries","MaxRetries","max_retries"],"answer":2,"explanation":"MaxRetries — PascalCase for exported identifiers, even constants. Go never uses SHOUTY_SNAKE_CASE."},
+              {"q":"Which is the correct spelling for an identifier holding a URL?","options":["Url","URL","url","uRL"],"answer":1,"explanation":"Acronyms are all one case. URL when exported (starts capital). The unexported form is `url`, never `uRL`."},
+              {"q":"A single-method interface for something that can read should be named…","options":["IReader","ReadInterface","Reader","Readable"],"answer":2,"explanation":"Go convention: single-method interfaces take the method name + \"er\". Read → Reader. No I-prefix, no Interface suffix."},
+              {"q":"In `func (u *User) FullName() string`, what is `u`?","options":["self","this","The receiver","A pointer to nothing"],"answer":2,"explanation":"u is the method's RECEIVER. Use short, consistent names (usually one or two letters) for receivers; never `self` or `this`."},
+              {"q":"Why does Go have so few keywords (just 25)?","options":["Limitation of the compiler","Deliberate simplicity — less to learn, fewer footguns","Go is dynamically typed","Unicode issues"],"answer":1,"explanation":"Minimalism is a Go design principle. Fewer reserved words + fewer language features = a language you can hold in your head."}
+            ]
+          }
+          </script>
+        </div>
+      </section>
+
+      <section id="exercises">
+        <h2>Practice exercises</h2>
+
+        <div class="exercise">
+          <div class="exercise-header"><span class="badge">EXERCISE 1</span><h3>Rename for style</h3></div>
+          <div class="exercise-task"><p>The following has every naming mistake in the book. Rewrite it in idiomatic Go.</p>
+          <pre><code class="language-go">type user_account struct {
+    User_ID    int
+    User_Email string
+    CREATED_AT int64
+}
+
+func (this *user_account) get_full_email() string {
+    return this.User_Email
+}
+
+const MAX_USER_NAME_LENGTH = 64
+var errorNotFound = "not found"
+</code></pre></div>
+          <details class="exercise-solution"><summary>Show solution</summary>
+          <pre><code class="language-go">type UserAccount struct {
+    ID        int
+    Email     string
+    CreatedAt int64
+}
+
+func (u *UserAccount) FullEmail() string {
+    return u.Email
+}
+
+const MaxUserNameLength = 64
+var ErrNotFound = errors.New("not found")
+</code></pre>
+          <p>Key changes: no underscores, consistent camelCase/PascalCase, acronym-case (ID), short receiver (<code>u</code>), Err-prefix for error variable, and the error is an actual <code>error</code> value (not a string).</p>
+          </details>
+        </div>
+      </section>
+
+      <section id="further" class="further-reading">
+        <h3>Further reading</h3>
+        <ul>
+          <li><a href="https://go.dev/doc/effective_go" target="_blank" rel="noopener">Effective Go</a> — the community-authoritative style guide</li>
+          <li><a href="https://go.dev/wiki/CodeReviewComments" target="_blank" rel="noopener">Go Code Review Comments</a></li>
+          <li><a href="https://google.github.io/styleguide/go/" target="_blank" rel="noopener">Google Go Style Guide</a></li>
+          <li><a href="https://staticcheck.dev/" target="_blank" rel="noopener">staticcheck.dev</a></li>
+        </ul>
+      </section>
+
+      <div class="complete-box"><p>Style in hand.</p><button class="complete-btn" type="button" data-chapter-id="ch-19">✓ Mark this chapter complete</button></div>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a class="prev" href="18-packages-modules.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 18 — Packages &amp; Modules</div></a>
+        <a class="next" href="20-methods-receivers.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 20 — Methods &amp; Receivers</div></a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-line">Made with <span class="heart">❤️</span> by <a href="https://github.com/cyrus2281" target="_blank" rel="noopener">Cyrus Mobini</a></div>
+    <a class="bmac" href="https://buymeacoffee.com/cyrus2281" target="_blank" rel="noopener"><span class="bmac-icon">☕</span> Buy me a coffee</a>
+  </footer>
+
+  <script src="../assets/js/progress.js" defer></script>
+  <script src="../assets/js/prism.js" defer></script>
+  <script src="../assets/js/app.js" defer></script>
+  <script src="../assets/js/quiz.js" defer></script>
+  <script src="../assets/js/search.js" defer></script>
+</body>
+</html>

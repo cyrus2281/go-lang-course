@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6YPTC2B9NR"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 11 · Functions — Learn Go by Cyrus Mobini</title>
+  <meta name="description" content="Declare Go functions, return multiple values, use variadic args, closures, named returns, and defer. A chapter-sized deep dive on Go's most useful building block.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Chapter 11 · Functions — Learn Go">
+  <meta property="og:description" content="Multiple returns, variadic, closures, named returns, defer — everything Go functions can do.">
+  <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/11-functions.html">
+  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Chapter 11 · Functions — Learn Go">
+  <meta name="twitter:description" content="Multiple returns, variadic, closures, named returns, defer.">
+  <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/11-functions.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/prism.css">
+  <script>(function(){try{var t=localStorage.getItem('go-course-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body>
+
+  <header class="site-header">
+    <a href="../index.html" class="brand">
+      <span class="brand-mark">Go</span>
+      <span class="brand-name">Learn <span class="brand-accent">Go</span></span>
+    </a>
+    <button id="menu-toggle" class="icon-btn menu-toggle" aria-label="Toggle chapter menu" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="header-spacer"></div>
+    <div class="search" role="search">
+      <input id="search-input" type="search" placeholder="Search chapters…" autocomplete="off" aria-label="Search across all chapters">
+      <kbd class="search-hint">/</kbd>
+      <div id="search-results" class="search-results"></div>
+    </div>
+    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" type="button"></button>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="chapter-sidebar">
+      <div class="side-title">On this page</div>
+      <ul>
+        <li><a href="#objectives">Learning objectives</a></li>
+        <li><a href="#declare">Declaring functions</a></li>
+        <li><a href="#multiple">Multiple return values</a></li>
+        <li><a href="#named">Named returns</a></li>
+        <li><a href="#variadic">Variadic functions</a></li>
+        <li><a href="#anonymous">Anonymous functions</a></li>
+        <li><a href="#closures">Closures</a></li>
+        <li><a href="#first-class">First-class &amp; higher-order</a></li>
+        <li><a href="#recursion">Recursion</a></li>
+        <li><a href="#defer"><code>defer</code></a></li>
+        <li><a href="#panic">panic &amp; recover</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+        <li><a href="#exercises">Exercises</a></li>
+        <li><a href="#further">Further reading</a></li>
+      </ul>
+      <div class="side-title">Navigate</div>
+      <ul>
+        <li><a href="10-loops.html">← Previous: Loops</a></li>
+        <li><a href="12-arrays.html">Next: Arrays →</a></li>
+        <li><a href="../index.html">Table of contents</a></li>
+      </ul>
+    </aside>
+
+    <main class="chapter-main" data-chapter-id="ch-11">
+      <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 11 · CORE LANGUAGE</div>
+      <h1>Functions</h1>
+      <p>Functions are the backbone of every Go program. Go's functions are more
+         flexible than they first appear — multiple return values, variadic args,
+         closures, and named returns are all everyday tools. This chapter covers
+         all of them.</p>
+
+      <section id="objectives" class="learning-objectives">
+        <h3>Learning objectives</h3>
+        <ul>
+          <li>Declare functions with typed parameters and return values.</li>
+          <li>Return multiple values and use the idiomatic <code>(T, error)</code> pattern.</li>
+          <li>Write variadic functions and know how to "spread" a slice into one.</li>
+          <li>Use closures to capture variables from an enclosing scope.</li>
+          <li>Use <code>defer</code> for clean-up and understand its LIFO order.</li>
+          <li>Recognize <code>panic</code> / <code>recover</code> and know when (not) to use them.</li>
+        </ul>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="declare">
+        <h2>Declaring functions</h2>
+        <pre><code class="language-go">func add(a int, b int) int {
+    return a + b
+}
+</code></pre>
+
+        <p>When consecutive parameters share a type, you can collapse:</p>
+        <pre><code class="language-go">func add(a, b int) int { return a + b }
+</code></pre>
+
+        <p>Functions with no return have no type after the parentheses:</p>
+        <pre><code class="language-go">func greet(name string) {
+    fmt.Println("Hello,", name)
+}
+</code></pre>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="multiple">
+        <h2>Multiple return values</h2>
+        <p>This is one of Go's signature features. Functions commonly return
+           <em>value + error</em>:</p>
+
+        <pre><code class="language-go">package main
+
+import (
+    "errors"
+    "fmt"
+)
+
+func divide(a, b int) (int, error) {
+    if b == 0 {
+        return 0, errors.New("division by zero")
+    }
+    return a / b, nil
+}
+
+func main() {
+    q, err := divide(10, 3)
+    if err != nil {
+        fmt.Println("error:", err)
+        return
+    }
+    fmt.Println("q =", q)    // q = 3
+}
+</code></pre>
+
+        <p>The <em>caller</em> decides whether to handle or discard each return.
+           This pattern is Go's replacement for exceptions (Chapter 23).</p>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="named">
+        <h2>Named return values</h2>
+        <p>You can name the return variables in the signature, giving you a
+           "naked" return and better documentation:</p>
+
+        <pre><code class="language-go">func divmod(a, b int) (q, r int) {
+    q = a / b
+    r = a % b
+    return    // naked return — returns q, r
+}
+</code></pre>
+
+        <p>Named returns are nice for documentation and for pre-declaring variables
+           you'll modify in a <code>defer</code>. Avoid using them just to skip
+           typing — a plain <code>return q, r</code> is often clearer in small functions.</p>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="variadic">
+        <h2>Variadic functions</h2>
+        <p>A <code>...T</code> parameter accepts any number of <code>T</code>
+           values:</p>
+
+        <pre><code class="language-go">func sum(nums ...int) int {
+    total := 0
+    for _, n := range nums {
+        total += n
+    }
+    return total
+}
+
+fmt.Println(sum(1, 2, 3))          // 6
+fmt.Println(sum())                 // 0  — no args is OK
+</code></pre>
+
+        <p>Inside the function, <code>nums</code> is a <code>[]int</code>. To pass
+           an existing slice to a variadic function, use the spread operator
+           <code>...</code>:</p>
+
+        <pre><code class="language-go">xs := []int{1, 2, 3}
+fmt.Println(sum(xs...))            // 6  — spread
+</code></pre>
+
+        <p>Common variadics you'll use all the time: <code>fmt.Println</code>,
+           <code>append</code>, <code>fmt.Errorf</code>.</p>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="anonymous">
+        <h2>Anonymous functions</h2>
+        <p>Declare and use a function inline, without a name:</p>
+        <pre><code class="language-go">// Immediately invoked (IIFE)
+func() { fmt.Println("hi") }()
+
+// Assigned to a variable
+greet := func(name string) { fmt.Println("Hello,", name) }
+greet("Alice")
+</code></pre>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="closures">
+        <h2>Closures</h2>
+        <p>An anonymous function that <em>captures</em> variables from its
+           enclosing scope is a <strong>closure</strong>. The captured variables
+           persist for as long as the closure does:</p>
+
+        <pre><code class="language-go">package main
+
+import "fmt"
+
+func counter() func() int {
+    n := 0
+    return func() int {
+        n++
+        return n
+    }
+}
+
+func main() {
+    next := counter()
+    fmt.Println(next(), next(), next())    // 1 2 3
+
+    another := counter()    // fresh counter
+    fmt.Println(another())                  // 1
+}
+</code></pre>
+
+        <p>Each call to <code>counter()</code> creates a new <code>n</code>. That's
+           how closures give you tidy per-instance state without needing classes.</p>
+
+        <div class="callout pitfall">
+          <div class="ico">!</div>
+          <div>
+            <span class="callout-title">Capturing loop variables</span>
+            In Go 1.22+, loop variables are per-iteration, so the classic
+            "closures capture the same variable" bug is fixed. On older Go
+            versions, you had to rebind the variable inside the loop:
+            <code>i := i</code>. See Chapter 10.
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="first-class">
+        <h2>First-class &amp; higher-order</h2>
+        <p>Functions are values. You can pass them, return them, and store them in
+           slices or maps:</p>
+
+        <pre><code class="language-go">package main
+
+import "fmt"
+
+func apply(a, b int, op func(int, int) int) int {
+    return op(a, b)
+}
+
+func main() {
+    fmt.Println(apply(3, 4, func(x, y int) int { return x + y }))  // 7
+    fmt.Println(apply(3, 4, func(x, y int) int { return x * y }))  // 12
+}
+</code></pre>
+
+        <p>And functions that <em>return</em> functions:</p>
+
+        <pre><code class="language-go">func multiplier(factor int) func(int) int {
+    return func(x int) int { return x * factor }
+}
+
+double := multiplier(2)
+triple := multiplier(3)
+fmt.Println(double(5), triple(5))    // 10 15
+</code></pre>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="recursion">
+        <h2>Recursion</h2>
+        <p>A function can call itself:</p>
+        <pre><code class="language-go">func fact(n int) int {
+    if n < 2 { return 1 }
+    return n * fact(n-1)
+}
+</code></pre>
+
+        <p>Go doesn't specially optimize tail calls — very deep recursion can blow
+           the stack. For iterative problems, prefer a <code>for</code> loop.</p>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="defer">
+        <h2><code>defer</code></h2>
+        <p><code>defer</code> schedules a function call to run <em>just before</em>
+           the enclosing function returns — regardless of how it returns (normal
+           return, panic, or early return). It's Go's cleanup mechanism.</p>
+
+        <pre><code class="language-go">package main
+
+import (
+    "fmt"
+    "os"
+)
+
+func readFile(path string) {
+    f, err := os.Open(path)
+    if err != nil { return }
+    defer f.Close()           // guaranteed to run
+
+    // ... use f ...
+    fmt.Println("reading")
+}
+</code></pre>
+
+        <h3>LIFO order</h3>
+        <p>Multiple defers run in reverse order:</p>
+        <pre><code class="language-go">func main() {
+    defer fmt.Println("1")
+    defer fmt.Println("2")
+    defer fmt.Println("3")
+}
+// Output: 3  2  1
+</code></pre>
+
+        <h3>Arguments are evaluated immediately</h3>
+        <p>The <em>call expression</em> is deferred; the <em>arguments</em> are
+           evaluated right away:</p>
+        <pre><code class="language-go">i := 0
+defer fmt.Println(i)    // prints 0
+i = 10
+// function returns here — fmt.Println runs with the captured i = 0
+</code></pre>
+
+        <p>If you need the current value at defer time, use a closure:
+           <code>defer func() { fmt.Println(i) }()</code>.</p>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="panic">
+        <h2><code>panic</code> and <code>recover</code></h2>
+        <p><code>panic</code> aborts the current goroutine and unwinds the stack,
+           running deferred functions as it goes. <code>recover</code>, used
+           inside a <code>defer</code>, stops the unwinding and returns whatever
+           was panicked with.</p>
+
+        <pre><code class="language-go">func safeDiv(a, b int) (result int, err error) {
+    defer func() {
+        if r := recover(); r != nil {
+            err = fmt.Errorf("recovered: %v", r)
+        }
+    }()
+    return a / b, nil    // panics on b == 0
+}
+</code></pre>
+
+        <div class="callout pitfall">
+          <div class="ico">!</div>
+          <div>
+            <span class="callout-title">Don't use panic as control flow</span>
+            Panics are for truly unrecoverable situations (programmer bugs:
+            impossible states, nil map writes, index out of range). For expected
+            errors (file not found, bad input), return an <code>error</code>
+            value instead. Chapter 23 on error handling explains the philosophy.
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="quiz">
+        <h2>Check your understanding</h2>
+        <div class="quiz" data-quiz data-chapter-id="ch-11">
+          <script type="application/json" class="quiz-data">
+          {
+            "title": "Quick quiz",
+            "questions": [
+              {
+                "q": "What's the idiomatic way for a Go function to signal failure?",
+                "options": [
+                  "Throw an exception",
+                  "Return a nil value",
+                  "Return an error as the last return value",
+                  "Set a global errno"
+                ],
+                "answer": 2,
+                "explanation": "Go uses multiple returns with the final value being an error. Callers check the error before using the other returns."
+              },
+              {
+                "q": "When are arguments to a deferred function evaluated?",
+                "options": [
+                  "Immediately, when the defer statement runs",
+                  "Lazily, when the defer actually fires",
+                  "Never — they're the receiver",
+                  "At compile time"
+                ],
+                "answer": 0,
+                "explanation": "Arguments are evaluated at the moment the `defer` statement executes. The call itself is deferred. To capture the value at defer time, wrap in a closure."
+              },
+              {
+                "q": "Which of these declares a variadic function?",
+                "options": [
+                  "func f(args int[])",
+                  "func f(args []int)",
+                  "func f(args ...int)",
+                  "func f(*args int)"
+                ],
+                "answer": 2,
+                "explanation": "`...int` declares a variadic parameter. Inside the function, `args` is a `[]int`. To pass an existing slice, use the spread operator: `f(xs...)`."
+              },
+              {
+                "q": "What is a closure?",
+                "options": [
+                  "A function that is never called",
+                  "A function that captures and can access variables from its surrounding scope",
+                  "A method on a struct",
+                  "A deferred function"
+                ],
+                "answer": 1,
+                "explanation": "Closures are the mechanism Go uses for stateful callbacks, factory functions, and per-instance state without needing full-blown types."
+              },
+              {
+                "q": "What's the correct use of panic/recover?",
+                "options": [
+                  "For every recoverable error instead of returning an error",
+                  "Only as a last resort for truly unrecoverable conditions; recover is called inside a deferred function",
+                  "To loop — panic inside, recover outside",
+                  "As a synonym for return"
+                ],
+                "answer": 1,
+                "explanation": "Panic is for situations that shouldn't happen (programmer bugs). Recover lives inside a deferred function. Most error handling in Go uses explicit error returns, not panic."
+              }
+            ]
+          }
+          </script>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="exercises">
+        <h2>Practice exercises</h2>
+
+        <div class="exercise">
+          <div class="exercise-header">
+            <span class="badge">EXERCISE 1</span>
+            <h3>Min of any number of ints</h3>
+          </div>
+          <div class="exercise-task">
+            <p>Write a variadic function <code>min(nums ...int) (int, bool)</code>
+               that returns the minimum value and a boolean. If no args are
+               passed, return <code>(0, false)</code>.</p>
+          </div>
+          <details class="exercise-solution">
+            <summary>Show one possible solution</summary>
+            <pre><code class="language-go">package main
+
+import "fmt"
+
+func min(nums ...int) (int, bool) {
+    if len(nums) == 0 {
+        return 0, false
+    }
+    best := nums[0]
+    for _, n := range nums[1:] {
+        if n < best {
+            best = n
+        }
+    }
+    return best, true
+}
+
+func main() {
+    v, ok := min(3, 1, 4, 1, 5, 9, 2, 6)
+    fmt.Println(v, ok)     // 1 true
+    v, ok = min()
+    fmt.Println(v, ok)     // 0 false
+}
+</code></pre>
+            <p>Go 1.21+ has a built-in <code>min()</code> — but writing your own
+               once teaches variadics nicely.</p>
+          </details>
+        </div>
+
+        <div class="exercise">
+          <div class="exercise-header">
+            <span class="badge">EXERCISE 2</span>
+            <h3>Timer closure</h3>
+          </div>
+          <div class="exercise-task">
+            <p>Write a function <code>startTimer(name string) func()</code> that
+               prints <code>"<em>name</em> took <em>duration</em>"</code> when the
+               returned function is called. Use it at the top of any function with
+               <code>defer</code>.</p>
+            <p><em>Hint:</em> use <code>time.Now()</code> and <code>time.Since()</code>.</p>
+          </div>
+          <details class="exercise-solution">
+            <summary>Show one possible solution</summary>
+            <pre><code class="language-go">package main
+
+import (
+    "fmt"
+    "time"
+)
+
+func startTimer(name string) func() {
+    start := time.Now()
+    return func() {
+        fmt.Printf("%s took %s\n", name, time.Since(start))
+    }
+}
+
+func work() {
+    defer startTimer("work")()
+    time.Sleep(150 * time.Millisecond)
+}
+
+func main() {
+    work()
+}
+</code></pre>
+            <p>This is a classic closure idiom — each call to <code>startTimer</code>
+               captures its own <code>start</code> in the returned closure.
+               <code>defer ...()</code> (note the parens!) calls the returned
+               closure when the surrounding function exits.</p>
+          </details>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <section id="further" class="further-reading">
+        <h3>Further reading</h3>
+        <ul>
+          <li><a href="https://go.dev/ref/spec#Function_declarations" target="_blank" rel="noopener">Go spec — Function declarations</a></li>
+          <li><a href="https://go.dev/blog/defer-panic-and-recover" target="_blank" rel="noopener">The Go Blog — Defer, Panic, and Recover</a></li>
+          <li><a href="https://go.dev/tour/moretypes/21" target="_blank" rel="noopener">Tour of Go — Closures</a></li>
+        </ul>
+      </section>
+
+      <div class="complete-box">
+        <p>Functions handled.</p>
+        <button class="complete-btn" type="button" data-chapter-id="ch-11">✓ Mark this chapter complete</button>
+      </div>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a class="prev" href="10-loops.html">
+          <div class="nav-label">Previous</div>
+          <div class="nav-title">Chapter 10 — Loops</div>
+        </a>
+        <a class="next" href="12-arrays.html">
+          <div class="nav-label">Next</div>
+          <div class="nav-title">Chapter 12 — Arrays</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-line">
+      Made with <span class="heart">❤️</span> by
+      <a href="https://github.com/cyrus2281" target="_blank" rel="noopener">Cyrus Mobini</a>
+    </div>
+    <a class="bmac" href="https://buymeacoffee.com/cyrus2281" target="_blank" rel="noopener" aria-label="Support Cyrus on Buy Me a Coffee">
+      <span class="bmac-icon" aria-hidden="true">☕</span>
+      Buy me a coffee
+    </a>
+  </footer>
+
+  <script src="../assets/js/progress.js" defer></script>
+  <script src="../assets/js/prism.js" defer></script>
+  <script src="../assets/js/app.js" defer></script>
+  <script src="../assets/js/quiz.js" defer></script>
+  <script src="../assets/js/search.js" defer></script>
+</body>
+</html>

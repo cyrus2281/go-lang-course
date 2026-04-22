@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6YPTC2B9NR"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 18 · Packages &amp; Modules — Learn Go by Cyrus Mobini</title>
+  <meta name="description" content="Packages, exports, go.mod, go.sum, imports, semantic versioning, internal and vendor directories. How Go organizes and ships code.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Chapter 18 · Packages &amp; Modules — Learn Go">
+  <meta property="og:description" content="Organizing Go code: packages, modules, imports, exports, semver.">
+  <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/18-packages-modules.html">
+  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Chapter 18 · Packages &amp; Modules — Learn Go">
+  <meta name="twitter:description" content="Organizing Go code: packages, modules, imports, exports, semver.">
+  <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/18-packages-modules.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/prism.css">
+  <script>(function(){try{var t=localStorage.getItem('go-course-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="../index.html" class="brand"><span class="brand-mark">Go</span><span class="brand-name">Learn <span class="brand-accent">Go</span></span></a>
+    <button id="menu-toggle" class="icon-btn menu-toggle" aria-label="Toggle chapter menu" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="header-spacer"></div>
+    <div class="search" role="search"><input id="search-input" type="search" placeholder="Search chapters…" autocomplete="off" aria-label="Search across all chapters"><kbd class="search-hint">/</kbd><div id="search-results" class="search-results"></div></div>
+    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" type="button"></button>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="chapter-sidebar">
+      <div class="side-title">On this page</div>
+      <ul>
+        <li><a href="#objectives">Learning objectives</a></li>
+        <li><a href="#packages">Packages</a></li>
+        <li><a href="#exports">Exports (capitalization)</a></li>
+        <li><a href="#main-init"><code>main</code> &amp; <code>init</code></a></li>
+        <li><a href="#import">Imports</a></li>
+        <li><a href="#modules">Modules</a></li>
+        <li><a href="#add-dep">Adding a dependency</a></li>
+        <li><a href="#semver">Semantic versioning</a></li>
+        <li><a href="#internal">internal/ and vendor/</a></li>
+        <li><a href="#workspaces">Workspaces (<code>go work</code>)</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+        <li><a href="#exercises">Exercises</a></li>
+        <li><a href="#further">Further reading</a></li>
+      </ul>
+      <div class="side-title">Navigate</div>
+      <ul>
+        <li><a href="17-scope.html">← Previous: Scope &amp; Shadowing</a></li>
+        <li><a href="19-naming-and-style.html">Next: Naming &amp; Style →</a></li>
+        <li><a href="../index.html">Table of contents</a></li>
+      </ul>
+    </aside>
+
+    <main class="chapter-main" data-chapter-id="ch-18">
+      <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 18 · ORGANIZING CODE</div>
+      <h1>Packages &amp; Modules</h1>
+      <p>A <strong>package</strong> is how Go groups related code. A <strong>module</strong>
+         is how Go groups related packages into a single shippable unit with
+         versioned dependencies. You touched both in Chapter 4; this chapter
+         goes deep.</p>
+
+      <section id="objectives" class="learning-objectives">
+        <h3>Learning objectives</h3>
+        <ul>
+          <li>Organize code into packages and import them.</li>
+          <li>Export names via capitalization — and understand why.</li>
+          <li>Use <code>init</code> functions correctly (and sparingly).</li>
+          <li>Create a module with <code>go mod init</code>, add dependencies, and understand <code>go.sum</code>.</li>
+          <li>Know the role of <code>internal/</code> and <code>vendor/</code>.</li>
+        </ul>
+      </section>
+
+      <section id="packages">
+        <h2>Packages</h2>
+        <p>A package is a directory of <code>.go</code> files that all share the
+           same <code>package X</code> declaration at the top. There are two
+           kinds:</p>
+
+        <ul>
+          <li><strong><code>package main</code></strong> — produces an executable.</li>
+          <li><strong>Any other name</strong> — produces a library, importable by others.</li>
+        </ul>
+
+        <p>Typical project layout:</p>
+        <pre><code class="language-bash">myapp/
+├── go.mod
+├── go.sum
+├── main.go                 ← package main
+├── cmd/
+│   └── tool/
+│       └── main.go         ← second binary
+├── internal/
+│   └── store/
+│       └── store.go        ← package store (internal)
+└── pkg/
+    └── util/
+        └── util.go         ← package util (public)
+</code></pre>
+      </section>
+
+      <section id="exports">
+        <h2>Exports — capitalization is the rule</h2>
+        <p>A name (function, type, variable, constant, method, field) is
+           <strong>exported</strong> — visible outside the package — iff its
+           first letter is <em>uppercase</em>:</p>
+
+        <pre><code class="language-go">package mathutil
+
+func Add(a, b int) int { return a + b }     // exported
+func sub(a, b int) int { return a - b }     // unexported
+</code></pre>
+
+        <p>From another package: <code>mathutil.Add(1, 2)</code> works,
+           <code>mathutil.sub(1, 2)</code> is a compile error.</p>
+      </section>
+
+      <section id="main-init">
+        <h2><code>main</code> and <code>init</code></h2>
+        <p><code>main()</code> is the program's entry point — in
+           <code>package main</code> only.</p>
+
+        <p><code>init()</code> runs automatically when a package is loaded,
+           <em>before</em> <code>main</code>. Use it to initialize package-level
+           state or register things:</p>
+
+        <pre><code class="language-go">package store
+
+import "database/sql"
+import _ "github.com/lib/pq"    // side-effect import: registers the driver
+
+var db *sql.DB
+
+func init() {
+    // runs once, before any exported function is called
+    db = openDB()
+}
+</code></pre>
+
+        <p>Multiple files in a package can each have their own <code>init</code>;
+           they all run (in file name order). Use <code>init</code> sparingly —
+           implicit magic makes tests harder and dependencies muddier.</p>
+      </section>
+
+      <section id="import">
+        <h2>Imports</h2>
+        <pre><code class="language-go">import (
+    "fmt"
+    "strings"
+
+    "github.com/user/project/internal/store"
+
+    . "math"                    // dot import — makes names accessible unqualified (avoid)
+    log "log/slog"              // alias import
+    _ "image/png"               // side-effect only — registers format
+)
+</code></pre>
+
+        <p>Go groups imports into standard library first, then third party,
+           separated by a blank line. <code>goimports</code> (Chapter 4) does this
+           for you automatically.</p>
+      </section>
+
+      <section id="modules">
+        <h2>Modules — <code>go.mod</code></h2>
+        <p>A module is declared by a <code>go.mod</code> file at its root:</p>
+
+        <pre><code class="language-go" data-runnable="false">module github.com/cyrus2281/learn-go
+
+go 1.22
+
+require (
+    github.com/lib/pq v1.10.9
+    golang.org/x/text v0.14.0
+)
+</code></pre>
+
+        <p>Four things are encoded:</p>
+        <ol>
+          <li><strong>module path</strong> — the canonical import path consumers use.</li>
+          <li><strong>go version</strong> — minimum Go version.</li>
+          <li><strong>require</strong> — direct dependencies and their versions.</li>
+          <li><strong>go.sum</strong> (sibling file) — cryptographic hashes of every dependency for reproducibility.</li>
+        </ol>
+      </section>
+
+      <section id="add-dep">
+        <h2>Adding a dependency</h2>
+        <pre><code class="language-bash">go get github.com/lib/pq@latest   # adds/upgrades to latest
+go mod tidy                        # remove unused, fill in missing</code></pre>
+
+        <p>Or just import and run <code>go build</code> — Go will fetch the
+           dependency automatically and update <code>go.mod</code>.</p>
+
+        <p>To upgrade one dep:</p>
+        <pre><code class="language-bash">go get github.com/lib/pq@v1.11.0
+</code></pre>
+      </section>
+
+      <section id="semver">
+        <h2>Semantic versioning</h2>
+        <p>Go modules require <strong>semver</strong>-style tags: <code>v1.2.3</code>.</p>
+        <ul>
+          <li><strong>v0.x</strong> — "anything goes" — used for early development.</li>
+          <li><strong>v1.x</strong> — stable API; minor/patch bumps don't break.</li>
+          <li><strong>v2+</strong> — major version bump <em>changes the module path</em>: <code>github.com/user/lib/v2</code>. This lets different major versions coexist.</li>
+        </ul>
+      </section>
+
+      <section id="internal">
+        <h2><code>internal/</code> and <code>vendor/</code></h2>
+        <p><strong><code>internal/</code></strong> is magic: packages under an
+           <code>internal/</code> directory can only be imported by code in the
+           module that contains it. Great for hiding implementation details even
+           in an open-source project.</p>
+
+        <p><strong><code>vendor/</code></strong> stores copies of your dependencies
+           in the repo. <code>go mod vendor</code> creates it. Uncommon in modern
+           Go — module proxy caching makes it mostly unnecessary. Still used when
+           you need reproducible builds without network access.</p>
+      </section>
+
+      <section id="workspaces">
+        <h2>Workspaces (<code>go work</code>)</h2>
+        <p>When you're working on multiple modules at once (e.g. a library and
+           an app that uses it, both in local directories), a workspace lets Go
+           resolve imports to your local copies without <code>replace</code>
+           directives:</p>
+
+        <pre><code class="language-bash">go work init ./myapp ./mylib
+# creates go.work at the parent level
+</code></pre>
+
+        <p>A <code>go.work</code> file lives outside version control — your
+           workspace choice is personal.</p>
+      </section>
+
+      <section id="quiz">
+        <h2>Check your understanding</h2>
+        <div class="quiz" data-quiz data-chapter-id="ch-18">
+          <script type="application/json" class="quiz-data">
+          {
+            "title": "Quick quiz",
+            "questions": [
+              {"q":"What makes a Go identifier exported (visible to other packages)?","options":["A special keyword","Its first letter is uppercase","Declaring it at the top of the file","Adding an `export` comment"],"answer":1,"explanation":"Capitalization is the mechanism. Add(...) is exported; add(...) is not. No keyword needed."},
+              {"q":"What's the role of go.sum?","options":["Mirror of go.mod","Records the cryptographic hashes of every dependency for reproducible builds","Lists test results","Sum of all file sizes"],"answer":1,"explanation":"go.sum ensures that the exact bytes of each dependency version you've locked to are what's downloaded — a supply-chain safeguard."},
+              {"q":"If your module is at github.com/user/lib, where can packages under internal/ be imported from?","options":["Anywhere","Only by other code in github.com/user/lib","Only by tests","Only by the main package"],"answer":1,"explanation":"Anything inside an `internal/` directory can only be imported by code in the same module. Great for hiding implementation details."},
+              {"q":"You want to upgrade a dependency to its latest version. Which command?","options":["go upgrade","go get github.com/user/pkg@latest","go mod upgrade","go update"],"answer":1,"explanation":"`go get pkg@latest` (or @vX.Y.Z for a specific version). Follow with `go mod tidy` to clean up."},
+              {"q":"Why does Go 2+ require major version v2 modules to change their path (e.g. github.com/user/pkg/v2)?","options":["To annoy library authors","So that incompatible versions can coexist in a program (via different import paths)","Because v1 is deprecated","Unicode support"],"answer":1,"explanation":"Changing the path for v2+ is called the \"semantic import versioning\" rule. It lets a program depend on both v1 and v2 of the same library without conflict."}
+            ]
+          }
+          </script>
+        </div>
+      </section>
+
+      <section id="exercises">
+        <h2>Practice exercises</h2>
+        <div class="exercise">
+          <div class="exercise-header"><span class="badge">EXERCISE 1</span><h3>Split a hello world into two packages</h3></div>
+          <div class="exercise-task"><p>Take the Hello World from Chapter 4. Move the greeting logic into a new package <code>greet</code> (in a <code>greet/</code> subdirectory) with an exported <code>Hello(name string) string</code> function. Import and call it from <code>main</code>.</p></div>
+          <details class="exercise-solution"><summary>Show solution</summary>
+          <pre><code class="language-bash">myapp/
+├── go.mod          (module example.com/myapp)
+├── main.go
+└── greet/
+    └── greet.go</code></pre>
+          <p>greet/greet.go:</p>
+          <pre><code class="language-go">package greet
+
+import "fmt"
+
+func Hello(name string) string {
+    return fmt.Sprintf("Hello, %s!", name)
+}
+</code></pre>
+          <p>main.go:</p>
+          <pre><code class="language-go">package main
+
+import (
+    "fmt"
+
+    "example.com/myapp/greet"
+)
+
+func main() {
+    fmt.Println(greet.Hello("World"))
+}
+</code></pre></details>
+        </div>
+      </section>
+
+      <section id="further" class="further-reading">
+        <h3>Further reading</h3>
+        <ul>
+          <li><a href="https://go.dev/doc/modules/managing-dependencies" target="_blank" rel="noopener">Managing dependencies (official)</a></li>
+          <li><a href="https://go.dev/ref/mod" target="_blank" rel="noopener">Go Modules reference</a></li>
+          <li><a href="https://go.dev/blog/organizing-go-code" target="_blank" rel="noopener">The Go Blog — Organizing Go code</a></li>
+          <li><a href="https://github.com/golang-standards/project-layout" target="_blank" rel="noopener">Standard project layout</a> (community, not official — use judiciously)</li>
+        </ul>
+      </section>
+
+      <div class="complete-box"><p>Code organized and shippable.</p><button class="complete-btn" type="button" data-chapter-id="ch-18">✓ Mark this chapter complete</button></div>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a class="prev" href="17-scope.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 17 — Scope</div></a>
+        <a class="next" href="19-naming-and-style.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 19 — Naming &amp; Style</div></a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-line">Made with <span class="heart">❤️</span> by <a href="https://github.com/cyrus2281" target="_blank" rel="noopener">Cyrus Mobini</a></div>
+    <a class="bmac" href="https://buymeacoffee.com/cyrus2281" target="_blank" rel="noopener"><span class="bmac-icon">☕</span> Buy me a coffee</a>
+  </footer>
+
+  <script src="../assets/js/progress.js" defer></script>
+  <script src="../assets/js/prism.js" defer></script>
+  <script src="../assets/js/app.js" defer></script>
+  <script src="../assets/js/quiz.js" defer></script>
+  <script src="../assets/js/search.js" defer></script>
+</body>
+</html>
