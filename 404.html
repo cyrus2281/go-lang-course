@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6YPTC2B9NR"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>404 — Page not found · Learn Go</title>
+  <meta name="description" content="The page you're looking for doesn't exist. Our gopher is on it — wrench in hand.">
+  <meta name="robots" content="noindex">
+
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  
+  <script>
+    (function(){ try { var t = localStorage.getItem('go-course-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t); } catch(e){} })();
+  </script>
+
+  <style>
+    .nf-wrap {
+      min-height: calc(100vh - 60px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 24px;
+      background:
+        radial-gradient(circle at 20% 20%, color-mix(in srgb, var(--accent) 15%, transparent), transparent 40%),
+        radial-gradient(circle at 80% 80%, color-mix(in srgb, var(--accent-300) 15%, transparent), transparent 40%);
+    }
+    .nf-card {
+      max-width: 720px;
+      width: 100%;
+      text-align: center;
+    }
+    .nf-gopher {
+      width: 280px;
+      max-width: 70vw;
+      height: auto;
+      margin: 0 auto;
+      display: block;
+      animation: nf-bob 4.5s ease-in-out infinite;
+      transform-origin: center bottom;
+    }
+    @keyframes nf-bob {
+      0%, 100% { transform: translateY(0) rotate(-1.5deg); }
+      50%      { transform: translateY(-10px) rotate(1.5deg); }
+    }
+    .nf-code {
+      font-family: var(--mono);
+      font-weight: 800;
+      font-size: clamp(4.5rem, 14vw, 8rem);
+      line-height: 1;
+      letter-spacing: -0.06em;
+      background: linear-gradient(135deg, var(--accent-300), var(--accent-700));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin: 0 0 8px;
+    }
+    .nf-title {
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 750;
+      letter-spacing: -0.02em;
+      margin: 0 0 12px;
+      color: var(--fg);
+    }
+    .nf-sub {
+      color: var(--fg-muted);
+      font-size: 1.1rem;
+      max-width: 520px;
+      margin: 0 auto 28px;
+      line-height: 1.55;
+    }
+    .nf-path {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 0.9rem;
+      background: var(--inline-code-bg);
+      color: var(--fg);
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      margin: 0 0 20px;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      vertical-align: bottom;
+    }
+    .nf-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .nf-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 22px;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 1rem;
+      transition: background var(--transition), transform var(--transition), border-color var(--transition), color var(--transition);
+    }
+    .nf-btn-primary {
+      background: var(--accent);
+      color: white;
+      box-shadow: var(--shadow-md);
+    }
+    .nf-btn-primary:hover {
+      background: var(--accent-700);
+      text-decoration: none;
+      transform: translateY(-1px);
+    }
+    .nf-btn-secondary {
+      border: 1px solid var(--border-strong);
+      color: var(--fg);
+      background: var(--bg);
+    }
+    .nf-btn-secondary:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <a href="/go-lang-course/" class="brand">
+      <span class="brand-mark">Go</span>
+      <span class="brand-name">Learn <span class="brand-accent">Go</span></span>
+    </a>
+    <div class="header-spacer"></div>
+  </header>
+
+  <main class="nf-wrap">
+    <div class="nf-card">
+
+      <!-- ======== Gopher with wrench ====================================
+           Stylized take on the Go gopher (original design by Renee French).
+           Pure SVG — no external assets, scales cleanly, theme-agnostic. -->
+      <svg class="nf-gopher" viewBox="0 0 400 420" xmlns="http://www.w3.org/2000/svg"
+           role="img" aria-label="A Go gopher holding a wrench, looking puzzled.">
+        <defs>
+          <linearGradient id="bodyGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0"   stop-color="#7fd6e8"/>
+            <stop offset="1"   stop-color="#5dc9e2"/>
+          </linearGradient>
+          <linearGradient id="wrenchGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#d6dce4"/>
+            <stop offset="1" stop-color="#7c8898"/>
+          </linearGradient>
+        </defs>
+
+        <!-- ground shadow -->
+        <ellipse cx="200" cy="402" rx="120" ry="9" fill="rgba(0,0,0,0.12)"/>
+
+        <!-- left arm (hanging) -->
+        <ellipse cx="80" cy="265" rx="22" ry="44" fill="url(#bodyGrad)" stroke="#007d9c" stroke-width="4"/>
+
+        <!-- feet -->
+        <ellipse cx="150" cy="388" rx="32" ry="16" fill="url(#bodyGrad)" stroke="#007d9c" stroke-width="4"/>
+        <ellipse cx="250" cy="388" rx="32" ry="16" fill="url(#bodyGrad)" stroke="#007d9c" stroke-width="4"/>
+
+        <!-- main body -->
+        <ellipse cx="200" cy="232" rx="138" ry="158" fill="url(#bodyGrad)" stroke="#007d9c" stroke-width="4"/>
+
+        <!-- belly accent -->
+        <path d="M 200 365 Q 110 358 108 268 Q 108 222 150 208 L 250 208 Q 292 222 292 268 Q 290 358 200 365 Z"
+              fill="#d4eff6" opacity="0.55"/>
+
+        <!-- ears -->
+        <g>
+          <ellipse cx="125" cy="92" rx="22" ry="32" fill="url(#bodyGrad)" stroke="#007d9c" stroke-width="4"/>
+          <ellipse cx="125" cy="96" rx="10" ry="17" fill="#f5b5ae"/>
+        </g>
+        <g>
+          <ellipse cx="275" cy="92" rx="22" ry="32" fill="url(#bodyGrad)" stroke="#007d9c" stroke-width="4"/>
+          <ellipse cx="275" cy="96" rx="10" ry="17" fill="#f5b5ae"/>
+        </g>
+
+        <!-- eyebrows (puzzled) -->
+        <path d="M 112 122 Q 138 108 172 118"
+              stroke="#007d9c" stroke-width="6" stroke-linecap="round" fill="none"/>
+        <path d="M 228 118 Q 262 108 288 122"
+              stroke="#007d9c" stroke-width="6" stroke-linecap="round" fill="none"/>
+
+        <!-- eyes -->
+        <circle cx="150" cy="168" r="42" fill="white" stroke="#007d9c" stroke-width="4"/>
+        <circle cx="250" cy="168" r="42" fill="white" stroke="#007d9c" stroke-width="4"/>
+        <!-- pupils (slightly cross-eyed = confused) -->
+        <circle cx="162" cy="172" r="14" fill="#1a2330"/>
+        <circle cx="238" cy="172" r="14" fill="#1a2330"/>
+        <circle cx="166" cy="167" r="5" fill="white"/>
+        <circle cx="242" cy="167" r="5" fill="white"/>
+
+        <!-- snout / nose -->
+        <ellipse cx="200" cy="218" rx="25" ry="17" fill="white" stroke="#007d9c" stroke-width="3"/>
+        <ellipse cx="200" cy="211" rx="7" ry="5" fill="#1a2330"/>
+        <!-- mouth divider -->
+        <path d="M 200 226 L 200 234" stroke="#007d9c" stroke-width="2" stroke-linecap="round"/>
+        <!-- buck teeth -->
+        <rect x="190.5" y="232" width="9" height="15" rx="2" fill="white" stroke="#007d9c" stroke-width="1.8"/>
+        <rect x="200.5" y="232" width="9" height="15" rx="2" fill="white" stroke="#007d9c" stroke-width="1.8"/>
+
+        <!-- right arm raised, holding wrench -->
+        <ellipse cx="318" cy="200" rx="22" ry="50"
+                 fill="url(#bodyGrad)" stroke="#007d9c" stroke-width="4"
+                 transform="rotate(-22 318 200)"/>
+        <!-- hand at the top of the arm -->
+        <circle cx="338" cy="155" r="16" fill="url(#bodyGrad)" stroke="#007d9c" stroke-width="4"/>
+
+        <!-- wrench (origin = hand center, rotated outward) -->
+        <g transform="translate(338 155) rotate(22)">
+          <!-- handle -->
+          <rect x="-8" y="-72" width="16" height="80" rx="5"
+                fill="url(#wrenchGrad)" stroke="#1a2330" stroke-width="3"/>
+          <!-- open-end head with U-notch -->
+          <path d="M -8 -72 L -24 -72 L -24 -118 L -9 -118 L -9 -98 L 9 -98 L 9 -118 L 24 -118 L 24 -72 L 8 -72 Z"
+                fill="url(#wrenchGrad)" stroke="#1a2330" stroke-width="3" stroke-linejoin="round"/>
+          <!-- highlight -->
+          <rect x="-4" y="-60" width="2.5" height="55" rx="1" fill="rgba(255,255,255,0.55)"/>
+        </g>
+      </svg>
+
+      <div class="nf-code">404</div>
+      <h1 class="nf-title">This page is under construction… or it never existed.</h1>
+      <p class="nf-sub">
+        The URL you followed doesn't match any chapter in the course.
+        Our gopher is on it — but in the meantime, head back home or jump straight into Chapter 1.
+      </p>
+      <code class="nf-path" id="nf-path"></code>
+
+      <div class="nf-actions">
+        <a class="nf-btn nf-btn-primary" href="/go-lang-course/">← Back to home</a>
+        <a class="nf-btn nf-btn-secondary" href="/go-lang-course/chapters/01-what-is-coding.html">Start Chapter 1 →</a>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Show the path the user tried to reach (helps them spot typos)
+    (function () {
+      var el = document.getElementById('nf-path');
+      if (!el) return;
+      var p = window.location.pathname || '';
+      if (p.length > 1) el.textContent = p;
+      else el.style.display = 'none';
+    })();
+  </script>
+</body>
+</html>
