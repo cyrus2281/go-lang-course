@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Template — Chapter 0 · Learn Go by Cyrus Mobini</title>
+  <meta name="description" content="Reference template for course chapters — showcases every component (callouts, code, quiz, exercise, diagram) for the Learn Go site.">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Template — Learn Go by Cyrus Mobini">
+  <meta property="og:description" content="Reference template for course chapters.">
+  <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/_template.html">
+  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Template — Learn Go by Cyrus Mobini">
+  <meta name="twitter:description" content="Reference template for course chapters.">
+  <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/prism.css">
+
+  <!-- Apply persisted theme before first paint to prevent flicker -->
+  <script>
+    (function(){ try { var t = localStorage.getItem('go-course-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t); } catch(e){} })();
+  </script>
+</head>
+<body>
+
+  <!-- ======== Site header ========================================== -->
+  <header class="site-header">
+    <a href="../index.html" class="brand">
+      <span class="brand-mark">Go</span>
+      <span class="brand-name">Learn <span class="brand-accent">Go</span></span>
+    </a>
+    <button id="menu-toggle" class="icon-btn menu-toggle" aria-label="Toggle chapter menu" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="header-spacer"></div>
+    <div class="search" role="search">
+      <input id="search-input" type="search" placeholder="Search chapters…" autocomplete="off" aria-label="Search across all chapters">
+      <kbd class="search-hint">/</kbd>
+      <div id="search-results" class="search-results" role="listbox"></div>
+    </div>
+    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" type="button"></button>
+  </header>
+
+  <!-- ======== Layout ============================================== -->
+  <div class="chapter-layout">
+
+    <!-- Sidebar: chapter sub-TOC -->
+    <aside class="chapter-sidebar">
+      <div class="side-title">On this page</div>
+      <ul>
+        <li><a href="#objectives">Learning objectives</a></li>
+        <li><a href="#intro">Introduction</a>
+          <ul>
+            <li><a href="#what">What is this?</a></li>
+            <li><a href="#why">Why does it matter?</a></li>
+          </ul>
+        </li>
+        <li><a href="#code">Code examples</a></li>
+        <li><a href="#diagram">Diagram</a></li>
+        <li><a href="#pitfalls">Common pitfalls</a></li>
+        <li><a href="#quiz">Check your understanding</a></li>
+        <li><a href="#exercise">Exercises</a></li>
+        <li><a href="#further">Further reading</a></li>
+      </ul>
+      <div class="side-title">All chapters</div>
+      <ul>
+        <li><a href="../index.html">← Back to table of contents</a></li>
+      </ul>
+    </aside>
+
+    <!-- Main content -->
+    <main class="chapter-main" data-chapter-id="ch-00">
+      <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 00 · TEMPLATE</div>
+      <h1>Chapter Template — Every Component</h1>
+      <p>This is the canonical template for every chapter of the course. Use it as a
+         reference to copy when authoring a new chapter. The quick-start row below sets
+         the tone: clear objectives, runnable code, diagrams, pitfalls, quizzes, and
+         exercises — in that order.</p>
+
+      <!-- Learning objectives -->
+      <section id="objectives" class="learning-objectives">
+        <h3>Learning objectives</h3>
+        <ul>
+          <li>Know what a chapter looks like end-to-end.</li>
+          <li>Recognize the standard pedagogical components: theory → code → pitfalls → practice.</li>
+          <li>Understand how to copy and run every code snippet.</li>
+          <li>Demonstrate understanding with a short quiz.</li>
+        </ul>
+      </section>
+
+      <!-- Intro -->
+      <section id="intro">
+        <h2>Introduction</h2>
+        <p>Go (or <em>Golang</em>) is an open-source programming language created at Google
+           in 2007. It combines the performance of a compiled language with the simplicity
+           of a modern one. Programs run fast, compile almost instantly, and scale well —
+           which is why Go powers projects like Kubernetes, Docker, and Terraform.</p>
+
+        <h3 id="what">What is this page?</h3>
+        <p>A <em>template</em>. Every component you'd expect in a chapter is shown exactly
+           once so you can see them in isolation. Real chapters reuse the same HTML
+           structure but fill it with lesson-specific content.</p>
+
+        <h3 id="why">Why does this matter?</h3>
+        <p>Consistency. A predictable layout lets learners focus on the ideas, not on
+           finding where the quiz went.</p>
+
+        <div class="callout info">
+          <div class="ico">i</div>
+          <div>
+            <span class="callout-title">Info</span>
+            Callouts like this one highlight context the reader should not miss.
+          </div>
+        </div>
+
+        <div class="callout tip">
+          <div class="ico">✓</div>
+          <div>
+            <span class="callout-title">Pro tip</span>
+            Press <kbd>/</kbd> to jump to the search box, <kbd>←</kbd>/<kbd>→</kbd> to
+            move between chapters, and <kbd>t</kbd> to toggle theme.
+          </div>
+        </div>
+      </section>
+
+      <!-- Code examples -->
+      <section id="code">
+        <h2>Code examples</h2>
+        <p>Every Go snippet has a <strong>Copy</strong> button and a <strong>Run</strong>
+           button. Click Run and an embedded Go Playground appears below the snippet —
+           the code is already on your clipboard, paste it with <kbd>⌘/Ctrl+V</kbd> and
+           click Run inside the playground.</p>
+
+        <pre><code class="language-go">package main
+
+import "fmt"
+
+func main() {
+    // The canonical first program.
+    fmt.Println("Hello, Go!")
+
+    // Loops and slices:
+    nums := []int{1, 2, 3, 4, 5}
+    sum := 0
+    for _, n := range nums {
+        sum += n
+    }
+    fmt.Printf("sum of %v = %d\n", nums, sum)
+}
+</code></pre>
+
+        <p>Shell commands use the <code>bash</code> language and get copy buttons without
+           the Run option:</p>
+
+        <pre><code class="language-bash"># Create a new Go module and run your first program
+mkdir learn-go && cd learn-go
+go mod init example.com/learn-go
+echo 'package main
+
+import "fmt"
+
+func main() { fmt.Println("Hello, Go!") }' > main.go
+go run .</code></pre>
+
+        <p>JSON samples:</p>
+
+        <pre><code class="language-json">{
+  "name": "learn-go",
+  "chapters": 30,
+  "author": "Cyrus Mobini",
+  "interactive": true
+}</code></pre>
+      </section>
+
+      <!-- Diagram -->
+      <section id="diagram">
+        <h2>Diagram</h2>
+        <p>Inline SVGs render crisply at any size and respect the theme:</p>
+        <figure class="diagram">
+          <svg viewBox="0 0 520 200" width="100%" height="200" role="img" aria-label="Source code is compiled into machine code executed by the CPU">
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)"/>
+              </marker>
+            </defs>
+            <g font-family="var(--mono)" font-size="14" fill="var(--fg)">
+              <rect x="20"  y="60" width="130" height="80" rx="10" fill="var(--bg-elev)" stroke="var(--accent)" stroke-width="2"/>
+              <text x="85"  y="95"  text-anchor="middle" font-weight="700">main.go</text>
+              <text x="85"  y="120" text-anchor="middle" fill="var(--fg-muted)" font-size="12">source code</text>
+
+              <rect x="195" y="60" width="130" height="80" rx="10" fill="var(--bg-elev)" stroke="var(--accent)" stroke-width="2"/>
+              <text x="260" y="95"  text-anchor="middle" font-weight="700">go build</text>
+              <text x="260" y="120" text-anchor="middle" fill="var(--fg-muted)" font-size="12">compiler</text>
+
+              <rect x="370" y="60" width="130" height="80" rx="10" fill="var(--bg-elev)" stroke="var(--accent)" stroke-width="2"/>
+              <text x="435" y="95"  text-anchor="middle" font-weight="700">binary</text>
+              <text x="435" y="120" text-anchor="middle" fill="var(--fg-muted)" font-size="12">runs on CPU</text>
+
+              <line x1="150" y1="100" x2="195" y2="100" stroke="var(--accent)" stroke-width="2" marker-end="url(#arrow)"/>
+              <line x1="325" y1="100" x2="370" y2="100" stroke="var(--accent)" stroke-width="2" marker-end="url(#arrow)"/>
+            </g>
+          </svg>
+          <figcaption class="diagram-caption">Go compiles source files into a single static binary.</figcaption>
+        </figure>
+      </section>
+
+      <!-- Pitfalls -->
+      <section id="pitfalls">
+        <h2>Common pitfalls</h2>
+        <div class="callout pitfall">
+          <div class="ico">!</div>
+          <div>
+            <span class="callout-title">Forgetting <code>package main</code></span>
+            Every runnable program needs exactly one file with <code>package main</code>
+            and a <code>main()</code> function. Library packages use any other name.
+          </div>
+        </div>
+        <div class="callout warn">
+          <div class="ico">⚠</div>
+          <div>
+            <span class="callout-title">Unused imports and variables</span>
+            Go refuses to compile code with unused imports or unused local variables.
+            Use the blank identifier <code>_</code> or remove the offender.
+          </div>
+        </div>
+      </section>
+
+      <!-- Quiz -->
+      <section id="quiz">
+        <h2>Check your understanding</h2>
+        <div class="quiz" data-quiz data-chapter-id="ch-00">
+          <script type="application/json" class="quiz-data">
+          {
+            "title": "Quick quiz",
+            "questions": [
+              {
+                "q": "Which function is the entry point of a runnable Go program?",
+                "options": ["start()", "init()", "main()", "run()"],
+                "answer": 2,
+                "explanation": "A runnable program must have a function named main in package main."
+              },
+              {
+                "q": "What does Go do if you leave an imported package unused?",
+                "options": [
+                  "Nothing — it silently ignores it.",
+                  "It warns you at runtime.",
+                  "It refuses to compile.",
+                  "It logs a deprecation notice."
+                ],
+                "answer": 2,
+                "explanation": "Go treats unused imports as compile errors. It's one of the language's opinionated choices toward clean code."
+              },
+              {
+                "q": "Which command compiles AND runs a Go source file in one step?",
+                "options": ["go run .", "go build .", "go compile .", "go exec ."],
+                "answer": 0,
+                "explanation": "`go run` compiles to a temp binary and executes it. `go build` only compiles."
+              }
+            ]
+          }
+          </script>
+        </div>
+      </section>
+
+      <!-- Exercise -->
+      <section id="exercise">
+        <h2>Practice exercises</h2>
+
+        <div class="exercise">
+          <div class="exercise-header">
+            <span class="badge">EXERCISE 1</span>
+            <h3>Print a greeting for each argument</h3>
+          </div>
+          <div class="exercise-task">
+            <p>Write a program that iterates over <code>os.Args[1:]</code> and prints
+               <code>"Hello, NAME!"</code> for each argument. If no arguments are given,
+               print <code>"Hello, stranger!"</code>.</p>
+            <p><em>Hints:</em> import <code>os</code> and <code>fmt</code>. Use
+               <code>for _, name := range ...</code>. Check <code>len(os.Args) == 1</code>
+               for the no-arg case.</p>
+          </div>
+          <details class="exercise-solution">
+            <summary>Show one possible solution</summary>
+            <pre><code class="language-go">package main
+
+import (
+    "fmt"
+    "os"
+)
+
+func main() {
+    args := os.Args[1:]
+    if len(args) == 0 {
+        fmt.Println("Hello, stranger!")
+        return
+    }
+    for _, name := range args {
+        fmt.Printf("Hello, %s!\n", name)
+    }
+}
+</code></pre>
+          </details>
+        </div>
+      </section>
+
+      <!-- Further reading -->
+      <section id="further" class="further-reading">
+        <h3>Further reading</h3>
+        <ul>
+          <li><a href="https://go.dev/doc/tutorial/getting-started" target="_blank" rel="noopener">Official tutorial — Getting started</a></li>
+          <li><a href="https://go.dev/tour/welcome/1" target="_blank" rel="noopener">A Tour of Go</a></li>
+          <li><a href="https://go.dev/doc/effective_go" target="_blank" rel="noopener">Effective Go</a></li>
+        </ul>
+      </section>
+
+      <!-- Mark complete -->
+      <div class="complete-box">
+        <p>Finished this chapter?</p>
+        <button class="complete-btn" type="button" data-chapter-id="ch-00">✓ Mark this chapter complete</button>
+      </div>
+
+      <!-- Chapter nav -->
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a class="prev" href="../index.html">
+          <div class="nav-label">Previous</div>
+          <div class="nav-title">Back to table of contents</div>
+        </a>
+        <a class="next" href="../index.html">
+          <div class="nav-label">Next</div>
+          <div class="nav-title">Back to table of contents</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+
+  <!-- ======== Footer ============================================== -->
+  <footer class="site-footer">
+    <div class="footer-line">
+      Made with <span class="heart">❤️</span> by
+      <a href="https://github.com/cyrus2281" target="_blank" rel="noopener">Cyrus Mobini</a>
+    </div>
+    <a class="bmac" href="https://buymeacoffee.com/cyrus2281" target="_blank" rel="noopener" aria-label="Support Cyrus on Buy Me a Coffee">
+      <span class="bmac-icon" aria-hidden="true">☕</span>
+      Buy me a coffee
+    </a>
+  </footer>
+
+  <script src="../assets/js/progress.js" defer></script>
+  <script src="../assets/js/prism.js" defer></script>
+  <script src="../assets/js/app.js" defer></script>
+  <script src="../assets/js/quiz.js" defer></script>
+  <script src="../assets/js/search.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Learn Go — Interactive 34-chapter course by Cyrus Mobini</title>
+  <meta name="description" content="A complete, interactive Go programming course. 34 chapters, runnable examples in the Go Playground, quizzes, exercises, and progress tracking. Free and open source.">
+  <meta name="author" content="Cyrus Mobini">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Learn Go — Interactive 34-chapter course">
+  <meta property="og:description" content="A complete, interactive Go programming course. 34 chapters, runnable examples, quizzes, and exercises.">
+  <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/">
+  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Learn Go — Interactive 34-chapter course">
+  <meta name="twitter:description" content="A complete, interactive Go programming course. 34 chapters, runnable examples, quizzes, and exercises.">
+  <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <meta name="twitter:creator" content="@cyrus2281">
+
+  <!-- JSON-LD structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    "name": "Learn Go — Interactive 34-chapter course",
+    "description": "A complete, interactive Go programming course with 34 chapters, runnable examples, quizzes, and exercises.",
+    "provider": { "@type": "Organization", "name": "Cyrus Mobini", "url": "https://github.com/cyrus2281" },
+    "author": { "@type": "Person", "name": "Cyrus Mobini", "url": "https://github.com/cyrus2281" },
+    "learningResourceType": "Course",
+    "inLanguage": "en"
+  }
+  </script>
+
+  <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/">
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="stylesheet" href="assets/css/prism.css">
+
+  <script>
+    (function(){ try { var t = localStorage.getItem('go-course-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t); } catch(e){} })();
+  </script>
+</head>
+<body>
+
+  <!-- ======== Site header =========================================== -->
+  <header class="site-header">
+    <a href="index.html" class="brand">
+      <span class="brand-mark">Go</span>
+      <span class="brand-name">Learn <span class="brand-accent">Go</span></span>
+    </a>
+    <div class="header-spacer"></div>
+    <div class="search" role="search">
+      <input id="search-input" type="search" placeholder="Search chapters, topics…" autocomplete="off" aria-label="Search across all chapters">
+      <kbd class="search-hint">/</kbd>
+      <div id="search-results" class="search-results" role="listbox"></div>
+    </div>
+    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" type="button"></button>
+  </header>
+
+  <!-- ======== Hero ================================================= -->
+  <section class="hero">
+    <div class="hero-inner">
+      <h1>Learn Go, <span style="color:var(--accent)">from scratch.</span></h1>
+      <p class="sub">
+        An interactive, 34-chapter course on the Go programming language.
+        Runnable examples, quizzes after every chapter, hands-on exercises,
+        and your progress saved locally as you learn.
+      </p>
+      <a class="hero-cta" href="chapters/01-what-is-coding.html" id="start-btn">
+        <span id="cta-label">Start learning →</span>
+      </a>
+
+      <div class="hero-stats">
+        <div>
+          <strong id="stat-chapters">34</strong>
+          <span>chapters</span>
+        </div>
+        <div>
+          <strong>~25h</strong>
+          <span>of material</span>
+        </div>
+        <div>
+          <strong>100%</strong>
+          <span>free · open source</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======== Progress bar ========================================= -->
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>Your progress</span>
+      <span id="progress-label">0 / 34 chapters · 0%</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+  </div>
+
+  <!-- ======== Features ============================================= -->
+  <h2 class="section-heading">Why this course?</h2>
+  <div class="features-grid">
+    <div class="feature">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 6 2 12 8 18"/><polyline points="16 6 22 12 16 18"/></svg>
+      </div>
+      <h3>Runnable code</h3>
+      <p>Every example has a Run button that opens the Go Playground — edit and execute right on the page, no install required.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a5 5 0 0 0-5 5v2a5 5 0 0 0 10 0V7a5 5 0 0 0-5-5z"/><path d="M8 14v1m8-1v1"/><path d="M5 22h14"/><path d="M7 22v-3a5 5 0 0 1 10 0v3"/></svg>
+      </div>
+      <h3>Quizzes & exercises</h3>
+      <p>After each chapter: 3–5 multiple-choice questions with explanations, plus hands-on exercises with sample solutions.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      </div>
+      <h3>Progress tracking</h3>
+      <p>Mark chapters complete as you go. Your progress is saved in your browser — no accounts, no tracking.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      </div>
+      <h3>Instant search</h3>
+      <p>Find any topic across all 30 chapters in milliseconds. Press <kbd>/</kbd> from anywhere to jump to search.</p>
+    </div>
+  </div>
+
+  <!-- ======== TOC ================================================== -->
+  <section class="toc">
+    <h2>Table of contents</h2>
+    <p class="toc-sub">34 chapters from absolute beginner to shipping idiomatic Go.</p>
+    <div id="toc-parts">
+      <!-- Parts + chapter cards are injected by JS from the search index -->
+    </div>
+  </section>
+
+  <!-- ======== Footer =============================================== -->
+  <footer class="site-footer">
+    <div class="footer-line">
+      Made with <span class="heart">❤️</span> by
+      <a href="https://github.com/cyrus2281" target="_blank" rel="noopener">Cyrus Mobini</a>
+    </div>
+    <a class="bmac" href="https://buymeacoffee.com/cyrus2281" target="_blank" rel="noopener" aria-label="Support Cyrus on Buy Me a Coffee">
+      <span class="bmac-icon" aria-hidden="true">☕</span>
+      Buy me a coffee
+    </a>
+  </footer>
+
+  <script src="assets/js/progress.js" defer></script>
+  <script src="assets/js/prism.js" defer></script>
+  <script src="assets/js/app.js" defer></script>
+  <script src="assets/js/search.js" defer></script>
+
+  <!-- Index-specific: render TOC cards + progress bar + resume button. -->
+  <script>
+    (function () {
+      async function loadIndex() {
+        try {
+          const res = await fetch('assets/data/search-index.json');
+          if (!res.ok) return null;
+          return await res.json();
+        } catch (e) { return null; }
+      }
+
+      function esc(s) {
+        return String(s).replace(/[&<>"']/g, c => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[c]));
+      }
+
+      async function init() {
+        const idx = await loadIndex();
+        if (!idx) return;
+        const chapters = idx.chapters || [];
+
+        if (window.GoProgress) window.GoProgress.setTotal(chapters.length);
+
+        // Group chapters by part, preserving order
+        const byPart = [];
+        const seenPart = new Map();
+        chapters.forEach(ch => {
+          const p = ch.part || 'Chapters';
+          if (!seenPart.has(p)) {
+            seenPart.set(p, byPart.length);
+            byPart.push({ part: p, chapters: [] });
+          }
+          byPart[seenPart.get(p)].chapters.push(ch);
+        });
+
+        const parts = document.getElementById('toc-parts');
+        parts.innerHTML = byPart.map((grp, i) => `
+          <div class="toc-part">
+            <div class="toc-part-header">
+              <span class="toc-part-num">PART ${String(i + 1).padStart(2, '0')}</span>
+              <h3 class="toc-part-title">${esc(grp.part)}</h3>
+            </div>
+            <div class="toc-grid">
+              ${grp.chapters.map(ch => `
+                <a class="toc-card" href="chapters/${esc(ch.slug)}.html" data-chapter-id="${esc(ch.id)}">
+                  <div class="toc-num">CHAPTER ${String(ch.number).padStart(2, '0')}</div>
+                  <div class="toc-title">${esc(ch.title)}</div>
+                  <div class="toc-desc">${esc(ch.description || '')}</div>
+                </a>
+              `).join('')}
+            </div>
+          </div>
+        `).join('');
+
+        const grid = parts; // reuse identifier for decoration below
+
+        const statEl = document.getElementById('stat-chapters');
+        if (statEl) statEl.textContent = chapters.length;
+
+        renderProgress();
+        if (window.GoProgress) window.GoProgress.decorateTOCCards(grid);
+
+        // CTA: "Resume at chapter N" if they've started
+        const last = window.GoProgress && window.GoProgress.getLastVisited();
+        const cta = document.getElementById('start-btn');
+        const label = document.getElementById('cta-label');
+        if (last && cta) {
+          const match = chapters.find(c => c.id === last.id);
+          if (match) {
+            cta.href = 'chapters/' + match.slug + '.html';
+            label.textContent = `Resume at Chapter ${match.number} →`;
+          }
+        }
+
+        // React to progress changes across tabs / components
+        document.addEventListener('progress:change', () => {
+          if (window.GoProgress) window.GoProgress.decorateTOCCards(grid);
+          renderProgress();
+        });
+        window.addEventListener('storage', () => {
+          if (window.GoProgress) window.GoProgress.decorateTOCCards(grid);
+          renderProgress();
+        });
+      }
+
+      function renderProgress() {
+        if (!window.GoProgress) return;
+        window.GoProgress.renderProgressBar(
+          document.getElementById('progress-fill'),
+          document.getElementById('progress-label')
+        );
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
+  </script>
+</body>
+</html>

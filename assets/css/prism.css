@@ -1,0 +1,156 @@
+/* ==========================================================================
+   Prism.js theme — Go-branded, light + dark.
+   Token classes follow Prism's standard naming.
+   ========================================================================== */
+
+code[class*="language-"],
+pre[class*="language-"] {
+  color: var(--code-fg);
+  background: none;
+  font-family: var(--mono);
+  font-size: .9rem;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.55;
+  -moz-tab-size: 4;
+  -o-tab-size: 4;
+  tab-size: 4;
+  hyphens: none;
+}
+
+/* ---------- Light tokens -------------------------------------------------- */
+:root,
+:root[data-theme="light"] {
+  --tk-comment:   #6b7a89;
+  --tk-keyword:   #007d9c;     /* Go cyan dark */
+  --tk-builtin:   #a32a8e;
+  --tk-fn:        #1f6cb0;
+  --tk-string:    #b4642b;
+  --tk-number:    #1f8a4f;
+  --tk-bool:      #a32a8e;
+  --tk-punct:     #4a5868;
+  --tk-operator:  #2b6c8a;
+  --tk-type:      #007d9c;
+  --tk-tag:       #1f8a4f;
+  --tk-attr:      #b4642b;
+  --tk-property:  #1f6cb0;
+  --tk-deleted:   #c13a3a;
+  --tk-inserted:  #2e8a3e;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --tk-comment:   #7b8a9a;
+    --tk-keyword:   #4dc8ec;
+    --tk-builtin:   #d68bd2;
+    --tk-fn:        #6cb6f5;
+    --tk-string:    #e0a868;
+    --tk-number:    #7ed8a3;
+    --tk-bool:      #d68bd2;
+    --tk-punct:     #b3c0cd;
+    --tk-operator:  #6cb8d6;
+    --tk-type:      #4dc8ec;
+    --tk-tag:       #7ed8a3;
+    --tk-attr:      #e0a868;
+    --tk-property:  #6cb6f5;
+    --tk-deleted:   #ff6b81;
+    --tk-inserted:  #7ed8a3;
+  }
+}
+
+/* ---------- Dark tokens (explicit override) ------------------------------ */
+:root[data-theme="dark"] {
+  --tk-comment:   #7b8a9a;
+  --tk-keyword:   #4dc8ec;
+  --tk-builtin:   #d68bd2;
+  --tk-fn:        #6cb6f5;
+  --tk-string:    #e0a868;
+  --tk-number:    #7ed8a3;
+  --tk-bool:      #d68bd2;
+  --tk-punct:     #b3c0cd;
+  --tk-operator:  #6cb8d6;
+  --tk-type:      #4dc8ec;
+  --tk-tag:       #7ed8a3;
+  --tk-attr:      #e0a868;
+  --tk-property:  #6cb6f5;
+  --tk-deleted:   #ff6b81;
+  --tk-inserted:  #7ed8a3;
+}
+
+/* ---------- Token mapping ------------------------------------------------- */
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata { color: var(--tk-comment); font-style: italic; }
+
+.token.punctuation { color: var(--tk-punct); }
+
+.token.namespace { opacity: .8; }
+
+.token.property,
+.token.tag,
+.token.constant,
+.token.symbol,
+.token.deleted { color: var(--tk-deleted); }
+
+.token.tag { color: var(--tk-tag); }
+
+.token.boolean,
+.token.number { color: var(--tk-number); }
+.token.boolean { color: var(--tk-bool); font-weight: 600; }
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted { color: var(--tk-string); }
+
+.token.builtin { color: var(--tk-builtin); }
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string { color: var(--tk-operator); }
+
+.token.atrule,
+.token.attr-value,
+.token.keyword { color: var(--tk-keyword); font-weight: 600; }
+
+.token.function,
+.token.class-name { color: var(--tk-fn); }
+
+.token.regex,
+.token.important,
+.token.variable { color: var(--tk-attr); }
+
+.token.important,
+.token.bold { font-weight: 700; }
+.token.italic { font-style: italic; }
+
+.token.entity { cursor: help; }
+
+/* Go-specific token tweaks */
+.language-go .token.keyword { color: var(--tk-keyword); }
+.language-go .token.builtin { color: var(--tk-type); font-weight: 600; }
+.language-go .token.function { color: var(--tk-fn); }
+.language-go .token.string { color: var(--tk-string); }
+.language-go .token.number { color: var(--tk-number); }
+.language-go .token.comment { color: var(--tk-comment); }
+
+/* JSON */
+.language-json .token.property { color: var(--tk-property); }
+.language-json .token.string { color: var(--tk-string); }
+.language-json .token.number { color: var(--tk-number); }
+.language-json .token.boolean { color: var(--tk-bool); }
+
+/* Bash */
+.language-bash .token.function,
+.language-bash .token.builtin { color: var(--tk-fn); }
+.language-bash .token.variable { color: var(--tk-attr); }
+.language-bash .token.string { color: var(--tk-string); }
+.language-bash .token.comment { color: var(--tk-comment); }

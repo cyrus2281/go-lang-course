@@ -1,0 +1,346 @@
+{
+  "version": 2,
+  "updated": "2026-04-22",
+  "chapters": [
+    {
+      "id": "ch-01",
+      "number": 1,
+      "slug": "01-what-is-coding",
+      "part": "Foundations",
+      "title": "What is Coding?",
+      "description": "Programming fundamentals — compilers vs interpreters, where Go fits.",
+      "headings": ["What is Coding?", "How Computers Understand Code", "Compiled vs Interpreted Languages", "Types of Programming Languages", "Why Learn to Code?"],
+      "terms": ["machine code", "compiled", "interpreted", "binary", "compiler", "interpreter", "high-level language", "programming language", "source code", "bytecode", "CPU"]
+    },
+    {
+      "id": "ch-02",
+      "number": 2,
+      "slug": "02-story-of-go",
+      "part": "Foundations",
+      "title": "The Story of Go",
+      "description": "Go's origin at Google, why it was created, and where it's used today.",
+      "headings": ["The Birth of Go", "Why Go Was Created", "Main Benefits of Using Go", "Industries and Use Cases"],
+      "terms": ["golang", "Rob Pike", "Ken Thompson", "Robert Griesemer", "Google", "Kubernetes", "Docker", "Terraform", "concurrency", "garbage collection"]
+    },
+    {
+      "id": "ch-03",
+      "number": 3,
+      "slug": "03-installation",
+      "part": "Foundations",
+      "title": "Installing Go & Setting Up Your Editor",
+      "description": "Install the Go toolchain on macOS, Linux, and Windows. Configure VS Code + gopls.",
+      "headings": ["Downloading Go", "Installation by OS", "Verifying the Install", "Editor Setup (VS Code + gopls)", "GOPATH vs Modules"],
+      "terms": ["go install", "go version", "GOPATH", "GOROOT", "Homebrew", "apt", "winget", "gopls", "VS Code", "GoLand"]
+    },
+    {
+      "id": "ch-04",
+      "number": 4,
+      "slug": "04-hello-world",
+      "part": "Foundations",
+      "title": "Hello, World & Your First Module",
+      "description": "Your first Go program. go run, go build, go install, go fmt, and go mod init.",
+      "headings": ["Writing Hello World", "Understanding the Code", "go run vs go build", "Your First Module", "go fmt"],
+      "terms": ["package main", "import", "fmt.Println", "go run", "go build", "go install", "go fmt", "go mod init", "main function"]
+    },
+    {
+      "id": "ch-05",
+      "number": 5,
+      "slug": "05-variables",
+      "part": "Core Language",
+      "title": "Variables & Constants",
+      "description": "Declaring variables, constants, zero values, blank identifier, and iota.",
+      "headings": ["Declaring Variables", "Short Variable Declarations", "Constants", "iota", "Zero Values", "Blank Identifier", "Multiple Declaration"],
+      "terms": ["var", "const", ":=", "zero value", "blank identifier", "iota", "typed constant", "untyped constant", "constant expression"]
+    },
+    {
+      "id": "ch-06",
+      "number": 6,
+      "slug": "06-basic-types",
+      "part": "Core Language",
+      "title": "Basic Types",
+      "description": "Integers, floats, booleans, strings, complex numbers, and type conversions.",
+      "headings": ["Integer Types", "Floating-Point Types", "Boolean Type", "String Type", "Complex Numbers", "Type Conversion", "Integer Overflow"],
+      "terms": ["int", "int8", "int16", "int32", "int64", "uint", "uintptr", "float32", "float64", "bool", "string", "complex64", "complex128", "overflow"]
+    },
+    {
+      "id": "ch-07",
+      "number": 7,
+      "slug": "07-strings-runes-unicode",
+      "part": "Core Language",
+      "title": "Strings, Runes & Unicode",
+      "description": "UTF-8 internals, rune vs byte, ranging over strings, the unicode/utf8 package.",
+      "headings": ["Strings Are Bytes", "Runes", "UTF-8 Encoding", "Ranging Over Strings", "String Conversions", "strings & unicode/utf8 Packages"],
+      "terms": ["string", "rune", "byte", "UTF-8", "Unicode", "codepoint", "utf8.RuneCountInString", "unicode/utf8", "strings package"]
+    },
+    {
+      "id": "ch-08",
+      "number": 8,
+      "slug": "08-operators",
+      "part": "Core Language",
+      "title": "Operators & Expressions",
+      "description": "Arithmetic, relational, logical, bitwise, assignment, and operator precedence.",
+      "headings": ["Arithmetic", "Relational", "Logical", "Bitwise", "Assignment", "Precedence", "Short-circuit Evaluation"],
+      "terms": ["+", "-", "*", "/", "%", "&&", "||", "!", "&", "|", "^", "<<", ">>", "==", "!=", "precedence", "short-circuit"]
+    },
+    {
+      "id": "ch-09",
+      "number": 9,
+      "slug": "09-conditionals",
+      "part": "Core Language",
+      "title": "Conditional Flow",
+      "description": "if, else, switch, fallthrough, short statements, preview of type switches.",
+      "headings": ["if", "if-else", "if-else-if", "Short Statement", "switch", "fallthrough", "Type Switch Preview"],
+      "terms": ["if", "else", "switch", "case", "default", "fallthrough", "type switch", "short statement"]
+    },
+    {
+      "id": "ch-10",
+      "number": 10,
+      "slug": "10-loops",
+      "part": "Core Language",
+      "title": "Loops",
+      "description": "for loops, while-equivalent, range over slices / maps / strings / channels, labels.",
+      "headings": ["Basic for Loop", "While Equivalent", "Infinite Loop", "range", "Labeled Loops"],
+      "terms": ["for", "range", "break", "continue", "label", "infinite loop", "while"]
+    },
+    {
+      "id": "ch-11",
+      "number": 11,
+      "slug": "11-functions",
+      "part": "Core Language",
+      "title": "Functions",
+      "description": "Declaring, parameters, multiple returns, variadic, closures, named returns, defer.",
+      "headings": ["Declaring Functions", "Parameters", "Return Values", "Multiple Returns", "Variadic", "Named Returns", "Closures", "defer"],
+      "terms": ["func", "return", "variadic", "closure", "defer", "named return", "first-class function", "anonymous function"]
+    },
+    {
+      "id": "ch-12",
+      "number": 12,
+      "slug": "12-arrays",
+      "part": "Composite Types",
+      "title": "Arrays",
+      "description": "Fixed-size arrays, initialization, comparison, when (not) to use them.",
+      "headings": ["Declaring Arrays", "Initializing", "Iterating", "Comparison", "Multidimensional", "Arrays vs Slices"],
+      "terms": ["array", "fixed-size", "[n]T", "[...]T", "len", "array comparison", "multidimensional"]
+    },
+    {
+      "id": "ch-13",
+      "number": 13,
+      "slug": "13-slices",
+      "part": "Composite Types",
+      "title": "Slices — Internals & Idioms",
+      "description": "Slice internals (pointer, len, cap), append, nil vs empty, aliasing pitfalls.",
+      "headings": ["Declaring", "Slice Header", "make()", "Slicing", "append", "copy", "Length vs Capacity", "Nil Slices", "Aliasing Pitfalls"],
+      "terms": ["slice", "append", "copy", "len", "cap", "make", "nil slice", "empty slice", "header", "underlying array", "aliasing", "pointer"]
+    },
+    {
+      "id": "ch-14",
+      "number": 14,
+      "slug": "14-maps",
+      "part": "Composite Types",
+      "title": "Maps",
+      "description": "Hash maps, comma-ok idiom, random iteration order, deletion, sync.Map.",
+      "headings": ["Declaring Maps", "make()", "Accessing", "Deleting", "Iterating", "comma-ok idiom", "sync.Map"],
+      "terms": ["map", "comma-ok", "delete", "range", "iteration order", "sync.Map"]
+    },
+    {
+      "id": "ch-15",
+      "number": 15,
+      "slug": "15-structs",
+      "part": "Composite Types",
+      "title": "Structs & Embedding",
+      "description": "Composite types, embedded fields, struct tags, anonymous structs.",
+      "headings": ["Defining Structs", "Initializing", "Field Access", "Embedded Fields", "Struct Tags", "Anonymous Structs", "Comparison"],
+      "terms": ["struct", "field", "embedded", "tag", "composition", "anonymous struct"]
+    },
+    {
+      "id": "ch-16",
+      "number": 16,
+      "slug": "16-pointers",
+      "part": "Composite Types",
+      "title": "Pointers",
+      "description": "Address-of, dereference, pass-by-value vs pass-by-reference, when to use pointers.",
+      "headings": ["What is a Pointer?", "Address-of Operator", "Dereferencing", "nil", "Pass-by-Value", "new() vs &T{}"],
+      "terms": ["pointer", "&", "*", "dereference", "address-of", "nil", "new", "pass-by-value", "pass-by-reference"]
+    },
+    {
+      "id": "ch-17",
+      "number": 17,
+      "slug": "17-scope",
+      "part": "Organizing Code",
+      "title": "Scope & Shadowing",
+      "description": "Block scope, package scope, the dreaded shadowing pitfall.",
+      "headings": ["Block Scope", "Package Scope", "Shadowing", "Common Shadowing Pitfalls"],
+      "terms": ["scope", "block scope", "package scope", "shadowing", "variable shadowing"]
+    },
+    {
+      "id": "ch-18",
+      "number": 18,
+      "slug": "18-packages-modules",
+      "part": "Organizing Code",
+      "title": "Packages & Modules",
+      "description": "go.mod, go.sum, imports, exports, internal and vendor directories.",
+      "headings": ["Packages", "Executable vs Library", "Exported Names", "main and init", "Modules", "go.mod", "go.sum", "internal", "vendor"],
+      "terms": ["package", "import", "go.mod", "go.sum", "module", "internal", "vendor", "export", "capitalization", "init", "semver"]
+    },
+    {
+      "id": "ch-19",
+      "number": 19,
+      "slug": "19-naming-and-style",
+      "part": "Organizing Code",
+      "title": "Naming Conventions & Idiomatic Style",
+      "description": "MixedCase, acronyms, receiver names, short names, go fmt, go vet.",
+      "headings": ["General Rules", "Variables and Constants", "Functions", "Structs", "Packages", "Interfaces", "Acronyms", "Receiver Names", "gofmt & go vet"],
+      "terms": ["MixedCase", "camelCase", "PascalCase", "acronym", "URL", "HTTP", "ID", "receiver", "naming", "gofmt", "go vet"]
+    },
+    {
+      "id": "ch-20",
+      "number": 20,
+      "slug": "20-methods-receivers",
+      "part": "Types & Abstractions",
+      "title": "Methods & Receivers",
+      "description": "Attaching methods to types, value vs pointer receivers, method sets, named types.",
+      "headings": ["Defining Methods", "Value Receivers", "Pointer Receivers", "Method Sets", "Type Definitions", "Type Aliases", "Conversions"],
+      "terms": ["method", "receiver", "value receiver", "pointer receiver", "method set", "type", "alias", "named type", "conversion"]
+    },
+    {
+      "id": "ch-21",
+      "number": 21,
+      "slug": "21-interfaces",
+      "part": "Types & Abstractions",
+      "title": "Interfaces",
+      "description": "Implicit interfaces, empty interface, type assertions, type switches, the Stringer idiom.",
+      "headings": ["Defining Interfaces", "Implicit Implementation", "Empty Interface / any", "Type Assertions", "Type Switches", "Stringer"],
+      "terms": ["interface", "any", "interface{}", "type assertion", "type switch", "satisfies", "implements", "Stringer"]
+    },
+    {
+      "id": "ch-22",
+      "number": 22,
+      "slug": "22-generics",
+      "part": "Types & Abstractions",
+      "title": "Generics",
+      "description": "Type parameters, constraints, comparable, the constraints package, when to use them.",
+      "headings": ["Type Parameters", "Constraints", "comparable", "constraints package", "When to Use Generics"],
+      "terms": ["generic", "type parameter", "constraint", "comparable", "any", "constraints package"]
+    },
+    {
+      "id": "ch-23",
+      "number": 23,
+      "slug": "23-error-handling",
+      "part": "Types & Abstractions",
+      "title": "Error Handling",
+      "description": "error interface, wrapping with %w, errors.Is / errors.As, custom errors, panic and recover.",
+      "headings": ["The error Interface", "Returning Errors", "Wrapping with %w", "errors.Is", "errors.As", "Sentinel Errors", "Custom Errors", "panic & recover"],
+      "terms": ["error", "errors.New", "fmt.Errorf", "errors.Is", "errors.As", "panic", "recover", "sentinel error", "wrapping"]
+    },
+    {
+      "id": "ch-24",
+      "number": 24,
+      "slug": "24-goroutines",
+      "part": "Concurrency",
+      "title": "Goroutines",
+      "description": "Lightweight concurrency, WaitGroup, Mutex / RWMutex, race detector.",
+      "headings": ["Starting Goroutines", "Goroutine Lifecycle", "WaitGroup", "Mutex", "RWMutex", "Race Detector"],
+      "terms": ["goroutine", "go keyword", "WaitGroup", "sync.Mutex", "RWMutex", "race condition", "GOMAXPROCS", "race detector"]
+    },
+    {
+      "id": "ch-25",
+      "number": 25,
+      "slug": "25-channels",
+      "part": "Concurrency",
+      "title": "Channels & select",
+      "description": "Typed communication, buffered channels, select, channel direction, fan-in / fan-out.",
+      "headings": ["Creating Channels", "Sending & Receiving", "Buffered Channels", "select", "Closing Channels", "Channel Direction", "Fan-in Fan-out"],
+      "terms": ["channel", "chan", "buffered", "unbuffered", "select", "close", "range over channel", "fan-in", "fan-out"]
+    },
+    {
+      "id": "ch-26",
+      "number": 26,
+      "slug": "26-context",
+      "part": "Concurrency",
+      "title": "Context: Cancellation & Deadlines",
+      "description": "context.Context for cancellation, deadlines, timeouts, and request-scoped values.",
+      "headings": ["Why Context?", "context.Background", "WithCancel", "WithDeadline", "WithTimeout", "WithValue", "HTTP Request Context"],
+      "terms": ["context", "context.Context", "context.Background", "context.WithCancel", "context.WithDeadline", "context.WithTimeout", "context.WithValue", "cancellation"]
+    },
+    {
+      "id": "ch-27",
+      "number": 27,
+      "slug": "27-io-files",
+      "part": "Standard Library",
+      "title": "I/O: Readers, Writers & Files",
+      "description": "io.Reader, io.Writer, io.Closer, os files, bufio, io composition.",
+      "headings": ["io.Reader", "io.Writer", "io.Closer", "os.File", "bufio", "Composition"],
+      "terms": ["io.Reader", "io.Writer", "io.Closer", "os.Open", "os.Create", "bufio.Scanner", "bufio.Reader", "bufio.Writer"]
+    },
+    {
+      "id": "ch-28",
+      "number": 28,
+      "slug": "28-time-dates",
+      "part": "Standard Library",
+      "title": "Time, Dates & Durations",
+      "description": "time.Time, layouts (Go's quirky reference time), timers, tickers, time arithmetic.",
+      "headings": ["time.Time", "Duration", "Layouts", "Parsing and Formatting", "Timers", "Tickers"],
+      "terms": ["time.Time", "time.Duration", "time.Now", "time.Parse", "time.Format", "timer", "ticker", "reference time"]
+    },
+    {
+      "id": "ch-29",
+      "number": 29,
+      "slug": "29-json",
+      "part": "Standard Library",
+      "title": "Encoding JSON",
+      "description": "Marshal / Unmarshal, struct tags, custom marshaling, streaming with json.Decoder.",
+      "headings": ["Marshal", "Unmarshal", "Struct Tags", "Custom Marshaling", "Streaming with Decoder", "Raw JSON"],
+      "terms": ["encoding/json", "json.Marshal", "json.Unmarshal", "json.Decoder", "json.Encoder", "struct tag", "omitempty"]
+    },
+    {
+      "id": "ch-30",
+      "number": 30,
+      "slug": "30-net-http",
+      "part": "Standard Library",
+      "title": "Networking with net/http",
+      "description": "Handlers, ServeMux, middleware, http.Client, request context.",
+      "headings": ["Servers", "http.Handler", "ServeMux", "Middleware Pattern", "http.Client", "Request Context"],
+      "terms": ["net/http", "http.Handler", "http.HandleFunc", "http.ServeMux", "http.Server", "http.Client", "middleware"]
+    },
+    {
+      "id": "ch-31",
+      "number": 31,
+      "slug": "31-testing",
+      "part": "Quality & Shipping",
+      "title": "Testing",
+      "description": "testing package, table-driven tests, subtests, test helpers, coverage.",
+      "headings": ["The testing Package", "Writing Tests", "Table-Driven Tests", "Subtests", "Helpers", "Coverage"],
+      "terms": ["testing.T", "TestXxx", "t.Run", "table-driven", "subtest", "t.Errorf", "t.Fatalf", "go test", "coverage"]
+    },
+    {
+      "id": "ch-32",
+      "number": 32,
+      "slug": "32-benchmarking",
+      "part": "Quality & Shipping",
+      "title": "Benchmarking & Profiling",
+      "description": "testing.B benchmarks, b.N, b.ReportAllocs, pprof, benchstat.",
+      "headings": ["Writing Benchmarks", "b.N", "b.ReportAllocs", "pprof", "benchstat"],
+      "terms": ["benchmark", "BenchmarkXxx", "testing.B", "b.N", "b.ReportAllocs", "pprof", "benchstat", "go test -bench"]
+    },
+    {
+      "id": "ch-33",
+      "number": 33,
+      "slug": "33-documentation-toolchain",
+      "part": "Quality & Shipping",
+      "title": "Documentation & the Go Toolchain",
+      "description": "Doc comments, ExampleXxx, pkg.go.dev, go doc, go vet, go fmt, go work.",
+      "headings": ["Doc Comments", "Examples as Tests", "go doc", "pkg.go.dev", "go vet", "go fmt", "go work (Workspaces)"],
+      "terms": ["go doc", "godoc", "doc comment", "example function", "ExampleXxx", "pkg.go.dev", "go vet", "go fmt", "go work"]
+    },
+    {
+      "id": "ch-34",
+      "number": 34,
+      "slug": "34-capstone-cli",
+      "part": "Capstone",
+      "title": "Capstone: Build a CLI App",
+      "description": "Tie everything together — a small but real CLI app with flags, files, JSON, errors, tests.",
+      "headings": ["Project Setup", "Parsing Flags", "Reading / Writing Files", "Commands", "Error Handling", "Testing the App", "Shipping It"],
+      "terms": ["capstone", "cli", "flag package", "cobra", "project structure", "main"]
+    }
+  ]
+}
