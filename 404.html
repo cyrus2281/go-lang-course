@@ -9,13 +9,15 @@
   <meta name="description" content="The page you're looking for doesn't exist. Our gopher is on it — wrench in hand.">
   <meta name="robots" content="noindex">
 
-  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
-  <link rel="stylesheet" href="assets/css/styles.css">
-  
+  <!-- Absolute paths so the 404 renders correctly no matter how deep the missing URL was. -->
+  <link rel="icon" type="image/svg+xml" href="/go-lang-course/assets/img/favicon.svg">
+  <link rel="stylesheet" href="/go-lang-course/assets/css/styles.css">
+
   <script>
     (function(){ try { var t = localStorage.getItem('go-course-theme');
       if (t) document.documentElement.setAttribute('data-theme', t); } catch(e){} })();
   </script>
+  <script src="/go-lang-course/assets/js/layout.js" defer></script>
 
   <style>
     .nf-wrap {
@@ -39,6 +41,7 @@
       height: auto;
       margin: 0 auto;
       display: block;
+      overflow: visible;
       animation: nf-bob 4.5s ease-in-out infinite;
       transform-origin: center bottom;
     }
@@ -127,14 +130,6 @@
   </style>
 </head>
 <body>
-
-  <header class="site-header">
-    <a href="/go-lang-course/" class="brand">
-      <span class="brand-mark">Go</span>
-      <span class="brand-name">Learn <span class="brand-accent">Go</span></span>
-    </a>
-    <div class="header-spacer"></div>
-  </header>
 
   <main class="nf-wrap">
     <div class="nf-card">
@@ -251,5 +246,8 @@
       else el.style.display = 'none';
     })();
   </script>
+
+  <script src="/go-lang-course/assets/js/app.js" defer></script>
+  <script src="/go-lang-course/assets/js/search.js" defer></script>
 </body>
 </html>

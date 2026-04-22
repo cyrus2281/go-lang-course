@@ -49,23 +49,9 @@
     (function(){ try { var t = localStorage.getItem('go-course-theme');
       if (t) document.documentElement.setAttribute('data-theme', t); } catch(e){} })();
   </script>
+  <script src="assets/js/layout.js" defer></script>
 </head>
 <body>
-
-  <!-- ======== Site header =========================================== -->
-  <header class="site-header">
-    <a href="index.html" class="brand">
-      <span class="brand-mark">Go</span>
-      <span class="brand-name">Learn <span class="brand-accent">Go</span></span>
-    </a>
-    <div class="header-spacer"></div>
-    <div class="search" role="search">
-      <input id="search-input" type="search" placeholder="Search chapters, topics…" autocomplete="off" aria-label="Search across all chapters">
-      <kbd class="search-hint">/</kbd>
-      <div id="search-results" class="search-results" role="listbox"></div>
-    </div>
-    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" type="button"></button>
-  </header>
 
   <!-- ======== Hero ================================================= -->
   <section class="hero">
@@ -148,18 +134,6 @@
       <!-- Parts + chapter cards are injected by JS from the search index -->
     </div>
   </section>
-
-  <!-- ======== Footer =============================================== -->
-  <footer class="site-footer">
-    <div class="footer-line">
-      Made with <span class="heart">❤️</span> by
-      <a href="https://github.com/cyrus2281" target="_blank" rel="noopener">Cyrus Mobini</a>
-    </div>
-    <a class="bmac" href="https://buymeacoffee.com/cyrus2281" target="_blank" rel="noopener" aria-label="Support Cyrus on Buy Me a Coffee">
-      <span class="bmac-icon" aria-hidden="true">☕</span>
-      Buy me a coffee
-    </a>
-  </footer>
 
   <script src="assets/js/progress.js" defer></script>
   <script src="assets/js/prism.js" defer></script>
