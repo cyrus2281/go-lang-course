@@ -54,6 +54,29 @@
     const includeMenu = !!document.querySelector('.chapter-sidebar');
     document.body.insertAdjacentHTML('afterbegin', headerHTML(includeMenu));
     document.body.insertAdjacentHTML('beforeend', FOOTER_HTML);
+    injectEditButton();
+  }
+
+  function injectEditButton() {
+    const path = globalThis.location.pathname;
+    const match = /\/chapters\/([^/]+\.html)$/.exec(path);
+    if (!match) return;
+    const nav = document.querySelector('nav.chapter-nav');
+    if (!nav) return;
+
+    const editUrl = `https://github.com/cyrus2281/go-lang-course/edit/main/chapters/${match[1]}`;
+    const editLink = document.createElement('a');
+    editLink.className = 'edit-page';
+    editLink.href = editUrl;
+    editLink.target = '_blank';
+    editLink.rel = 'noopener';
+    editLink.style.gridColumn = '1 / -1';
+    editLink.style.textAlign = 'center';
+    editLink.innerHTML = `
+      <div class="nav-label">Contribute</div>
+      <div class="nav-title">✎ Edit this page on GitHub</div>
+    `;
+    nav.appendChild(editLink);
   }
 
   if (document.body) {
