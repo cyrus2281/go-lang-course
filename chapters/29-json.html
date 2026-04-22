@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6YPTC2B9NR"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 29 · Encoding JSON — Learn Go by Cyrus Mobini</title>
+  <meta name="description" content="Marshal and Unmarshal JSON in Go. Struct tags, omitempty, streaming with encoders/decoders, custom MarshalJSON, and handling unknown structure.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Chapter 29 · Encoding JSON — Learn Go">
+  <meta property="og:description" content="Marshal, Unmarshal, struct tags, streaming, custom marshaling.">
+  <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/29-json.html">
+  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Chapter 29 · Encoding JSON — Learn Go">
+  <meta name="twitter:description" content="Marshal, Unmarshal, tags, streaming.">
+  <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/29-json.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/prism.css">
+  <script>(function(){try{var t=localStorage.getItem('go-course-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="../index.html" class="brand"><span class="brand-mark">Go</span><span class="brand-name">Learn <span class="brand-accent">Go</span></span></a>
+    <button id="menu-toggle" class="icon-btn menu-toggle" aria-label="Toggle chapter menu" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="header-spacer"></div>
+    <div class="search" role="search"><input id="search-input" type="search" placeholder="Search chapters…" autocomplete="off" aria-label="Search across all chapters"><kbd class="search-hint">/</kbd><div id="search-results" class="search-results"></div></div>
+    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" type="button"></button>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="chapter-sidebar">
+      <div class="side-title">On this page</div>
+      <ul>
+        <li><a href="#objectives">Learning objectives</a></li>
+        <li><a href="#marshal">Marshal</a></li>
+        <li><a href="#unmarshal">Unmarshal</a></li>
+        <li><a href="#tags">Struct tags</a></li>
+        <li><a href="#omitempty">omitempty &amp; friends</a></li>
+        <li><a href="#unknown">Unknown JSON shapes</a></li>
+        <li><a href="#stream">Streaming encoders/decoders</a></li>
+        <li><a href="#custom">Custom Marshal/Unmarshal</a></li>
+        <li><a href="#pretty">Pretty printing</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+        <li><a href="#exercises">Exercises</a></li>
+        <li><a href="#further">Further reading</a></li>
+      </ul>
+      <div class="side-title">Navigate</div>
+      <ul>
+        <li><a href="28-time-dates.html">← Previous: Time &amp; Dates</a></li>
+        <li><a href="30-net-http.html">Next: net/http →</a></li>
+        <li><a href="../index.html">Table of contents</a></li>
+      </ul>
+    </aside>
+
+    <main class="chapter-main" data-chapter-id="ch-29">
+      <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 29 · STANDARD LIBRARY</div>
+      <h1>Encoding JSON</h1>
+      <p>JSON is the lingua franca of modern APIs. Go's
+         <code>encoding/json</code> package handles marshaling (Go → JSON) and
+         unmarshaling (JSON → Go) using struct tags. This chapter covers the
+         happy path and the tricky corners.</p>
+
+      <section id="objectives" class="learning-objectives">
+        <h3>Learning objectives</h3>
+        <ul>
+          <li><code>json.Marshal</code> / <code>json.Unmarshal</code> for one-shot conversion.</li>
+          <li>Control field names and behavior with struct tags.</li>
+          <li>Use <code>omitempty</code>, <code>-</code>, and <code>,string</code> tag options.</li>
+          <li>Handle unknown / dynamic JSON with <code>map[string]any</code> or <code>json.RawMessage</code>.</li>
+          <li>Stream large JSON with <code>json.Decoder</code> / <code>json.Encoder</code>.</li>
+          <li>Implement custom marshalers when the defaults don't fit.</li>
+        </ul>
+      </section>
+
+      <section id="marshal">
+        <h2>Marshal — Go to JSON</h2>
+        <pre><code class="language-go">type User struct {
+    Name  string
+    Email string
+    Age   int
+}
+
+u := User{Name: "Alice", Email: "a@example.com", Age: 30}
+b, err := json.Marshal(u)
+fmt.Println(string(b))   // {"Name":"Alice","Email":"a@example.com","Age":30}
+</code></pre>
+
+        <p>Only <strong>exported</strong> fields are marshaled. Unexported fields
+           are silently ignored.</p>
+      </section>
+
+      <section id="unmarshal">
+        <h2>Unmarshal — JSON to Go</h2>
+        <pre><code class="language-go">var u User
+data := []byte(`{"Name":"Bob","Email":"b@example.com","Age":25}`)
+if err := json.Unmarshal(data, &amp;u); err != nil { /* handle */ }
+fmt.Printf("%+v\n", u)
+</code></pre>
+
+        <p>Pass a <em>pointer</em> to <code>Unmarshal</code> — it writes into
+           your destination. Unknown JSON fields are ignored by default; missing
+           fields get the Go zero value.</p>
+      </section>
+
+      <section id="tags">
+        <h2>Struct tags — controlling JSON field names</h2>
+        <pre><code class="language-go">type User struct {
+    Name  string `json:"name"`
+    Email string `json:"email"`
+    Age   int    `json:"age"`
+}
+</code></pre>
+
+        <p>Now Marshal produces lowercase keys matching typical JSON API
+           conventions.</p>
+      </section>
+
+      <section id="omitempty">
+        <h2><code>omitempty</code>, <code>-</code>, and <code>,string</code></h2>
+        <pre><code class="language-go">type User struct {
+    Name     string `json:"name"`
+    Email    string `json:"email,omitempty"`   // skip if zero value
+    Password string `json:"-"`                  // never marshal
+    Level    int    `json:"level,string"`       // encode as a JSON string
+}
+</code></pre>
+
+        <p><code>omitempty</code> skips a field whose value is the <em>zero
+           value</em> for its type. Watch out: a legitimate <code>0</code> or
+           <code>false</code> will be omitted too. Use a pointer (<code>*int</code>)
+           if you need to distinguish "not set" from "set to zero".</p>
+      </section>
+
+      <section id="unknown">
+        <h2>Unknown shapes</h2>
+        <pre><code class="language-go">// When you don't know the structure:
+var v any
+json.Unmarshal(data, &amp;v)
+// v is a map[string]any with nested maps, slices, strings, floats, bools
+</code></pre>
+
+        <p>For partial parsing, use <code>json.RawMessage</code> on the fields
+           whose structure varies:</p>
+        <pre><code class="language-go">type Envelope struct {
+    Type    string          `json:"type"`
+    Payload json.RawMessage `json:"payload"`   // parsed later based on Type
+}
+</code></pre>
+      </section>
+
+      <section id="stream">
+        <h2>Streaming encoders/decoders</h2>
+        <p>For big inputs or HTTP bodies, use <code>json.Decoder</code> —
+           it reads from an <code>io.Reader</code>:</p>
+
+        <pre><code class="language-go">resp, _ := http.Get(url)
+defer resp.Body.Close()
+
+var users []User
+if err := json.NewDecoder(resp.Body).Decode(&amp;users); err != nil { /* ... */ }
+</code></pre>
+
+        <p>Conversely, <code>json.Encoder</code> writes to an
+           <code>io.Writer</code> — often used to stream an HTTP response:</p>
+
+        <pre><code class="language-go">func handler(w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(users)
+}
+</code></pre>
+      </section>
+
+      <section id="custom">
+        <h2>Custom Marshal / Unmarshal</h2>
+        <p>Implement the interface to take full control:</p>
+
+        <pre><code class="language-go">type Duration time.Duration
+
+func (d Duration) MarshalJSON() ([]byte, error) {
+    return []byte(fmt.Sprintf("%q", time.Duration(d).String())), nil
+}
+
+func (d *Duration) UnmarshalJSON(b []byte) error {
+    var s string
+    if err := json.Unmarshal(b, &amp;s); err != nil { return err }
+    parsed, err := time.ParseDuration(s)
+    if err != nil { return err }
+    *d = Duration(parsed)
+    return nil
+}
+</code></pre>
+
+        <p>Now your Duration marshals as <code>"1h30m"</code> instead of
+           nanoseconds.</p>
+      </section>
+
+      <section id="pretty">
+        <h2>Pretty printing</h2>
+        <pre><code class="language-go">b, _ := json.MarshalIndent(u, "", "  ")
+fmt.Println(string(b))
+// {
+//   "name": "Alice",
+//   "email": "a@example.com",
+//   "age": 30
+// }
+</code></pre>
+
+        <p>For Encoder: <code>enc.SetIndent("", "  ")</code>.</p>
+      </section>
+
+      <section id="quiz">
+        <h2>Check your understanding</h2>
+        <div class="quiz" data-quiz data-chapter-id="ch-29">
+          <script type="application/json" class="quiz-data">
+          {
+            "title": "Quick quiz",
+            "questions": [
+              {"q":"What happens to unexported (lowercase) struct fields in json.Marshal?","options":["Marshaled with lowercase keys","Silently omitted","Compile error","Marshaled only with a tag"],"answer":1,"explanation":"Only exported (capitalized) fields can be seen by the json package via reflection. Tags on unexported fields have no effect."},
+              {"q":"What does the tag `json:\"email,omitempty\"` do?","options":["Requires email to be non-empty","Makes email required","Omits the field from the output when the value is the zero value","Emails the field"],"answer":2,"explanation":"omitempty omits the field when it's the zero value (\"\" for string, 0 for int, etc). Use a *int if you need to distinguish 0 from unset."},
+              {"q":"When should you prefer json.Decoder over json.Unmarshal?","options":["Always","When parsing from an io.Reader (files, HTTP bodies) — avoids loading the whole payload into memory","When the data is small","For struct types only"],"answer":1,"explanation":"Decoder streams from a Reader. For HTTP bodies and big files, this is much more memory-efficient than ReadAll + Unmarshal."},
+              {"q":"How do you preserve part of a JSON payload for later parsing?","options":["json.RawMessage in the struct","json.Partial","Delay parsing","Use strings"],"answer":0,"explanation":"json.RawMessage is just []byte with custom marshal/unmarshal. It preserves the raw JSON bytes so you can unmarshal into a specific type later (e.g., based on a 'type' discriminator)."},
+              {"q":"Best way to pretty-print JSON to stdout:","options":["Write it yourself","json.MarshalIndent(v, \"\", \"  \")","json.Pretty","fmt.Printf(\"%j\", v)"],"answer":1,"explanation":"MarshalIndent adds the given prefix and per-level indent. json.Encoder.SetIndent does the same for streaming output."}
+            ]
+          }
+          </script>
+        </div>
+      </section>
+
+      <section id="exercises">
+        <h2>Practice exercises</h2>
+
+        <div class="exercise">
+          <div class="exercise-header"><span class="badge">EXERCISE 1</span><h3>Round-trip a struct</h3></div>
+          <div class="exercise-task"><p>Define a <code>Product</code> struct with <code>ID</code>, <code>Name</code>, <code>Price</code>, <code>Tags</code> ([]string). Marshal an instance to JSON, print it, then unmarshal back into a new variable. Verify they're equal with <code>reflect.DeepEqual</code>.</p></div>
+          <details class="exercise-solution"><summary>Show solution</summary>
+          <pre><code class="language-go">package main
+
+import (
+    "encoding/json"
+    "fmt"
+    "reflect"
+)
+
+type Product struct {
+    ID    int      `json:"id"`
+    Name  string   `json:"name"`
+    Price float64  `json:"price"`
+    Tags  []string `json:"tags,omitempty"`
+}
+
+func main() {
+    p := Product{ID: 1, Name: "Widget", Price: 9.99, Tags: []string{"new", "hot"}}
+
+    b, _ := json.MarshalIndent(p, "", "  ")
+    fmt.Println(string(b))
+
+    var p2 Product
+    _ = json.Unmarshal(b, &amp;p2)
+    fmt.Println("equal?", reflect.DeepEqual(p, p2))    // true
+}
+</code></pre></details>
+        </div>
+      </section>
+
+      <section id="further" class="further-reading">
+        <h3>Further reading</h3>
+        <ul>
+          <li><a href="https://pkg.go.dev/encoding/json" target="_blank" rel="noopener"><code>encoding/json</code> reference</a></li>
+          <li><a href="https://go.dev/blog/json" target="_blank" rel="noopener">JSON and Go (blog)</a></li>
+          <li><a href="https://mholt.github.io/json-to-go/" target="_blank" rel="noopener">JSON-to-Go converter</a> — drop in sample JSON, get matching struct</li>
+        </ul>
+      </section>
+
+      <div class="complete-box"><p>JSON, any shape.</p><button class="complete-btn" type="button" data-chapter-id="ch-29">✓ Mark this chapter complete</button></div>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a class="prev" href="28-time-dates.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 28 — Time &amp; Dates</div></a>
+        <a class="next" href="30-net-http.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 30 — Networking: net/http</div></a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-line">Made with <span class="heart">❤️</span> by <a href="https://github.com/cyrus2281" target="_blank" rel="noopener">Cyrus Mobini</a></div>
+    <a class="bmac" href="https://buymeacoffee.com/cyrus2281" target="_blank" rel="noopener"><span class="bmac-icon">☕</span> Buy me a coffee</a>
+  </footer>
+
+  <script src="../assets/js/progress.js" defer></script>
+  <script src="../assets/js/prism.js" defer></script>
+  <script src="../assets/js/app.js" defer></script>
+  <script src="../assets/js/quiz.js" defer></script>
+  <script src="../assets/js/search.js" defer></script>
+</body>
+</html>

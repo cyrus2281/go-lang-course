@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6YPTC2B9NR"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 26 · Context — Learn Go by Cyrus Mobini</title>
+  <meta name="description" content="context.Context — cancellation, deadlines, timeouts, and request-scoped values. The glue of modern, networked Go.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Chapter 26 · Context — Learn Go">
+  <meta property="og:description" content="context.Background, WithCancel, WithTimeout, WithDeadline, WithValue — and how to wire them through your code.">
+  <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/26-context.html">
+  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Chapter 26 · Context — Learn Go">
+  <meta name="twitter:description" content="Cancellation, deadlines, timeouts, request-scoped values.">
+  <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/26-context.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/prism.css">
+  <script>(function(){try{var t=localStorage.getItem('go-course-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="../index.html" class="brand"><span class="brand-mark">Go</span><span class="brand-name">Learn <span class="brand-accent">Go</span></span></a>
+    <button id="menu-toggle" class="icon-btn menu-toggle" aria-label="Toggle chapter menu" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="header-spacer"></div>
+    <div class="search" role="search"><input id="search-input" type="search" placeholder="Search chapters…" autocomplete="off" aria-label="Search across all chapters"><kbd class="search-hint">/</kbd><div id="search-results" class="search-results"></div></div>
+    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" type="button"></button>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="chapter-sidebar">
+      <div class="side-title">On this page</div>
+      <ul>
+        <li><a href="#objectives">Learning objectives</a></li>
+        <li><a href="#why">Why context exists</a></li>
+        <li><a href="#api">The Context interface</a></li>
+        <li><a href="#background">Background &amp; TODO</a></li>
+        <li><a href="#cancel">WithCancel</a></li>
+        <li><a href="#timeout">WithTimeout &amp; WithDeadline</a></li>
+        <li><a href="#values">WithValue</a></li>
+        <li><a href="#http">HTTP request context</a></li>
+        <li><a href="#rules">Rules &amp; conventions</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+        <li><a href="#exercises">Exercises</a></li>
+        <li><a href="#further">Further reading</a></li>
+      </ul>
+      <div class="side-title">Navigate</div>
+      <ul>
+        <li><a href="25-channels.html">← Previous: Channels &amp; select</a></li>
+        <li><a href="27-io-files.html">Next: I/O &amp; Files →</a></li>
+        <li><a href="../index.html">Table of contents</a></li>
+      </ul>
+    </aside>
+
+    <main class="chapter-main" data-chapter-id="ch-26">
+      <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 26 · CONCURRENCY</div>
+      <h1>Context: Cancellation &amp; Deadlines</h1>
+      <p><code>context.Context</code> is the most important type in modern Go
+         programs that do anything networked. It threads three concerns through
+         your call stack: <em>cancellation signals</em>, <em>deadlines/timeouts</em>,
+         and <em>request-scoped values</em>.</p>
+
+      <section id="objectives" class="learning-objectives">
+        <h3>Learning objectives</h3>
+        <ul>
+          <li>Explain why Go added <code>context</code>.</li>
+          <li>Create a context with cancel, timeout, or deadline.</li>
+          <li>Respect a context inside your functions by listening on <code>ctx.Done()</code>.</li>
+          <li>Attach request-scoped values — and know when not to.</li>
+          <li>Pass context as the first argument through your call stack.</li>
+        </ul>
+      </section>
+
+      <section id="why">
+        <h2>Why context exists</h2>
+        <p>Imagine a web request that kicks off three database calls, two external
+           HTTP requests, and a log write. If the user cancels the HTTP
+           connection, <em>every</em> goroutine doing that work should stop —
+           otherwise you waste CPU, memory, and database connections.</p>
+
+        <p>Context is how Go propagates "stop what you're doing" down a call
+           tree.</p>
+      </section>
+
+      <section id="api">
+        <h2>The <code>Context</code> interface</h2>
+        <pre><code class="language-go">type Context interface {
+    Deadline() (deadline time.Time, ok bool)
+    Done() <-chan struct{}
+    Err() error
+    Value(key any) any
+}
+</code></pre>
+
+        <p>The important one is <code>Done()</code> — a channel that closes when
+           the context is cancelled or expired. You <code>select</code> on it
+           alongside your actual work.</p>
+      </section>
+
+      <section id="background">
+        <h2><code>context.Background()</code> and <code>context.TODO()</code></h2>
+        <pre><code class="language-go">ctx := context.Background()   // root context — never cancelled
+ctx := context.TODO()         // "I don't know what to pass yet" — semantically equivalent, signals intent
+</code></pre>
+
+        <p>Every context chain starts from one of these at <code>main</code> (or
+           an HTTP handler, or a test). You derive child contexts from them.</p>
+      </section>
+
+      <section id="cancel">
+        <h2><code>context.WithCancel</code></h2>
+        <pre><code class="language-go">ctx, cancel := context.WithCancel(context.Background())
+defer cancel()       // always call cancel to release resources
+
+go func() {
+    select {
+    case <-time.After(5 * time.Second):
+        fmt.Println("work done")
+    case <-ctx.Done():
+        fmt.Println("cancelled:", ctx.Err())
+    }
+}()
+
+cancel()             // signal cancellation
+</code></pre>
+
+        <p><strong>Always defer <code>cancel()</code></strong>, even if you think
+           the context will expire on its own. It's cheap and prevents leaks.</p>
+      </section>
+
+      <section id="timeout">
+        <h2><code>WithTimeout</code> and <code>WithDeadline</code></h2>
+        <pre><code class="language-go">// Fire cancellation 2 seconds from now
+ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+defer cancel()
+
+// Or: fire at a specific time
+ctx, cancel := context.WithDeadline(parent, time.Now().Add(5*time.Minute))
+defer cancel()
+</code></pre>
+
+        <p>The child context is cancelled when (a) the timeout/deadline fires,
+           or (b) the parent is cancelled, or (c) you call <code>cancel()</code>
+           explicitly. Whichever happens first.</p>
+      </section>
+
+      <section id="values">
+        <h2><code>WithValue</code></h2>
+        <pre><code class="language-go">type userIDKey struct{}         // unexported key type avoids collisions
+
+ctx := context.WithValue(ctx, userIDKey{}, 42)
+
+if v := ctx.Value(userIDKey{}); v != nil {
+    fmt.Println("user:", v.(int))
+}
+</code></pre>
+
+        <div class="callout pitfall">
+          <div class="ico">!</div>
+          <div>
+            <span class="callout-title">Don't put business data here</span>
+            <code>ctx.Value</code> is for <em>request-scoped</em> values like
+            trace IDs, auth tokens, and logger handles — values that cross API
+            boundaries but aren't part of the function's intent. Never use it to
+            pass regular arguments; function signatures are clearer.
+          </div>
+        </div>
+      </section>
+
+      <section id="http">
+        <h2>HTTP request context</h2>
+        <p>Every <code>*http.Request</code> carries a context:</p>
+        <pre><code class="language-go">func handler(w http.ResponseWriter, r *http.Request) {
+    ctx := r.Context()           // cancelled when client disconnects
+    result, err := queryDB(ctx, id)
+    // ...
+}
+</code></pre>
+
+        <p>Pass <code>r.Context()</code> through to every operation that could
+           outlive the request. When the client disconnects, everything cascades
+           to cancellation.</p>
+      </section>
+
+      <section id="rules">
+        <h2>Rules &amp; conventions</h2>
+        <ul>
+          <li><strong>First parameter of the function.</strong> Always name it <code>ctx</code>:
+              <code>func DoThing(ctx context.Context, ...) error</code>.</li>
+          <li><strong>Don't store it in a struct</strong> unless the struct IS a request.</li>
+          <li><strong>Don't pass nil context.</strong> Use <code>context.TODO()</code> if you don't have one.</li>
+          <li><strong>Always call <code>cancel</code></strong>, even in timeout/deadline contexts — usually via <code>defer</code>.</li>
+          <li><strong>Check <code>ctx.Done()</code></strong> in any long-running or blocking operation.</li>
+        </ul>
+      </section>
+
+      <section id="quiz">
+        <h2>Check your understanding</h2>
+        <div class="quiz" data-quiz data-chapter-id="ch-26">
+          <script type="application/json" class="quiz-data">
+          {
+            "title": "Quick quiz",
+            "questions": [
+              {"q":"Primary purpose of context.Context?","options":["Thread-local storage","Carry cancellation, deadlines, and request-scoped values across API boundaries","Global configuration","Garbage collection control"],"answer":1,"explanation":"Context is the standard way to propagate cancellation signals, deadlines/timeouts, and request-scoped metadata (like trace IDs) down a call tree."},
+              {"q":"Which channel does ctx.Done() return?","options":["`chan error`","`<-chan struct{}` that closes when the context is cancelled or expires","`chan int` for status codes","A buffered channel of bool"],"answer":1,"explanation":"Done() returns a receive-only channel that closes when the context is cancelled or its deadline fires. Select on it alongside your real work."},
+              {"q":"Why defer the cancel function returned by WithCancel/WithTimeout?","options":["To free up the context's resources and descendants even on early return","Required by Go spec","To log the cancellation","It's not needed"],"answer":0,"explanation":"Even if a timeout fires on its own, calling cancel() releases internal resources tied to the context. Always `defer cancel()` — it's idempotent."},
+              {"q":"What's the idiomatic position of a context.Context parameter in a function signature?","options":["Last","Middle","First — named `ctx`","As a struct field"],"answer":2,"explanation":"Convention: context is the first parameter, named ctx. Makes it obvious and greppable. Don't embed in structs unless the struct itself represents a request."},
+              {"q":"What should you put into ctx.Value?","options":["All function arguments","Large data blobs","Request-scoped, cross-cutting metadata like trace IDs and auth tokens","Integer counters"],"answer":2,"explanation":"Keep ctx.Value for values that flow through a call tree — request IDs, user tokens, logger handles. Regular arguments belong in function signatures."}
+            ]
+          }
+          </script>
+        </div>
+      </section>
+
+      <section id="exercises">
+        <h2>Practice exercises</h2>
+
+        <div class="exercise">
+          <div class="exercise-header"><span class="badge">EXERCISE 1</span><h3>Context-aware sleep</h3></div>
+          <div class="exercise-task"><p>Write <code>sleep(ctx context.Context, d time.Duration) error</code> that sleeps for <code>d</code>, unless the context is cancelled first — in which case it returns <code>ctx.Err()</code>.</p></div>
+          <details class="exercise-solution"><summary>Show solution</summary>
+          <pre><code class="language-go">func sleep(ctx context.Context, d time.Duration) error {
+    select {
+    case <-time.After(d):
+        return nil
+    case <-ctx.Done():
+        return ctx.Err()
+    }
+}
+
+func main() {
+    ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+    defer cancel()
+
+    if err := sleep(ctx, 2*time.Second); err != nil {
+        fmt.Println("interrupted:", err)    // context deadline exceeded
+    }
+}
+</code></pre></details>
+        </div>
+      </section>
+
+      <section id="further" class="further-reading">
+        <h3>Further reading</h3>
+        <ul>
+          <li><a href="https://go.dev/blog/context" target="_blank" rel="noopener">The Go Blog — Go Concurrency Patterns: Context</a></li>
+          <li><a href="https://pkg.go.dev/context" target="_blank" rel="noopener"><code>context</code> package reference</a></li>
+          <li><a href="https://go.dev/blog/context-and-structs" target="_blank" rel="noopener">Contexts and structs</a></li>
+        </ul>
+      </section>
+
+      <div class="complete-box"><p>Context in hand.</p><button class="complete-btn" type="button" data-chapter-id="ch-26">✓ Mark this chapter complete</button></div>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a class="prev" href="25-channels.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 25 — Channels &amp; select</div></a>
+        <a class="next" href="27-io-files.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 27 — I/O: Readers, Writers &amp; Files</div></a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-line">Made with <span class="heart">❤️</span> by <a href="https://github.com/cyrus2281" target="_blank" rel="noopener">Cyrus Mobini</a></div>
+    <a class="bmac" href="https://buymeacoffee.com/cyrus2281" target="_blank" rel="noopener"><span class="bmac-icon">☕</span> Buy me a coffee</a>
+  </footer>
+
+  <script src="../assets/js/progress.js" defer></script>
+  <script src="../assets/js/prism.js" defer></script>
+  <script src="../assets/js/app.js" defer></script>
+  <script src="../assets/js/quiz.js" defer></script>
+  <script src="../assets/js/search.js" defer></script>
+</body>
+</html>

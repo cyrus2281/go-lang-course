@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6YPTC2B9NR"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 31 · Testing — Learn Go by Cyrus Mobini</title>
+  <meta name="description" content="Go's built-in testing package: writing tests, table-driven tests, subtests, helpers, coverage, and httptest for HTTP.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Chapter 31 · Testing — Learn Go">
+  <meta property="og:description" content="testing package, table-driven tests, subtests, coverage, httptest.">
+  <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/31-testing.html">
+  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Chapter 31 · Testing — Learn Go">
+  <meta name="twitter:description" content="testing package, table-driven tests, subtests, coverage.">
+  <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/31-testing.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/prism.css">
+  <script>(function(){try{var t=localStorage.getItem('go-course-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="../index.html" class="brand"><span class="brand-mark">Go</span><span class="brand-name">Learn <span class="brand-accent">Go</span></span></a>
+    <button id="menu-toggle" class="icon-btn menu-toggle" aria-label="Toggle chapter menu" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="header-spacer"></div>
+    <div class="search" role="search"><input id="search-input" type="search" placeholder="Search chapters…" autocomplete="off" aria-label="Search across all chapters"><kbd class="search-hint">/</kbd><div id="search-results" class="search-results"></div></div>
+    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" type="button"></button>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="chapter-sidebar">
+      <div class="side-title">On this page</div>
+      <ul>
+        <li><a href="#objectives">Learning objectives</a></li>
+        <li><a href="#first">Your first test</a></li>
+        <li><a href="#run">Running tests</a></li>
+        <li><a href="#table">Table-driven tests</a></li>
+        <li><a href="#subtests">Subtests with t.Run</a></li>
+        <li><a href="#helpers">Test helpers</a></li>
+        <li><a href="#cleanup">t.Cleanup</a></li>
+        <li><a href="#examples">Example functions</a></li>
+        <li><a href="#coverage">Coverage</a></li>
+        <li><a href="#httptest">httptest</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+        <li><a href="#exercises">Exercises</a></li>
+        <li><a href="#further">Further reading</a></li>
+      </ul>
+      <div class="side-title">Navigate</div>
+      <ul>
+        <li><a href="30-net-http.html">← Previous: net/http</a></li>
+        <li><a href="32-benchmarking.html">Next: Benchmarking →</a></li>
+        <li><a href="../index.html">Table of contents</a></li>
+      </ul>
+    </aside>
+
+    <main class="chapter-main" data-chapter-id="ch-31">
+      <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 31 · QUALITY &amp; SHIPPING</div>
+      <h1>Testing</h1>
+      <p>Testing in Go is built into the language and its tooling. No separate
+         frameworks, no annotations, no configuration. Write a file ending in
+         <code>_test.go</code>, name your functions <code>TestXxx</code>, run
+         <code>go test</code>. That's it.</p>
+
+      <section id="objectives" class="learning-objectives">
+        <h3>Learning objectives</h3>
+        <ul>
+          <li>Write and run unit tests with the <code>testing</code> package.</li>
+          <li>Structure tests using the table-driven pattern.</li>
+          <li>Use <code>t.Run</code> for subtests.</li>
+          <li>Mark helpers with <code>t.Helper()</code> for better stack traces.</li>
+          <li>Measure coverage and write HTTP handler tests with <code>httptest</code>.</li>
+        </ul>
+      </section>
+
+      <section id="first">
+        <h2>Your first test</h2>
+        <p><code>math.go</code>:</p>
+        <pre><code class="language-go">package mymath
+
+func Add(a, b int) int { return a + b }
+</code></pre>
+
+        <p><code>math_test.go</code>:</p>
+        <pre><code class="language-go">package mymath
+
+import "testing"
+
+func TestAdd(t *testing.T) {
+    got := Add(2, 3)
+    if got != 5 {
+        t.Errorf("Add(2, 3) = %d, want 5", got)
+    }
+}
+</code></pre>
+
+        <p>Rules:</p>
+        <ul>
+          <li>File ends in <code>_test.go</code>.</li>
+          <li>Function is named <code>Test</code> + CapitalName.</li>
+          <li>Takes a single <code>*testing.T</code>.</li>
+          <li>Use <code>t.Errorf</code> to fail without stopping, <code>t.Fatalf</code> to fail and stop.</li>
+        </ul>
+      </section>
+
+      <section id="run">
+        <h2>Running tests</h2>
+        <pre><code class="language-bash">go test .                  # run this package
+go test ./...              # run every package in the module
+go test -v ./...           # verbose — show each test
+go test -run TestAdd .     # run only tests matching regex
+go test -race ./...        # with race detector (Chapter 24)
+go test -timeout 30s ./... # set a timeout
+</code></pre>
+      </section>
+
+      <section id="table">
+        <h2>Table-driven tests</h2>
+        <p>Most idiomatic pattern in Go: a slice of test cases + a loop:</p>
+
+        <pre><code class="language-go">func TestAdd(t *testing.T) {
+    cases := []struct {
+        name       string
+        a, b, want int
+    }{
+        {"positive", 2, 3, 5},
+        {"negative", -2, -3, -5},
+        {"zero",     0, 0, 0},
+        {"mix",      -1, 5, 4},
+    }
+    for _, c := range cases {
+        t.Run(c.name, func(t *testing.T) {
+            got := Add(c.a, c.b)
+            if got != c.want {
+                t.Errorf("Add(%d, %d) = %d, want %d", c.a, c.b, got, c.want)
+            }
+        })
+    }
+}
+</code></pre>
+
+        <p>Add a case → run it. No new test function, no copy-paste.</p>
+      </section>
+
+      <section id="subtests">
+        <h2>Subtests with <code>t.Run</code></h2>
+        <p><code>t.Run</code> creates a named child test. Benefits:</p>
+        <ul>
+          <li>Clearer output (<code>TestAdd/positive</code>, <code>TestAdd/negative</code>).</li>
+          <li>You can target a single case: <code>go test -run TestAdd/negative</code>.</li>
+          <li>Failed subtests don't stop others.</li>
+        </ul>
+      </section>
+
+      <section id="helpers">
+        <h2>Test helpers — <code>t.Helper()</code></h2>
+        <pre><code class="language-go">func assertEqual(t *testing.T, got, want any) {
+    t.Helper()                  // report errors at the CALL SITE, not inside this func
+    if !reflect.DeepEqual(got, want) {
+        t.Errorf("got %v, want %v", got, want)
+    }
+}
+</code></pre>
+
+        <p>Without <code>t.Helper()</code>, error messages point to the
+           assertion function. With it, they point to your actual test code.
+           Always call <code>t.Helper()</code> first in test helper functions.</p>
+      </section>
+
+      <section id="cleanup">
+        <h2><code>t.Cleanup</code></h2>
+        <pre><code class="language-go">func TestWithDB(t *testing.T) {
+    db := openTestDB(t)
+    t.Cleanup(func() { db.Close() })    // runs when THIS test (or subtest) exits
+
+    // ... use db ...
+}
+</code></pre>
+
+        <p><code>t.Cleanup</code> is like <code>defer</code> but test-aware —
+           it runs after the test, in LIFO order, even on failure.</p>
+      </section>
+
+      <section id="examples">
+        <h2>Example functions (doc + test in one)</h2>
+        <pre><code class="language-go">func ExampleAdd() {
+    fmt.Println(mymath.Add(2, 3))
+    // Output: 5
+}
+</code></pre>
+
+        <p>The compiler runs the example, captures stdout, compares it to the
+           <code>// Output:</code> comment. The example also appears in the
+           package's generated documentation. Two birds, one function.</p>
+      </section>
+
+      <section id="coverage">
+        <h2>Coverage</h2>
+        <pre><code class="language-bash">go test -cover ./...                              # summary
+go test -coverprofile=cov.out ./...; go tool cover -html=cov.out
+</code></pre>
+
+        <p>The HTML report highlights which lines were executed — green for
+           covered, red for not. Use it as a diagnostic, not a score (100%
+           coverage with bad tests is worse than 60% with good ones).</p>
+      </section>
+
+      <section id="httptest">
+        <h2>HTTP handler tests — <code>net/http/httptest</code></h2>
+        <pre><code class="language-go">func TestHello(t *testing.T) {
+    req := httptest.NewRequest("GET", "/hello?name=Alice", nil)
+    rec := httptest.NewRecorder()
+
+    helloHandler(rec, req)
+
+    if rec.Code != 200 {
+        t.Errorf("status = %d, want 200", rec.Code)
+    }
+    if !strings.Contains(rec.Body.String(), "Alice") {
+        t.Errorf("body = %q, want to contain 'Alice'", rec.Body.String())
+    }
+}
+</code></pre>
+
+        <p>No real HTTP server required — <code>ResponseRecorder</code> captures
+           the output so you can assert on it. For integration-style tests,
+           <code>httptest.NewServer</code> spins up a real listener on a random
+           port.</p>
+      </section>
+
+      <section id="quiz">
+        <h2>Check your understanding</h2>
+        <div class="quiz" data-quiz data-chapter-id="ch-31">
+          <script type="application/json" class="quiz-data">
+          {
+            "title": "Quick quiz",
+            "questions": [
+              {"q":"What must a Go test function look like?","options":["Annotate with @Test","Named `TestXxx` with a single `*testing.T` parameter, in a file ending in _test.go","Inherit from TestCase","Return a bool"],"answer":1,"explanation":"Naming and signature are the whole convention. No annotations, no setup files, no framework."},
+              {"q":"t.Errorf vs t.Fatalf?","options":["Identical","Errorf marks the test as failed and continues; Fatalf marks and stops the test","Errorf is silent","Fatalf runs defers"],"answer":1,"explanation":"Errorf keeps running so multiple failures can be reported. Fatalf stops — use when subsequent assertions don't make sense."},
+              {"q":"Why use t.Helper() inside a test assertion helper?","options":["It speeds up tests","It makes failure messages point to the caller, not the helper itself","It's required by Go vet","It hides the helper from coverage"],"answer":1,"explanation":"Without t.Helper(), failure lines in the output point to the helper. With it, they point to the calling test, which is usually what you want."},
+              {"q":"Best way to write many variants of the same test?","options":["One test per variant","Table-driven test: a slice of cases, a for loop with t.Run","Nested function calls","Use reflection"],"answer":1,"explanation":"Table-driven tests are idiomatic: each case is a row in the table, t.Run gives each a name and independent pass/fail status."},
+              {"q":"How do you test an http.Handler in-process (no real network)?","options":["You can't","Use httptest.NewRecorder + handler(rec, req)","Use net.Dial","Use goroutines"],"answer":1,"explanation":"httptest.NewRecorder implements http.ResponseWriter but captures writes in memory. Perfect for fast, deterministic handler tests."}
+            ]
+          }
+          </script>
+        </div>
+      </section>
+
+      <section id="exercises">
+        <h2>Practice exercises</h2>
+
+        <div class="exercise">
+          <div class="exercise-header"><span class="badge">EXERCISE 1</span><h3>Table-test a reverse function</h3></div>
+          <div class="exercise-task"><p>Write <code>Reverse(s string) string</code> (from Chapter 7) and a table-driven test covering empty strings, single ASCII, multibyte ("héllo"), and emoji. Ensure the test fails if reverse is broken.</p></div>
+          <details class="exercise-solution"><summary>Show solution sketch</summary>
+          <pre><code class="language-go">func TestReverse(t *testing.T) {
+    cases := []struct{ name, in, want string }{
+        {"empty", "", ""},
+        {"ascii", "abc", "cba"},
+        {"multibyte", "héllo", "olléh"},
+        {"emoji", "ab🌍", "🌍ba"},
+    }
+    for _, c := range cases {
+        t.Run(c.name, func(t *testing.T) {
+            if got := Reverse(c.in); got != c.want {
+                t.Errorf("Reverse(%q) = %q, want %q", c.in, got, c.want)
+            }
+        })
+    }
+}
+</code></pre></details>
+        </div>
+      </section>
+
+      <section id="further" class="further-reading">
+        <h3>Further reading</h3>
+        <ul>
+          <li><a href="https://pkg.go.dev/testing" target="_blank" rel="noopener"><code>testing</code> package</a></li>
+          <li><a href="https://go.dev/doc/tutorial/add-a-test" target="_blank" rel="noopener">Tutorial: add a test</a></li>
+          <li><a href="https://go.dev/blog/subtests" target="_blank" rel="noopener">Using subtests and sub-benchmarks</a></li>
+          <li><a href="https://pkg.go.dev/net/http/httptest" target="_blank" rel="noopener"><code>httptest</code> package</a></li>
+        </ul>
+      </section>
+
+      <div class="complete-box"><p>Tests in the bank.</p><button class="complete-btn" type="button" data-chapter-id="ch-31">✓ Mark this chapter complete</button></div>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a class="prev" href="30-net-http.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 30 — net/http</div></a>
+        <a class="next" href="32-benchmarking.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 32 — Benchmarking</div></a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-line">Made with <span class="heart">❤️</span> by <a href="https://github.com/cyrus2281" target="_blank" rel="noopener">Cyrus Mobini</a></div>
+    <a class="bmac" href="https://buymeacoffee.com/cyrus2281" target="_blank" rel="noopener"><span class="bmac-icon">☕</span> Buy me a coffee</a>
+  </footer>
+
+  <script src="../assets/js/progress.js" defer></script>
+  <script src="../assets/js/prism.js" defer></script>
+  <script src="../assets/js/app.js" defer></script>
+  <script src="../assets/js/quiz.js" defer></script>
+  <script src="../assets/js/search.js" defer></script>
+</body>
+</html>

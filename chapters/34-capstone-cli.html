@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6YPTC2B9NR"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 34 · Capstone — Learn Go by Cyrus Mobini</title>
+  <meta name="description" content="Tie it all together by building a real CLI app: a terminal TODO manager. Flags, JSON persistence, errors, tests — everything you've learned.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Chapter 34 · Capstone — Learn Go">
+  <meta property="og:description" content="Build a terminal TODO CLI that uses flags, JSON persistence, errors, tests. Bring it all together.">
+  <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/34-capstone-cli.html">
+  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Chapter 34 · Capstone — Learn Go">
+  <meta name="twitter:description" content="Build a terminal TODO CLI — flags, JSON, errors, tests.">
+  <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/34-capstone-cli.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/prism.css">
+  <script>(function(){try{var t=localStorage.getItem('go-course-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="../index.html" class="brand"><span class="brand-mark">Go</span><span class="brand-name">Learn <span class="brand-accent">Go</span></span></a>
+    <button id="menu-toggle" class="icon-btn menu-toggle" aria-label="Toggle chapter menu" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="header-spacer"></div>
+    <div class="search" role="search"><input id="search-input" type="search" placeholder="Search chapters…" autocomplete="off" aria-label="Search across all chapters"><kbd class="search-hint">/</kbd><div id="search-results" class="search-results"></div></div>
+    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" type="button"></button>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="chapter-sidebar">
+      <div class="side-title">On this page</div>
+      <ul>
+        <li><a href="#objectives">Objectives</a></li>
+        <li><a href="#spec">The spec</a></li>
+        <li><a href="#layout">Project layout</a></li>
+        <li><a href="#store">The task store</a></li>
+        <li><a href="#commands">Commands</a></li>
+        <li><a href="#main">main &amp; flags</a></li>
+        <li><a href="#tests">Tests</a></li>
+        <li><a href="#ship">Ship it</a></li>
+        <li><a href="#ideas">Where to go next</a></li>
+        <li><a href="#finish">Finish</a></li>
+      </ul>
+      <div class="side-title">Navigate</div>
+      <ul>
+        <li><a href="33-documentation-toolchain.html">← Previous: Documentation &amp; Toolchain</a></li>
+        <li><a href="../index.html">Back to table of contents</a></li>
+      </ul>
+    </aside>
+
+    <main class="chapter-main" data-chapter-id="ch-34">
+      <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 34 · CAPSTONE</div>
+      <h1>Capstone: Build a CLI Task Manager</h1>
+      <p>You've covered an entire language. This chapter ties the pieces
+         together by building a real, useful CLI tool: <strong>todo</strong>, a
+         terminal task manager that stores tasks as JSON and supports add, list,
+         done, and rm commands. It uses <em>almost every concept</em> from the
+         course.</p>
+
+      <section id="objectives" class="learning-objectives">
+        <h3>Objectives</h3>
+        <ul>
+          <li>Structure a Go project into packages.</li>
+          <li>Parse command-line arguments with <code>flag</code>.</li>
+          <li>Persist data to a JSON file (Chapters 27, 29).</li>
+          <li>Handle errors and use contexts (Chapters 23, 26).</li>
+          <li>Write table-driven tests (Chapter 31).</li>
+          <li>Build and ship a static binary (Chapter 4).</li>
+        </ul>
+      </section>
+
+      <section id="spec">
+        <h2>The spec</h2>
+        <p>The binary supports four subcommands:</p>
+        <pre><code class="language-bash">todo add "buy milk"        # add a task
+todo list                  # show all tasks (pending + completed)
+todo done 3                # mark task #3 as complete
+todo rm 3                  # remove task #3
+</code></pre>
+
+        <p>Tasks live in <code>~/.todo.json</code>. Each task has: ID, Title,
+           CreatedAt (time), CompletedAt (*time, nil if pending).</p>
+      </section>
+
+      <section id="layout">
+        <h2>Project layout</h2>
+        <pre><code class="language-bash">todo/
+├── go.mod                      // module example.com/todo
+├── main.go                     // package main — entry point
+├── cmd/
+│   └── todo/
+│       └── main.go             // (alternative: binary under cmd/)
+└── internal/
+    └── task/
+        ├── task.go             // Task type + methods
+        ├── store.go            // loading/saving JSON
+        └── task_test.go
+</code></pre>
+
+        <p>For this small project, keeping <code>main.go</code> at the root and
+           the logic in <code>internal/task</code> is fine. For larger CLIs, many
+           binaries per tool live under <code>cmd/NAME/</code>.</p>
+      </section>
+
+      <section id="store">
+        <h2>The task store</h2>
+        <p><code>internal/task/task.go</code>:</p>
+        <pre><code class="language-go">package task
+
+import "time"
+
+// A Task is a single TODO item.
+type Task struct {
+    ID          int        `json:"id"`
+    Title       string     `json:"title"`
+    CreatedAt   time.Time  `json:"createdAt"`
+    CompletedAt *time.Time `json:"completedAt,omitempty"`
+}
+
+// Done reports whether the task has been completed.
+func (t Task) Done() bool { return t.CompletedAt != nil }
+</code></pre>
+
+        <p><code>internal/task/store.go</code>:</p>
+        <pre><code class="language-go">package task
+
+import (
+    "encoding/json"
+    "errors"
+    "fmt"
+    "os"
+    "time"
+)
+
+var ErrNotFound = errors.New("task not found")
+
+// Store is the on-disk JSON task list.
+type Store struct {
+    Path  string
+    Tasks []Task
+}
+
+// Load reads tasks from the given path. If the file doesn't exist, the returned
+// store is empty.
+func Load(path string) (*Store, error) {
+    s := &amp;Store{Path: path}
+    b, err := os.ReadFile(path)
+    if err != nil {
+        if errors.Is(err, os.ErrNotExist) {
+            return s, nil
+        }
+        return nil, fmt.Errorf("load %q: %w", path, err)
+    }
+    if err := json.Unmarshal(b, &amp;s.Tasks); err != nil {
+        return nil, fmt.Errorf("parse %q: %w", path, err)
+    }
+    return s, nil
+}
+
+// Save writes the tasks back to disk atomically.
+func (s *Store) Save() error {
+    b, err := json.MarshalIndent(s.Tasks, "", "  ")
+    if err != nil { return fmt.Errorf("marshal: %w", err) }
+
+    tmp := s.Path + ".tmp"
+    if err := os.WriteFile(tmp, b, 0o644); err != nil {
+        return fmt.Errorf("write %q: %w", tmp, err)
+    }
+    return os.Rename(tmp, s.Path)    // atomic replace
+}
+
+// Add appends a new task and returns it.
+func (s *Store) Add(title string) Task {
+    id := 1
+    for _, t := range s.Tasks {
+        if t.ID >= id { id = t.ID + 1 }
+    }
+    t := Task{ID: id, Title: title, CreatedAt: time.Now()}
+    s.Tasks = append(s.Tasks, t)
+    return t
+}
+
+// Complete marks a task as done.
+func (s *Store) Complete(id int) error {
+    for i := range s.Tasks {
+        if s.Tasks[i].ID == id {
+            now := time.Now()
+            s.Tasks[i].CompletedAt = &amp;now
+            return nil
+        }
+    }
+    return fmt.Errorf("complete id=%d: %w", id, ErrNotFound)
+}
+
+// Remove deletes a task.
+func (s *Store) Remove(id int) error {
+    for i, t := range s.Tasks {
+        if t.ID == id {
+            s.Tasks = append(s.Tasks[:i], s.Tasks[i+1:]...)
+            return nil
+        }
+    }
+    return fmt.Errorf("remove id=%d: %w", id, ErrNotFound)
+}
+</code></pre>
+      </section>
+
+      <section id="commands">
+        <h2>Commands</h2>
+        <p>Each subcommand is a small function in <code>main.go</code>:</p>
+
+        <pre><code class="language-go">func cmdAdd(s *task.Store, args []string) error {
+    if len(args) == 0 {
+        return errors.New("usage: todo add TITLE")
+    }
+    title := strings.Join(args, " ")
+    t := s.Add(title)
+    fmt.Printf("added #%d: %s\n", t.ID, t.Title)
+    return s.Save()
+}
+
+func cmdList(s *task.Store, _ []string) error {
+    if len(s.Tasks) == 0 {
+        fmt.Println("no tasks")
+        return nil
+    }
+    for _, t := range s.Tasks {
+        mark := "[ ]"
+        if t.Done() { mark = "[x]" }
+        fmt.Printf("%s #%d  %s\n", mark, t.ID, t.Title)
+    }
+    return nil
+}
+
+func cmdDone(s *task.Store, args []string) error {
+    if len(args) != 1 { return errors.New("usage: todo done ID") }
+    id, err := strconv.Atoi(args[0])
+    if err != nil { return fmt.Errorf("bad id: %w", err) }
+    if err := s.Complete(id); err != nil { return err }
+    fmt.Printf("done #%d\n", id)
+    return s.Save()
+}
+
+func cmdRm(s *task.Store, args []string) error {
+    if len(args) != 1 { return errors.New("usage: todo rm ID") }
+    id, err := strconv.Atoi(args[0])
+    if err != nil { return fmt.Errorf("bad id: %w", err) }
+    if err := s.Remove(id); err != nil { return err }
+    fmt.Printf("removed #%d\n", id)
+    return s.Save()
+}
+</code></pre>
+      </section>
+
+      <section id="main">
+        <h2><code>main</code> and the flag parsing</h2>
+        <pre><code class="language-go">package main
+
+import (
+    "errors"
+    "flag"
+    "fmt"
+    "os"
+    "path/filepath"
+    "strconv"
+    "strings"
+
+    "example.com/todo/internal/task"
+)
+
+func main() {
+    path := flag.String("file", defaultPath(), "path to tasks JSON file")
+    flag.Usage = func() {
+        fmt.Fprintln(os.Stderr, "usage: todo [--file PATH] COMMAND [ARGS...]")
+        fmt.Fprintln(os.Stderr, "commands: add, list, done, rm")
+    }
+    flag.Parse()
+
+    args := flag.Args()
+    if len(args) == 0 { flag.Usage(); os.Exit(2) }
+
+    store, err := task.Load(*path)
+    if err != nil {
+        fmt.Fprintln(os.Stderr, "error:", err); os.Exit(1)
+    }
+
+    cmd, rest := args[0], args[1:]
+    var runErr error
+    switch cmd {
+    case "add":  runErr = cmdAdd(store, rest)
+    case "list": runErr = cmdList(store, rest)
+    case "done": runErr = cmdDone(store, rest)
+    case "rm":   runErr = cmdRm(store, rest)
+    default:
+        fmt.Fprintf(os.Stderr, "unknown command %q\n", cmd); flag.Usage(); os.Exit(2)
+    }
+    if runErr != nil {
+        fmt.Fprintln(os.Stderr, "error:", runErr)
+        os.Exit(1)
+    }
+}
+
+func defaultPath() string {
+    home, err := os.UserHomeDir()
+    if err != nil { return ".todo.json" }
+    return filepath.Join(home, ".todo.json")
+}
+</code></pre>
+      </section>
+
+      <section id="tests">
+        <h2>Tests</h2>
+        <p><code>internal/task/task_test.go</code>:</p>
+        <pre><code class="language-go">package task
+
+import (
+    "path/filepath"
+    "testing"
+)
+
+func TestStore(t *testing.T) {
+    dir := t.TempDir()
+    path := filepath.Join(dir, "tasks.json")
+
+    s, err := Load(path)
+    if err != nil { t.Fatal(err) }
+    if len(s.Tasks) != 0 { t.Fatalf("fresh store should be empty, got %d", len(s.Tasks)) }
+
+    t1 := s.Add("write more tests")
+    t2 := s.Add("ship")
+    if err := s.Save(); err != nil { t.Fatal(err) }
+
+    // Reload and verify persistence
+    s2, err := Load(path)
+    if err != nil { t.Fatal(err) }
+    if len(s2.Tasks) != 2 { t.Fatalf("got %d tasks, want 2", len(s2.Tasks)) }
+
+    if err := s2.Complete(t1.ID); err != nil { t.Fatal(err) }
+    if !s2.Tasks[0].Done() { t.Error("t1 should be done") }
+
+    if err := s2.Remove(t2.ID); err != nil { t.Fatal(err) }
+    if len(s2.Tasks) != 1 { t.Errorf("after rm: len=%d, want 1", len(s2.Tasks)) }
+}
+</code></pre>
+
+        <p>Using <code>t.TempDir()</code> gets you a disposable directory that's
+           auto-cleaned up. Run with <code>go test ./... -race</code>.</p>
+      </section>
+
+      <section id="ship">
+        <h2>Ship it</h2>
+        <pre><code class="language-bash">cd todo
+go mod init example.com/todo
+go build -o todo .
+./todo add "read the spec"
+./todo add "sleep"
+./todo list
+./todo done 1
+./todo list
+</code></pre>
+
+        <p>Want a native binary for another OS?</p>
+        <pre><code class="language-bash">GOOS=linux  GOARCH=amd64 go build -o todo-linux .
+GOOS=darwin GOARCH=arm64 go build -o todo-mac .
+GOOS=windows GOARCH=amd64 go build -o todo.exe .
+</code></pre>
+
+        <p>Three binaries, three clients, zero runtime dependencies. That's the
+           Go deployment pitch in one command.</p>
+      </section>
+
+      <section id="ideas">
+        <h2>Where to go next</h2>
+        <p>This app is intentionally small. Ideas if you want to keep building:</p>
+        <ul>
+          <li><strong>Priorities, tags, due dates</strong> — more struct fields and filtering.</li>
+          <li><strong>Colored output</strong> with <code>fatih/color</code>.</li>
+          <li><strong>Sync to a web API</strong> using <code>net/http</code> (Chapter 30).</li>
+          <li><strong>TUI</strong> with <a href="https://github.com/charmbracelet/bubbletea" target="_blank" rel="noopener">bubbletea</a>.</li>
+          <li><strong>Persistence in SQLite</strong> via <code>modernc.org/sqlite</code>.</li>
+          <li><strong>Subcommand routing library</strong> like <a href="https://github.com/spf13/cobra" target="_blank" rel="noopener">cobra</a> for bigger CLIs.</li>
+          <li><strong>Publish to homebrew</strong> with <a href="https://goreleaser.com/" target="_blank" rel="noopener">GoReleaser</a>.</li>
+        </ul>
+
+        <p>But most importantly — start a <em>real</em> project that scratches
+           your own itch. That's where mastery comes from.</p>
+      </section>
+
+      <section id="finish">
+        <h2>Finish</h2>
+        <p>34 chapters. From "what is coding" to shipping a working CLI written
+           entirely by you. You now know:</p>
+
+        <ul>
+          <li>The language: types, control flow, functions, composite types, pointers, methods, interfaces, generics.</li>
+          <li>Concurrency: goroutines, channels, contexts — the pieces the rest of the world is still catching up to.</li>
+          <li>The standard library: I/O, time, JSON, HTTP — the four pillars of most services.</li>
+          <li>The craft: naming, testing, benchmarking, profiling, documentation, modules.</li>
+        </ul>
+
+        <p>You can now read any Go codebase, contribute to open-source projects,
+           and build your own production services. Go forth — pun intended.</p>
+
+        <p>Happy hacking.</p>
+        <p>— Cyrus</p>
+
+        <div class="complete-box">
+          <p>Course complete.</p>
+          <button class="complete-btn" type="button" data-chapter-id="ch-34">✓ Mark this chapter complete</button>
+        </div>
+      </section>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a class="prev" href="33-documentation-toolchain.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 33 — Documentation &amp; Toolchain</div></a>
+        <a class="next" href="../index.html"><div class="nav-label">Finish</div><div class="nav-title">Back to table of contents 🎉</div></a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-line">Made with <span class="heart">❤️</span> by <a href="https://github.com/cyrus2281" target="_blank" rel="noopener">Cyrus Mobini</a></div>
+    <a class="bmac" href="https://buymeacoffee.com/cyrus2281" target="_blank" rel="noopener"><span class="bmac-icon">☕</span> Buy me a coffee</a>
+  </footer>
+
+  <script src="../assets/js/progress.js" defer></script>
+  <script src="../assets/js/prism.js" defer></script>
+  <script src="../assets/js/app.js" defer></script>
+  <script src="../assets/js/quiz.js" defer></script>
+  <script src="../assets/js/search.js" defer></script>
+</body>
+</html>

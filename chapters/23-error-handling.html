@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6YPTC2B9NR"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 23 · Error Handling — Learn Go by Cyrus Mobini</title>
+  <meta name="description" content="Go's errors-as-values model: error interface, error wrapping with %w, errors.Is / errors.As, sentinel and custom errors, and when (not) to use panic.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Chapter 23 · Error Handling — Learn Go">
+  <meta property="og:description" content="Idiomatic Go error handling: return values, wrapping, Is/As, sentinels, custom types, panic.">
+  <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/23-error-handling.html">
+  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Chapter 23 · Error Handling — Learn Go">
+  <meta name="twitter:description" content="Idiomatic Go error handling.">
+  <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/23-error-handling.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/prism.css">
+  <script>(function(){try{var t=localStorage.getItem('go-course-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="../index.html" class="brand"><span class="brand-mark">Go</span><span class="brand-name">Learn <span class="brand-accent">Go</span></span></a>
+    <button id="menu-toggle" class="icon-btn menu-toggle" aria-label="Toggle chapter menu" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="header-spacer"></div>
+    <div class="search" role="search"><input id="search-input" type="search" placeholder="Search chapters…" autocomplete="off" aria-label="Search across all chapters"><kbd class="search-hint">/</kbd><div id="search-results" class="search-results"></div></div>
+    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" type="button"></button>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="chapter-sidebar">
+      <div class="side-title">On this page</div>
+      <ul>
+        <li><a href="#objectives">Learning objectives</a></li>
+        <li><a href="#philosophy">Errors are values</a></li>
+        <li><a href="#returning">Returning errors</a></li>
+        <li><a href="#wrapping">Wrapping with %w</a></li>
+        <li><a href="#is-as"><code>errors.Is</code> / <code>errors.As</code></a></li>
+        <li><a href="#sentinels">Sentinel errors</a></li>
+        <li><a href="#custom">Custom error types</a></li>
+        <li><a href="#panic"><code>panic</code> &amp; <code>recover</code></a></li>
+        <li><a href="#idioms">Idioms &amp; anti-patterns</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+        <li><a href="#exercises">Exercises</a></li>
+        <li><a href="#further">Further reading</a></li>
+      </ul>
+      <div class="side-title">Navigate</div>
+      <ul>
+        <li><a href="22-generics.html">← Previous: Generics</a></li>
+        <li><a href="24-goroutines.html">Next: Goroutines →</a></li>
+        <li><a href="../index.html">Table of contents</a></li>
+      </ul>
+    </aside>
+
+    <main class="chapter-main" data-chapter-id="ch-23">
+      <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 23 · TYPES &amp; ABSTRACTIONS</div>
+      <h1>Error Handling</h1>
+      <p>Go has no exceptions. Instead, functions return <em>error values</em>
+         that callers check explicitly. This reads verbose at first, but pays off
+         in code that's easy to reason about — control flow is linear, and error
+         handling is impossible to "forget".</p>
+
+      <section id="objectives" class="learning-objectives">
+        <h3>Learning objectives</h3>
+        <ul>
+          <li>Understand the <code>error</code> interface.</li>
+          <li>Return, check, and propagate errors.</li>
+          <li>Wrap errors with <code>fmt.Errorf("...: %w", err)</code>.</li>
+          <li>Inspect wrapped errors with <code>errors.Is</code> and <code>errors.As</code>.</li>
+          <li>Define custom error types and sentinel values.</li>
+          <li>Know when to use (and especially when not to use) <code>panic</code>.</li>
+        </ul>
+      </section>
+
+      <section id="philosophy">
+        <h2>Errors are values</h2>
+        <p><code>error</code> is a built-in interface:</p>
+        <pre><code class="language-go">type error interface {
+    Error() string
+}
+</code></pre>
+
+        <p>Any type that implements <code>Error() string</code> satisfies
+           <code>error</code>. The simplest case:
+           <code>errors.New("something went wrong")</code>.</p>
+      </section>
+
+      <section id="returning">
+        <h2>Returning errors</h2>
+        <pre><code class="language-go">func divide(a, b float64) (float64, error) {
+    if b == 0 {
+        return 0, errors.New("divide by zero")
+    }
+    return a / b, nil
+}
+
+result, err := divide(10, 0)
+if err != nil {
+    fmt.Println("error:", err)
+    return
+}
+fmt.Println(result)
+</code></pre>
+
+        <p>The convention: <code>error</code> is the <em>last</em> return value;
+           it's <code>nil</code> on success. Never return a non-nil result
+           alongside a non-nil error (and vice versa) — callers shouldn't have to
+           check both.</p>
+      </section>
+
+      <section id="wrapping">
+        <h2>Wrapping with <code>%w</code></h2>
+        <p><code>fmt.Errorf</code> with the <code>%w</code> verb wraps an
+           error, preserving it so callers upstream can inspect it:</p>
+
+        <pre><code class="language-go">func loadConfig(path string) (*Config, error) {
+    b, err := os.ReadFile(path)
+    if err != nil {
+        return nil, fmt.Errorf("loadConfig %q: %w", path, err)
+    }
+    // ...
+}
+</code></pre>
+
+        <p>Now an error message like <code>loadConfig "a.yaml": open a.yaml: no
+           such file or directory</code> tells you both what high-level action
+           failed and the underlying cause — and the original error object is
+           still accessible.</p>
+      </section>
+
+      <section id="is-as">
+        <h2><code>errors.Is</code> and <code>errors.As</code></h2>
+        <pre><code class="language-go">if errors.Is(err, os.ErrNotExist) {
+    // err chain contains os.ErrNotExist — create the file
+}
+
+var pathErr *os.PathError
+if errors.As(err, &amp;pathErr) {
+    // err chain contains a *os.PathError — pathErr is now usable
+    fmt.Println(pathErr.Path)
+}
+</code></pre>
+
+        <ul>
+          <li><code>errors.Is(err, target)</code> — "does err's chain contain <em>this exact error value</em>?"</li>
+          <li><code>errors.As(err, &amp;v)</code> — "does err's chain contain an error <em>of this type</em>? If so, put it in v."</li>
+        </ul>
+
+        <p>Both walk the chain created by <code>%w</code>. Never compare with
+           <code>==</code> directly — if the error's been wrapped, <code>==</code>
+           will miss it.</p>
+      </section>
+
+      <section id="sentinels">
+        <h2>Sentinel errors</h2>
+        <p>A package-level error variable used as a comparable "tag":</p>
+
+        <pre><code class="language-go">var ErrNotFound = errors.New("not found")
+
+func find(id int) (*Item, error) {
+    // ...
+    return nil, ErrNotFound
+}
+
+if errors.Is(err, ErrNotFound) { ... }
+</code></pre>
+
+        <p>Sentinels are great when there's a clear set of known failure modes
+           callers might want to branch on (<code>io.EOF</code> is the classic).
+           Use them sparingly — too many sentinels and your package becomes a
+           jungle.</p>
+      </section>
+
+      <section id="custom">
+        <h2>Custom error types</h2>
+        <p>When the error needs structured data (a code, field, cause):</p>
+
+        <pre><code class="language-go">type ValidationError struct {
+    Field   string
+    Reason  string
+}
+
+func (e *ValidationError) Error() string {
+    return fmt.Sprintf("validation failed on %q: %s", e.Field, e.Reason)
+}
+
+// usage
+var verr *ValidationError
+if errors.As(err, &amp;verr) {
+    fmt.Println("bad field:", verr.Field)
+}
+</code></pre>
+      </section>
+
+      <section id="panic">
+        <h2><code>panic</code> &amp; <code>recover</code></h2>
+        <p><code>panic</code> aborts the goroutine and unwinds the stack, running
+           deferred functions on the way up. <code>recover</code> (used in a
+           deferred function) stops the unwinding and returns the panic value.</p>
+
+        <pre><code class="language-go">func safeDiv(a, b int) (r int, err error) {
+    defer func() {
+        if p := recover(); p != nil {
+            err = fmt.Errorf("recovered: %v", p)
+        }
+    }()
+    return a / b, nil    // panics if b == 0
+}
+</code></pre>
+
+        <div class="callout pitfall">
+          <div class="ico">!</div>
+          <div>
+            <span class="callout-title">Panic is not error handling</span>
+            Reserve panic for <em>programmer errors</em> (impossible state, nil
+            map writes, out-of-range index) and for truly unrecoverable
+            conditions. For anything a caller might reasonably want to handle,
+            return an error.
+          </div>
+        </div>
+      </section>
+
+      <section id="idioms">
+        <h2>Idioms &amp; anti-patterns</h2>
+
+        <h3>Idioms</h3>
+        <ul>
+          <li><strong>Check errors immediately.</strong> Don't stockpile for later.</li>
+          <li><strong>Add context when wrapping.</strong> "opening config: ..." is more useful than just "file not found".</li>
+          <li><strong>Don't log-and-return.</strong> Either log <em>or</em> return — not both. The caller logs at the top.</li>
+          <li><strong>Use <code>fmt.Errorf</code> for dynamic errors</strong>, <code>errors.New</code> for static ones (like sentinels).</li>
+        </ul>
+
+        <h3>Anti-patterns</h3>
+        <ul>
+          <li><code>_ = err</code> — silently ignoring. Almost always a bug.</li>
+          <li>Comparing with <code>err.Error() == "no rows"</code> — fragile. Use <code>errors.Is</code>.</li>
+          <li>Returning <code>nil</code> from an error-returning function by accident. Always check before returning data.</li>
+        </ul>
+      </section>
+
+      <section id="quiz">
+        <h2>Check your understanding</h2>
+        <div class="quiz" data-quiz data-chapter-id="ch-23">
+          <script type="application/json" class="quiz-data">
+          {
+            "title": "Quick quiz",
+            "questions": [
+              {"q":"The `error` interface requires which method?","options":["Message() string","Error() string","String() string","IsError() bool"],"answer":1,"explanation":"The error interface is defined as: type error interface { Error() string }. Any type implementing that method satisfies it."},
+              {"q":"What does the `%w` verb do in `fmt.Errorf`?","options":["Formats an error as a warning","Wraps the error so errors.Is / errors.As can find it in the chain","Writes to stderr","Wraps at 80 columns"],"answer":1,"explanation":"%w tells fmt.Errorf to *wrap* an error, creating a chain. You can then call errors.Is/As to check the chain for specific errors."},
+              {"q":"Which function checks whether an error chain contains a specific SENTINEL (value)?","options":["errors.Is","errors.As","errors.Unwrap","==.Compare"],"answer":0,"explanation":"errors.Is walks the wrap chain looking for a specific error value (like io.EOF or os.ErrNotExist)."},
+              {"q":"Which is more idiomatic for a value-failure condition like \"row not found\"?","options":["panic(\"not found\")","return value, nil","return nil, errors.New(\"not found\")  OR  return nil, ErrNotFound","throw ErrNotFound"],"answer":2,"explanation":"Go uses errors-as-values. Return an error (often a sentinel like ErrNotFound so callers can branch). Never panic for expected failure modes."},
+              {"q":"Given `var err = fmt.Errorf(\"op: %w\", io.EOF)`, which is true?","options":["err == io.EOF","errors.Is(err, io.EOF)","Both","Neither"],"answer":1,"explanation":"Wrapping creates a new error that is *not ==* io.EOF. errors.Is walks the chain, finds io.EOF, returns true. This is exactly why wrapping + Is matters."}
+            ]
+          }
+          </script>
+        </div>
+      </section>
+
+      <section id="exercises">
+        <h2>Practice exercises</h2>
+
+        <div class="exercise">
+          <div class="exercise-header"><span class="badge">EXERCISE 1</span><h3>Wrap &amp; inspect</h3></div>
+          <div class="exercise-task"><p>Write a function <code>readConfig(path string) (string, error)</code> that reads a file and, on failure, wraps the underlying error with context (e.g. "readConfig: ...: %w"). Call it with a missing path and use <code>errors.Is(err, os.ErrNotExist)</code> to detect a missing file.</p></div>
+          <details class="exercise-solution"><summary>Show solution</summary>
+          <pre><code class="language-go">package main
+
+import (
+    "errors"
+    "fmt"
+    "os"
+)
+
+func readConfig(path string) (string, error) {
+    b, err := os.ReadFile(path)
+    if err != nil {
+        return "", fmt.Errorf("readConfig %q: %w", path, err)
+    }
+    return string(b), nil
+}
+
+func main() {
+    _, err := readConfig("missing.yaml")
+    switch {
+    case errors.Is(err, os.ErrNotExist):
+        fmt.Println("config doesn't exist — using defaults")
+    case err != nil:
+        fmt.Println("other error:", err)
+    }
+}
+</code></pre></details>
+        </div>
+      </section>
+
+      <section id="further" class="further-reading">
+        <h3>Further reading</h3>
+        <ul>
+          <li><a href="https://go.dev/blog/error-handling-and-go" target="_blank" rel="noopener">The Go Blog — Error handling and Go</a></li>
+          <li><a href="https://go.dev/blog/go1.13-errors" target="_blank" rel="noopener">Go 1.13 errors — wrapping, Is, As</a></li>
+          <li><a href="https://pkg.go.dev/errors" target="_blank" rel="noopener"><code>errors</code> package</a></li>
+        </ul>
+      </section>
+
+      <div class="complete-box"><p>Errors as first-class values.</p><button class="complete-btn" type="button" data-chapter-id="ch-23">✓ Mark this chapter complete</button></div>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a class="prev" href="22-generics.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 22 — Generics</div></a>
+        <a class="next" href="24-goroutines.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 24 — Goroutines</div></a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-line">Made with <span class="heart">❤️</span> by <a href="https://github.com/cyrus2281" target="_blank" rel="noopener">Cyrus Mobini</a></div>
+    <a class="bmac" href="https://buymeacoffee.com/cyrus2281" target="_blank" rel="noopener"><span class="bmac-icon">☕</span> Buy me a coffee</a>
+  </footer>
+
+  <script src="../assets/js/progress.js" defer></script>
+  <script src="../assets/js/prism.js" defer></script>
+  <script src="../assets/js/app.js" defer></script>
+  <script src="../assets/js/quiz.js" defer></script>
+  <script src="../assets/js/search.js" defer></script>
+</body>
+</html>

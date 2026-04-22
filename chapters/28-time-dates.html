@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6YPTC2B9NR"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 28 · Time, Dates &amp; Durations — Learn Go by Cyrus Mobini</title>
+  <meta name="description" content="time.Time, time.Duration, the famous Mon Jan 2 reference layout, parsing/formatting, timers, tickers, and time arithmetic.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Chapter 28 · Time, Dates &amp; Durations — Learn Go">
+  <meta property="og:description" content="time.Time, Durations, Go's quirky reference-time layouts, timers, tickers.">
+  <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/28-time-dates.html">
+  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Chapter 28 · Time, Dates &amp; Durations — Learn Go">
+  <meta name="twitter:description" content="Time, Durations, layouts, timers, tickers.">
+  <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/28-time-dates.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/prism.css">
+  <script>(function(){try{var t=localStorage.getItem('go-course-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="../index.html" class="brand"><span class="brand-mark">Go</span><span class="brand-name">Learn <span class="brand-accent">Go</span></span></a>
+    <button id="menu-toggle" class="icon-btn menu-toggle" aria-label="Toggle chapter menu" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="header-spacer"></div>
+    <div class="search" role="search"><input id="search-input" type="search" placeholder="Search chapters…" autocomplete="off" aria-label="Search across all chapters"><kbd class="search-hint">/</kbd><div id="search-results" class="search-results"></div></div>
+    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" type="button"></button>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="chapter-sidebar">
+      <div class="side-title">On this page</div>
+      <ul>
+        <li><a href="#objectives">Learning objectives</a></li>
+        <li><a href="#time">time.Time</a></li>
+        <li><a href="#duration">time.Duration</a></li>
+        <li><a href="#layouts">Layouts (the quirky bit)</a></li>
+        <li><a href="#parse">Parsing &amp; formatting</a></li>
+        <li><a href="#arith">Time arithmetic</a></li>
+        <li><a href="#zone">Time zones</a></li>
+        <li><a href="#timer">Timers &amp; tickers</a></li>
+        <li><a href="#mono">Monotonic clocks</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+        <li><a href="#exercises">Exercises</a></li>
+        <li><a href="#further">Further reading</a></li>
+      </ul>
+      <div class="side-title">Navigate</div>
+      <ul>
+        <li><a href="27-io-files.html">← Previous: I/O &amp; Files</a></li>
+        <li><a href="29-json.html">Next: JSON →</a></li>
+        <li><a href="../index.html">Table of contents</a></li>
+      </ul>
+    </aside>
+
+    <main class="chapter-main" data-chapter-id="ch-28">
+      <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 28 · STANDARD LIBRARY</div>
+      <h1>Time, Dates &amp; Durations</h1>
+      <p>The <code>time</code> package handles every time-related need: instants,
+         durations, parsing, formatting, time zones, timers, and tickers. Two
+         things make Go's design distinctive: <code>time.Duration</code> is a
+         typed integer (nanoseconds) and date format strings use a
+         <em>reference time</em> instead of cryptic codes like
+         <code>%Y-%m-%d</code>.</p>
+
+      <section id="objectives" class="learning-objectives">
+        <h3>Learning objectives</h3>
+        <ul>
+          <li>Get the current time and create specific instants.</li>
+          <li>Use <code>time.Duration</code> for arithmetic.</li>
+          <li>Format and parse times using the reference layout.</li>
+          <li>Convert between time zones.</li>
+          <li>Schedule one-shot timers and recurring tickers.</li>
+        </ul>
+      </section>
+
+      <section id="time">
+        <h2><code>time.Time</code></h2>
+        <pre><code class="language-go">now := time.Now()
+fmt.Println(now)                      // 2026-04-22 11:35:00.123 +0000 UTC
+fmt.Println(now.Year(), now.Month(), now.Day())
+
+birthday := time.Date(1990, time.July, 4, 12, 0, 0, 0, time.UTC)
+fmt.Println(birthday)
+</code></pre>
+      </section>
+
+      <section id="duration">
+        <h2><code>time.Duration</code></h2>
+        <pre><code class="language-go">d := 2*time.Hour + 30*time.Minute
+fmt.Println(d)                  // 2h30m0s
+fmt.Println(d.Minutes())        // 150
+fmt.Println(d.Seconds())        // 9000
+</code></pre>
+
+        <p><code>Duration</code> is just <code>int64</code> nanoseconds. The
+           constants (<code>time.Hour</code>, etc.) are typed for arithmetic:
+           <code>5 * time.Second</code>, <code>500 * time.Millisecond</code>.</p>
+      </section>
+
+      <section id="layouts">
+        <h2>Layouts — the famous reference time</h2>
+        <p>Instead of <code>%Y-%m-%d</code>, Go uses an example time:</p>
+        <pre><code class="language-go">// THE reference time: Mon Jan 2 15:04:05 MST 2006
+// Memorize: 01 02 03 04 05 06 07  (month day hour minute second year week)
+const layout = "2006-01-02 15:04:05"
+fmt.Println(time.Now().Format(layout))    // 2026-04-22 11:35:00
+</code></pre>
+
+        <p>Common predefined layouts:</p>
+        <pre><code class="language-go">time.RFC3339           // "2006-01-02T15:04:05Z07:00"
+time.RFC1123           // "Mon, 02 Jan 2006 15:04:05 MST"
+time.DateTime          // "2006-01-02 15:04:05"
+time.DateOnly          // "2006-01-02"
+time.TimeOnly          // "15:04:05"
+</code></pre>
+
+        <div class="callout pitfall">
+          <div class="ico">!</div>
+          <div>
+            <span class="callout-title">Don't pick wrong magic numbers</span>
+            <code>2006</code> is the year, not <code>2007</code>. <code>15</code>
+            is 24-hour. <code>3</code> is 12-hour without leading zero. Get one
+            digit wrong and your output is silently wrong. When in doubt, use the
+            named constants (<code>time.RFC3339</code> covers most needs).
+          </div>
+        </div>
+      </section>
+
+      <section id="parse">
+        <h2>Parsing &amp; formatting</h2>
+        <pre><code class="language-go">t, err := time.Parse("2006-01-02", "2025-12-25")
+if err != nil { /* handle */ }
+fmt.Println(t.Weekday())                 // Thursday
+
+// With explicit time zone
+loc, _ := time.LoadLocation("America/New_York")
+t, _ = time.ParseInLocation("2006-01-02 15:04", "2025-12-25 09:30", loc)
+</code></pre>
+      </section>
+
+      <section id="arith">
+        <h2>Time arithmetic</h2>
+        <pre><code class="language-go">now := time.Now()
+later := now.Add(48 * time.Hour)         // 2 days from now
+elapsed := time.Since(start)              // shortcut for Now().Sub(start)
+fmt.Println(later.Before(now))            // false
+fmt.Println(later.Equal(now.Add(48 * time.Hour)))  // true
+</code></pre>
+      </section>
+
+      <section id="zone">
+        <h2>Time zones</h2>
+        <pre><code class="language-go">tokyo, _ := time.LoadLocation("Asia/Tokyo")
+t := time.Now().In(tokyo)
+fmt.Println(t)                  // same instant, displayed in Tokyo time
+
+utc := time.Now().UTC()         // shortcut
+</code></pre>
+      </section>
+
+      <section id="timer">
+        <h2>Timers &amp; tickers</h2>
+        <pre><code class="language-go">// One-shot delay
+&lt;-time.After(2 * time.Second)
+fmt.Println("two seconds later")
+
+// Repeated tick
+ticker := time.NewTicker(1 * time.Second)
+defer ticker.Stop()
+for t := range ticker.C {
+    fmt.Println("tick:", t)
+    // break out via context, channel, etc.
+}
+</code></pre>
+      </section>
+
+      <section id="mono">
+        <h2>Monotonic clocks</h2>
+        <p>Every <code>time.Now()</code> result includes a monotonic component
+           that's immune to wall-clock adjustments (NTP, manual changes). For
+           measuring elapsed durations, this is automatic — you'll never see
+           negative <code>time.Since</code> values from clock skew.</p>
+      </section>
+
+      <section id="quiz">
+        <h2>Check your understanding</h2>
+        <div class="quiz" data-quiz data-chapter-id="ch-28">
+          <script type="application/json" class="quiz-data">
+          {
+            "title": "Quick quiz",
+            "questions": [
+              {"q":"What is `time.Hour` in Go?","options":["A function","A typed Duration constant equal to 3600 seconds (in nanoseconds)","A struct","A method"],"answer":1,"explanation":"time.Hour is a Duration constant. Combined with arithmetic: `5 * time.Hour`, `30 * time.Minute`. Durations are int64 nanoseconds under the hood."},
+              {"q":"Which of these is the reference time used in Go's format strings?","options":["2006-01-02 15:04:05","2024-12-31 23:59:59","1970-01-01 00:00:00","Whichever you set"],"answer":0,"explanation":"Go's reference is Mon Jan 2 15:04:05 MST 2006 (numbers 1 2 3 4 5 6 7 in order). Memorize it or use named layouts like time.RFC3339."},
+              {"q":"To format a time as RFC3339:","options":["t.Format(time.RFC3339)","t.RFC3339()","time.Format(t, RFC3339)","strftime(t, '%RFC3339')"],"answer":0,"explanation":"Format takes a layout string. The stdlib provides many predefined layouts as constants on the time package."},
+              {"q":"Best way to measure how long an operation takes:","options":["start := time.Now(); ...; elapsed := time.Since(start)","Save Unix seconds, subtract","Use a stopwatch","Use os.Args"],"answer":0,"explanation":"time.Now() includes a monotonic clock; time.Since(start) computes the elapsed duration immune to wall-clock changes."},
+              {"q":"To run something every second:","options":["for { time.Sleep(time.Second); ... }","for t := range time.NewTicker(time.Second).C { ... }  (with Stop())","time.RepeatEvery(time.Second, fn)","go time.Tick(fn)"],"answer":1,"explanation":"time.Ticker delivers values on a channel at the specified interval. Use range over .C and remember to defer ticker.Stop() to avoid a goroutine leak."}
+            ]
+          }
+          </script>
+        </div>
+      </section>
+
+      <section id="exercises">
+        <h2>Practice exercises</h2>
+
+        <div class="exercise">
+          <div class="exercise-header"><span class="badge">EXERCISE 1</span><h3>Days until New Year</h3></div>
+          <div class="exercise-task"><p>Write a program that prints the number of full days between today and the next January 1st.</p></div>
+          <details class="exercise-solution"><summary>Show solution</summary>
+          <pre><code class="language-go">package main
+
+import (
+    "fmt"
+    "time"
+)
+
+func main() {
+    now := time.Now()
+    nextYear := time.Date(now.Year()+1, time.January, 1, 0, 0, 0, 0, now.Location())
+    days := int(time.Until(nextYear).Hours() / 24)
+    fmt.Printf("%d days until New Year\n", days)
+}
+</code></pre></details>
+        </div>
+      </section>
+
+      <section id="further" class="further-reading">
+        <h3>Further reading</h3>
+        <ul>
+          <li><a href="https://pkg.go.dev/time" target="_blank" rel="noopener"><code>time</code> package</a></li>
+          <li><a href="https://pkg.go.dev/time#pkg-constants" target="_blank" rel="noopener">All predefined layouts</a></li>
+        </ul>
+      </section>
+
+      <div class="complete-box"><p>Time tamed.</p><button class="complete-btn" type="button" data-chapter-id="ch-28">✓ Mark this chapter complete</button></div>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a class="prev" href="27-io-files.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 27 — I/O &amp; Files</div></a>
+        <a class="next" href="29-json.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 29 — Encoding JSON</div></a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-line">Made with <span class="heart">❤️</span> by <a href="https://github.com/cyrus2281" target="_blank" rel="noopener">Cyrus Mobini</a></div>
+    <a class="bmac" href="https://buymeacoffee.com/cyrus2281" target="_blank" rel="noopener"><span class="bmac-icon">☕</span> Buy me a coffee</a>
+  </footer>
+
+  <script src="../assets/js/progress.js" defer></script>
+  <script src="../assets/js/prism.js" defer></script>
+  <script src="../assets/js/app.js" defer></script>
+  <script src="../assets/js/quiz.js" defer></script>
+  <script src="../assets/js/search.js" defer></script>
+</body>
+</html>

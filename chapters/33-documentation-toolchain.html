@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6YPTC2B9NR"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 33 · Documentation &amp; the Go Toolchain — Learn Go by Cyrus Mobini</title>
+  <meta name="description" content="Write good doc comments. Browse packages with go doc and pkg.go.dev. Plus a rapid-fire tour of go vet, go fmt, go work, go generate, and more.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Chapter 33 · Documentation &amp; Toolchain — Learn Go">
+  <meta property="og:description" content="Doc comments, examples, go doc, pkg.go.dev — and the Go CLI tour (vet, fmt, work, generate, install).">
+  <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/33-documentation-toolchain.html">
+  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Chapter 33 · Documentation &amp; Toolchain — Learn Go">
+  <meta name="twitter:description" content="Doc comments, pkg.go.dev, go vet / fmt / work / generate.">
+  <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/33-documentation-toolchain.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/prism.css">
+  <script>(function(){try{var t=localStorage.getItem('go-course-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="../index.html" class="brand"><span class="brand-mark">Go</span><span class="brand-name">Learn <span class="brand-accent">Go</span></span></a>
+    <button id="menu-toggle" class="icon-btn menu-toggle" aria-label="Toggle chapter menu" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="header-spacer"></div>
+    <div class="search" role="search"><input id="search-input" type="search" placeholder="Search chapters…" autocomplete="off" aria-label="Search across all chapters"><kbd class="search-hint">/</kbd><div id="search-results" class="search-results"></div></div>
+    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" type="button"></button>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="chapter-sidebar">
+      <div class="side-title">On this page</div>
+      <ul>
+        <li><a href="#objectives">Learning objectives</a></li>
+        <li><a href="#docs">Doc comments</a></li>
+        <li><a href="#examples">Example functions as docs</a></li>
+        <li><a href="#godoc"><code>go doc</code> locally</a></li>
+        <li><a href="#pkggo">pkg.go.dev</a></li>
+        <li><a href="#toolchain">The <code>go</code> toolchain tour</a></li>
+        <li><a href="#vet"><code>go vet</code></a></li>
+        <li><a href="#fmt"><code>go fmt</code> &amp; goimports</a></li>
+        <li><a href="#work"><code>go work</code> (workspaces)</a></li>
+        <li><a href="#generate"><code>go generate</code></a></li>
+        <li><a href="#install"><code>go install</code></a></li>
+        <li><a href="#quiz">Quiz</a></li>
+        <li><a href="#exercises">Exercises</a></li>
+        <li><a href="#further">Further reading</a></li>
+      </ul>
+      <div class="side-title">Navigate</div>
+      <ul>
+        <li><a href="32-benchmarking.html">← Previous: Benchmarking</a></li>
+        <li><a href="34-capstone-cli.html">Next: Capstone →</a></li>
+        <li><a href="../index.html">Table of contents</a></li>
+      </ul>
+    </aside>
+
+    <main class="chapter-main" data-chapter-id="ch-33">
+      <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 33 · QUALITY &amp; SHIPPING</div>
+      <h1>Documentation &amp; the Go Toolchain</h1>
+      <p>Two loosely-related topics packed into one chapter: how Go packages
+         document themselves, and a rapid-fire tour of the rest of the
+         <code>go</code> CLI you haven't met yet.</p>
+
+      <section id="objectives" class="learning-objectives">
+        <h3>Learning objectives</h3>
+        <ul>
+          <li>Write idiomatic Go doc comments.</li>
+          <li>Use example functions as executable docs.</li>
+          <li>Read docs offline with <code>go doc</code>.</li>
+          <li>Recognize and use: <code>go vet</code>, <code>go fmt</code>, <code>goimports</code>, <code>go work</code>, <code>go generate</code>, <code>go install</code>.</li>
+        </ul>
+      </section>
+
+      <section id="docs">
+        <h2>Doc comments</h2>
+        <p>Any comment <em>immediately preceding</em> a top-level declaration
+           (no blank line between) becomes its documentation:</p>
+
+        <pre><code class="language-go">// Package mymath provides small utilities for integer arithmetic.
+//
+// The package is meant as a tiny example and is intentionally minimal.
+package mymath
+
+// Add returns a + b. It panics on overflow.
+func Add(a, b int) int { return a + b }
+</code></pre>
+
+        <p>Conventions:</p>
+        <ul>
+          <li>Package comment on the <code>package</code> line in <em>one</em> file (often <code>doc.go</code>).</li>
+          <li>Doc comments start with the identifier name: <code>"Add does ..."</code>, <code>"ErrNotFound is ..."</code>.</li>
+          <li>Plain sentences — no Javadoc-style tags like <code>@param</code>.</li>
+          <li>Indent code blocks with a tab; they render as code.</li>
+        </ul>
+      </section>
+
+      <section id="examples">
+        <h2>Example functions as docs</h2>
+        <pre><code class="language-go">func ExampleAdd() {
+    fmt.Println(mymath.Add(2, 3))
+    // Output: 5
+}
+</code></pre>
+
+        <p>Already seen in Chapter 31. Two benefits: example runs as a test
+           (catches doc rot), and it appears formatted in the generated
+           documentation on pkg.go.dev — copy-pasteable for readers.</p>
+      </section>
+
+      <section id="godoc">
+        <h2><code>go doc</code> — offline package docs</h2>
+        <pre><code class="language-bash">go doc fmt                       # package overview
+go doc fmt.Println               # specific function
+go doc -all net/http             # everything in a package
+go doc -src fmt.Println          # include source
+</code></pre>
+
+        <p>Handy when you're on a plane or just want the terminal to give you
+           the answer without opening a browser.</p>
+      </section>
+
+      <section id="pkggo">
+        <h2><a href="https://pkg.go.dev" target="_blank" rel="noopener">pkg.go.dev</a></h2>
+        <p>The hosted version. Every public Go module auto-publishes here — with
+           rendered docs, examples, versions, cross-references, and a module
+           proxy cache. When someone else's library is good, it's because they
+           wrote good doc comments and their pkg.go.dev page is lovely to
+           browse.</p>
+      </section>
+
+      <section id="toolchain">
+        <h2>The <code>go</code> toolchain — rapid tour</h2>
+        <p>You've already used these throughout the course. Here's the bird's
+           eye view of what's left.</p>
+      </section>
+
+      <section id="vet">
+        <h2><code>go vet</code></h2>
+        <p>A static analyzer built into the toolchain. Catches:</p>
+        <ul>
+          <li>Bad <code>Printf</code> format strings (%d with a string).</li>
+          <li>Unreachable code.</li>
+          <li>Copying of <code>sync.Mutex</code>.</li>
+          <li>Shadowed errors (with extra flags).</li>
+          <li>Many more.</li>
+        </ul>
+
+        <pre><code class="language-bash">go vet ./...
+</code></pre>
+
+        <p>Runs automatically as part of <code>go test</code>. You should run it
+           explicitly in CI.</p>
+      </section>
+
+      <section id="fmt">
+        <h2><code>go fmt</code> &amp; <code>goimports</code></h2>
+        <p>Go's one-true formatter. Your editor (Chapter 3) runs it on save.
+           From the CLI:</p>
+
+        <pre><code class="language-bash">go fmt ./...
+goimports -w .                   # also manages the import block
+</code></pre>
+      </section>
+
+      <section id="work">
+        <h2><code>go work</code> — workspaces</h2>
+        <p>Already mentioned in Chapter 18. Briefly: when you're developing two
+           modules simultaneously, create a workspace file so Go uses your local
+           copies:</p>
+
+        <pre><code class="language-bash">go work init ./myapp ./mylib
+go work use ./anothermod
+</code></pre>
+
+        <p><code>go.work</code> isn't committed — your workspace is local.</p>
+      </section>
+
+      <section id="generate">
+        <h2><code>go generate</code></h2>
+        <p>A convention for running code generators. Put a magic comment in a Go
+           file:</p>
+
+        <pre><code class="language-go">//go:generate stringer -type=Weekday
+</code></pre>
+
+        <p>Then <code>go generate ./...</code> runs every such command. Common
+           generators: <code>stringer</code> (produces
+           <code>String() string</code> for enums), <code>mockgen</code>
+           (interface mocks), <code>protoc</code> (Protocol Buffers).</p>
+      </section>
+
+      <section id="install">
+        <h2><code>go install path@version</code></h2>
+        <p>Install a CLI tool globally:</p>
+        <pre><code class="language-bash">go install golang.org/x/tools/cmd/goimports@latest
+go install honnef.co/go/tools/cmd/staticcheck@latest
+go install github.com/cyrus2281/learn-go@latest       # your own tool
+</code></pre>
+
+        <p>Binary lands in <code>$GOPATH/bin</code> (usually <code>~/go/bin</code>),
+           which should be on your <code>$PATH</code>.</p>
+      </section>
+
+      <section id="quiz">
+        <h2>Check your understanding</h2>
+        <div class="quiz" data-quiz data-chapter-id="ch-33">
+          <script type="application/json" class="quiz-data">
+          {
+            "title": "Quick quiz",
+            "questions": [
+              {"q":"How is a Go doc comment attached to a function?","options":["With a @doc tag","With a plain comment immediately above the function, no blank line","Via a companion docs/ folder","With godoc: comments"],"answer":1,"explanation":"Any comment directly above a top-level declaration (no blank line) becomes its documentation. Start the comment with the identifier name (e.g., \"Add returns ...\")."},
+              {"q":"What's special about an ExampleXxx function?","options":["It's marked as experimental","It runs during `go test` (Output comment is checked) AND appears in the package's docs","It's a benchmark","It must be in its own file"],"answer":1,"explanation":"Examples are executable docs: they're compiled and run by go test (with Output comparison), and displayed formatted on pkg.go.dev. Best of both worlds."},
+              {"q":"Which command shows package documentation from the terminal?","options":["go help","go doc PKG","man PKG","godoc PKG"],"answer":1,"explanation":"`go doc` prints package or identifier documentation in the terminal. `go doc -all PKG` shows everything. Perfect for offline reference."},
+              {"q":"What does `go vet` do?","options":["Formats code","Runs unit tests","Analyzes code for common bugs like bad Printf format strings and Mutex copies","Installs packages"],"answer":2,"explanation":"go vet is a static analyzer that catches classes of bugs the compiler doesn't. It runs automatically as part of `go test`. Also run it in CI."},
+              {"q":"Purpose of go:generate directives?","options":["Compile the package","Mark tests to skip","Run code generators (stringer, mockgen, protoc) via `go generate`","Configure imports"],"answer":2,"explanation":"//go:generate CMD is a magic comment. Running `go generate ./...` invokes each such command, usually to regenerate boilerplate code. Pure convention; Go itself doesn't interpret the command."}
+            ]
+          }
+          </script>
+        </div>
+      </section>
+
+      <section id="exercises">
+        <h2>Practice exercises</h2>
+
+        <div class="exercise">
+          <div class="exercise-header"><span class="badge">EXERCISE 1</span><h3>Document your mymath package</h3></div>
+          <div class="exercise-task"><p>Take a Go package you've written in earlier chapters. Add a package-level doc comment (in a <code>doc.go</code> file), doc comments on each exported identifier, and at least one <code>ExampleXxx</code>. Then run <code>go doc -all .</code> to see the generated docs.</p></div>
+          <details class="exercise-solution"><summary>Show sketch</summary>
+          <pre><code class="language-go">// Package mymath provides small utilities for integer math.
+//
+// This package is a toy and is intentionally minimal.
+package mymath
+
+// Add returns the sum of a and b.
+func Add(a, b int) int { return a + b }
+
+// Sub returns a - b.
+func Sub(a, b int) int { return a - b }
+</code></pre>
+
+          <p>In a separate <code>example_test.go</code> (same package):</p>
+          <pre><code class="language-go">func ExampleAdd() {
+    fmt.Println(mymath.Add(2, 3))
+    // Output: 5
+}
+</code></pre></details>
+        </div>
+      </section>
+
+      <section id="further" class="further-reading">
+        <h3>Further reading</h3>
+        <ul>
+          <li><a href="https://go.dev/doc/comment" target="_blank" rel="noopener">Go Doc Comments</a> — official conventions</li>
+          <li><a href="https://pkg.go.dev" target="_blank" rel="noopener">pkg.go.dev</a></li>
+          <li><a href="https://go.dev/blog/generate" target="_blank" rel="noopener"><code>go generate</code> blog post</a></li>
+          <li><a href="https://go.dev/ref/mod" target="_blank" rel="noopener">Modules reference</a> — covers workspaces too</li>
+        </ul>
+      </section>
+
+      <div class="complete-box"><p>Professional-grade Go — shipping ready.</p><button class="complete-btn" type="button" data-chapter-id="ch-33">✓ Mark this chapter complete</button></div>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a class="prev" href="32-benchmarking.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 32 — Benchmarking</div></a>
+        <a class="next" href="34-capstone-cli.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 34 — Capstone</div></a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-line">Made with <span class="heart">❤️</span> by <a href="https://github.com/cyrus2281" target="_blank" rel="noopener">Cyrus Mobini</a></div>
+    <a class="bmac" href="https://buymeacoffee.com/cyrus2281" target="_blank" rel="noopener"><span class="bmac-icon">☕</span> Buy me a coffee</a>
+  </footer>
+
+  <script src="../assets/js/progress.js" defer></script>
+  <script src="../assets/js/prism.js" defer></script>
+  <script src="../assets/js/app.js" defer></script>
+  <script src="../assets/js/quiz.js" defer></script>
+  <script src="../assets/js/search.js" defer></script>
+</body>
+</html>

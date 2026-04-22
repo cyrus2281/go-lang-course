@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6YPTC2B9NR"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 25 · Channels &amp; select — Learn Go by Cyrus Mobini</title>
+  <meta name="description" content="Typed pipes between goroutines. Buffered vs unbuffered, select, closing, direction, fan-in/fan-out patterns, deadlocks.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Chapter 25 · Channels &amp; select — Learn Go">
+  <meta property="og:description" content="Channels, select, buffered vs unbuffered, direction, fan-in/fan-out, deadlocks.">
+  <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/25-channels.html">
+  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Chapter 25 · Channels &amp; select — Learn Go">
+  <meta name="twitter:description" content="Channels, select, patterns, deadlocks.">
+  <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/25-channels.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/prism.css">
+  <script>(function(){try{var t=localStorage.getItem('go-course-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="../index.html" class="brand"><span class="brand-mark">Go</span><span class="brand-name">Learn <span class="brand-accent">Go</span></span></a>
+    <button id="menu-toggle" class="icon-btn menu-toggle" aria-label="Toggle chapter menu" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="header-spacer"></div>
+    <div class="search" role="search"><input id="search-input" type="search" placeholder="Search chapters…" autocomplete="off" aria-label="Search across all chapters"><kbd class="search-hint">/</kbd><div id="search-results" class="search-results"></div></div>
+    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" type="button"></button>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="chapter-sidebar">
+      <div class="side-title">On this page</div>
+      <ul>
+        <li><a href="#objectives">Learning objectives</a></li>
+        <li><a href="#create">Creating a channel</a></li>
+        <li><a href="#send-recv">Send &amp; receive</a></li>
+        <li><a href="#buffered">Buffered channels</a></li>
+        <li><a href="#close">Closing</a></li>
+        <li><a href="#range">range over channels</a></li>
+        <li><a href="#direction">Direction (send-only / receive-only)</a></li>
+        <li><a href="#select"><code>select</code></a></li>
+        <li><a href="#timeouts">Timeouts</a></li>
+        <li><a href="#patterns">Fan-in &amp; fan-out</a></li>
+        <li><a href="#deadlock">Deadlocks</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+        <li><a href="#exercises">Exercises</a></li>
+        <li><a href="#further">Further reading</a></li>
+      </ul>
+      <div class="side-title">Navigate</div>
+      <ul>
+        <li><a href="24-goroutines.html">← Previous: Goroutines</a></li>
+        <li><a href="26-context.html">Next: Context →</a></li>
+        <li><a href="../index.html">Table of contents</a></li>
+      </ul>
+    </aside>
+
+    <main class="chapter-main" data-chapter-id="ch-25">
+      <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 25 · CONCURRENCY</div>
+      <h1>Channels &amp; <code>select</code></h1>
+      <p>A <strong>channel</strong> is a typed conduit through which goroutines
+         send and receive values. Go's concurrency mantra:
+         <em>"Don't communicate by sharing memory; share memory by communicating."</em>
+         Channels are how you do the latter.</p>
+
+      <section id="objectives" class="learning-objectives">
+        <h3>Learning objectives</h3>
+        <ul>
+          <li>Create, send, receive, and close channels.</li>
+          <li>Distinguish buffered from unbuffered channels.</li>
+          <li>Range over a channel until it's closed.</li>
+          <li>Use <code>select</code> to wait on multiple channels and implement timeouts.</li>
+          <li>Diagnose and avoid deadlocks.</li>
+        </ul>
+      </section>
+
+      <section id="create">
+        <h2>Creating a channel</h2>
+        <pre><code class="language-go">ch := make(chan int)           // unbuffered
+buf := make(chan int, 10)      // buffered, capacity 10
+</code></pre>
+
+        <p>The zero value of a channel is <code>nil</code>; sends and receives
+           on a nil channel block forever. Always use <code>make</code>.</p>
+      </section>
+
+      <section id="send-recv">
+        <h2>Sending &amp; receiving</h2>
+        <pre><code class="language-go">ch := make(chan string)
+
+go func() {
+    ch <- "hello"         // send
+}()
+
+msg := <-ch               // receive (blocks until value available)
+fmt.Println(msg)
+</code></pre>
+
+        <p>An <strong>unbuffered</strong> channel synchronizes: the sender blocks
+           until a receiver is ready, and vice versa.</p>
+      </section>
+
+      <section id="buffered">
+        <h2>Buffered channels</h2>
+        <pre><code class="language-go">ch := make(chan int, 3)
+ch <- 1
+ch <- 2
+ch <- 3          // no blocking — buffer has room
+// ch <- 4       // THIS would block until a receive happens
+fmt.Println(&lt;-ch, &lt;-ch, &lt;-ch)    // 1 2 3
+</code></pre>
+
+        <p>Buffers decouple producer and consumer timing. Use sparingly — a big
+           buffer often indicates a design smell.</p>
+      </section>
+
+      <section id="close">
+        <h2>Closing</h2>
+        <pre><code class="language-go">close(ch)
+</code></pre>
+
+        <p>Only the <strong>sender</strong> should close. Receivers get the zero
+           value and an "ok" of false:</p>
+
+        <pre><code class="language-go">v, ok := <-ch
+if !ok { fmt.Println("closed") }
+</code></pre>
+
+        <p>Sending to a closed channel panics. Closing an already-closed channel
+           panics. Closing a nil channel panics. In short: be thoughtful about
+           who closes.</p>
+      </section>
+
+      <section id="range">
+        <h2><code>range</code> over a channel</h2>
+        <pre><code class="language-go">ch := make(chan int)
+go func() {
+    for i := 1; i <= 3; i++ {
+        ch <- i
+    }
+    close(ch)          // ← signals the range loop to exit
+}()
+
+for v := range ch {
+    fmt.Println(v)
+}
+</code></pre>
+
+        <p>The range loop exits when the channel is closed and drained.</p>
+      </section>
+
+      <section id="direction">
+        <h2>Channel direction</h2>
+        <p>You can constrain a channel parameter to be send-only or receive-only
+           — a powerful safety mechanism:</p>
+
+        <pre><code class="language-go">func producer(out chan<- int)    { out <- 1 }       // send-only
+func consumer(in  <-chan int) int{ return <-in }    // receive-only
+
+ch := make(chan int, 1)
+go producer(ch)
+fmt.Println(consumer(ch))
+</code></pre>
+      </section>
+
+      <section id="select">
+        <h2><code>select</code></h2>
+        <p><code>select</code> waits on multiple channel operations — whichever
+           is ready first wins:</p>
+
+        <pre><code class="language-go">select {
+case v := <-ch1:
+    fmt.Println("from ch1:", v)
+case v := <-ch2:
+    fmt.Println("from ch2:", v)
+case ch3 <- 42:
+    fmt.Println("sent to ch3")
+default:
+    fmt.Println("no channel ready")   // optional; makes select non-blocking
+}
+</code></pre>
+      </section>
+
+      <section id="timeouts">
+        <h2>Timeouts</h2>
+        <pre><code class="language-go">select {
+case v := <-ch:
+    fmt.Println("got:", v)
+case <-time.After(2 * time.Second):
+    fmt.Println("timed out")
+}
+</code></pre>
+
+        <p><code>time.After</code> returns a channel that fires once after the
+           given duration. Combined with <code>select</code>, you get clean
+           timeouts. (For more sophisticated cancellation, see Chapter 26 on
+           context.)</p>
+      </section>
+
+      <section id="patterns">
+        <h2>Fan-in &amp; fan-out</h2>
+        <p><strong>Fan-out</strong>: many workers consuming from one channel.</p>
+        <pre><code class="language-go">jobs := make(chan int, 100)
+var wg sync.WaitGroup
+
+// 3 workers fan-out from jobs
+for w := 0; w < 3; w++ {
+    wg.Add(1)
+    go func(id int) {
+        defer wg.Done()
+        for j := range jobs {
+            fmt.Printf("worker %d: %d\n", id, j)
+        }
+    }(w)
+}
+
+for i := 1; i <= 10; i++ { jobs <- i }
+close(jobs)
+wg.Wait()
+</code></pre>
+
+        <p><strong>Fan-in</strong>: merging multiple input channels into one.</p>
+        <pre><code class="language-go">func merge(a, b <-chan int) <-chan int {
+    out := make(chan int)
+    go func() {
+        defer close(out)
+        for v := range a { out <- v }
+        for v := range b { out <- v }
+    }()
+    return out
+}
+</code></pre>
+      </section>
+
+      <section id="deadlock">
+        <h2>Deadlocks</h2>
+        <p>If every goroutine is blocked waiting, Go detects the deadlock and
+           panics with a helpful message. Common causes:</p>
+        <ul>
+          <li>Sending to an unbuffered channel with no receiver.</li>
+          <li>Receiving from a channel no one sends on.</li>
+          <li>Forgetting to <code>close</code> before a <code>range</code>.</li>
+        </ul>
+
+        <pre><code class="language-go">ch := make(chan int)
+ch <- 1   // fatal error: all goroutines are asleep - deadlock!
+</code></pre>
+      </section>
+
+      <section id="quiz">
+        <h2>Check your understanding</h2>
+        <div class="quiz" data-quiz data-chapter-id="ch-25">
+          <script type="application/json" class="quiz-data">
+          {
+            "title": "Quick quiz",
+            "questions": [
+              {"q":"What's the difference between a buffered and unbuffered channel?","options":["Unbuffered is faster","Unbuffered: send blocks until a receive is ready (synchronous handoff). Buffered: send blocks only when the buffer is full.","Buffered channels don't support close","Unbuffered can't be used with select"],"answer":1,"explanation":"Unbuffered channels synchronize sender and receiver. Buffered channels allow up to `cap` sends before blocking."},
+              {"q":"Who should close a channel?","options":["The receiver","The sender (or the last sender if there are many)","Both","Neither — channels auto-close"],"answer":1,"explanation":"Only senders should close. Closing tells receivers \"no more values coming\". Sending on a closed channel panics. Never close from the receive side."},
+              {"q":"What does `for v := range ch { ... }` do?","options":["Iterates ch infinitely","Reads from ch until it's closed and drained, then exits","Iterates any channel type","Reads exactly N values"],"answer":1,"explanation":"Range over a channel receives until the channel is closed and empty. It's the idiomatic way to consume all values from a producer that closes when done."},
+              {"q":"What does `select` do?","options":["Waits on multiple channel operations and runs whichever case is ready first","Chooses randomly between goroutines","Applies filters to a channel","Opens a switch statement"],"answer":0,"explanation":"select blocks on multiple channel ops at once — the first case that can proceed fires. If multiple are ready, one is picked at random (deliberately fair)."},
+              {"q":"Fatal error: all goroutines are asleep - deadlock. Likely cause?","options":["OS is out of memory","Your goroutines are blocked on channel operations with no one to satisfy them","Too many goroutines","Network failure"],"answer":1,"explanation":"Go detects when every goroutine is blocked and no progress is possible. Usual culprits: send with no receiver, receive with no sender, or forgetting to close before a range loop."}
+            ]
+          }
+          </script>
+        </div>
+      </section>
+
+      <section id="exercises">
+        <h2>Practice exercises</h2>
+
+        <div class="exercise">
+          <div class="exercise-header"><span class="badge">EXERCISE 1</span><h3>Worker pool</h3></div>
+          <div class="exercise-task"><p>Write a worker pool: N worker goroutines consume from a <code>jobs</code> channel, compute each job's result, and push it to a <code>results</code> channel. The main goroutine feeds jobs and drains results.</p></div>
+          <details class="exercise-solution"><summary>Show solution</summary>
+          <pre><code class="language-go">package main
+
+import (
+    "fmt"
+    "sync"
+)
+
+func worker(id int, jobs <-chan int, results chan<- int, wg *sync.WaitGroup) {
+    defer wg.Done()
+    for j := range jobs {
+        results <- j * j          // square as a placeholder for "work"
+    }
+}
+
+func main() {
+    jobs := make(chan int, 10)
+    results := make(chan int, 10)
+    var wg sync.WaitGroup
+
+    // start 3 workers
+    for w := 1; w <= 3; w++ {
+        wg.Add(1)
+        go worker(w, jobs, results, &amp;wg)
+    }
+
+    // feed
+    for j := 1; j <= 5; j++ { jobs <- j }
+    close(jobs)
+
+    // close results when all workers finish
+    go func() { wg.Wait(); close(results) }()
+
+    for r := range results {
+        fmt.Println(r)
+    }
+}
+</code></pre></details>
+        </div>
+      </section>
+
+      <section id="further" class="further-reading">
+        <h3>Further reading</h3>
+        <ul>
+          <li><a href="https://go.dev/tour/concurrency/2" target="_blank" rel="noopener">Tour of Go — Channels</a></li>
+          <li><a href="https://go.dev/blog/pipelines" target="_blank" rel="noopener">Go concurrency patterns — pipelines and cancellation</a></li>
+          <li><a href="https://go.dev/blog/codelab-share" target="_blank" rel="noopener">Share Memory by Communicating</a></li>
+        </ul>
+      </section>
+
+      <div class="complete-box"><p>Channels mastered.</p><button class="complete-btn" type="button" data-chapter-id="ch-25">✓ Mark this chapter complete</button></div>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a class="prev" href="24-goroutines.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 24 — Goroutines</div></a>
+        <a class="next" href="26-context.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 26 — Context</div></a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-line">Made with <span class="heart">❤️</span> by <a href="https://github.com/cyrus2281" target="_blank" rel="noopener">Cyrus Mobini</a></div>
+    <a class="bmac" href="https://buymeacoffee.com/cyrus2281" target="_blank" rel="noopener"><span class="bmac-icon">☕</span> Buy me a coffee</a>
+  </footer>
+
+  <script src="../assets/js/progress.js" defer></script>
+  <script src="../assets/js/prism.js" defer></script>
+  <script src="../assets/js/app.js" defer></script>
+  <script src="../assets/js/quiz.js" defer></script>
+  <script src="../assets/js/search.js" defer></script>
+</body>
+</html>

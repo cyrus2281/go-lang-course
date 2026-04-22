@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6YPTC2B9NR"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 32 · Benchmarking &amp; Profiling — Learn Go by Cyrus Mobini</title>
+  <meta name="description" content="Writing benchmarks with testing.B, reporting allocations, comparing with benchstat, and profiling with pprof.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Chapter 32 · Benchmarking &amp; Profiling — Learn Go">
+  <meta property="og:description" content="testing.B, b.N, b.ReportAllocs, pprof, benchstat.">
+  <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/32-benchmarking.html">
+  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Chapter 32 · Benchmarking &amp; Profiling — Learn Go">
+  <meta name="twitter:description" content="Writing and interpreting Go benchmarks, profiling with pprof.">
+  <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/32-benchmarking.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/prism.css">
+  <script>(function(){try{var t=localStorage.getItem('go-course-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="../index.html" class="brand"><span class="brand-mark">Go</span><span class="brand-name">Learn <span class="brand-accent">Go</span></span></a>
+    <button id="menu-toggle" class="icon-btn menu-toggle" aria-label="Toggle chapter menu" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="header-spacer"></div>
+    <div class="search" role="search"><input id="search-input" type="search" placeholder="Search chapters…" autocomplete="off" aria-label="Search across all chapters"><kbd class="search-hint">/</kbd><div id="search-results" class="search-results"></div></div>
+    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" type="button"></button>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="chapter-sidebar">
+      <div class="side-title">On this page</div>
+      <ul>
+        <li><a href="#objectives">Learning objectives</a></li>
+        <li><a href="#write">Writing a benchmark</a></li>
+        <li><a href="#run">Running benchmarks</a></li>
+        <li><a href="#n">Understanding b.N</a></li>
+        <li><a href="#allocs">Reporting allocations</a></li>
+        <li><a href="#sub">Sub-benchmarks</a></li>
+        <li><a href="#benchstat">benchstat — comparing runs</a></li>
+        <li><a href="#pprof">pprof</a></li>
+        <li><a href="#tips">Benchmarking tips</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+        <li><a href="#exercises">Exercises</a></li>
+        <li><a href="#further">Further reading</a></li>
+      </ul>
+      <div class="side-title">Navigate</div>
+      <ul>
+        <li><a href="31-testing.html">← Previous: Testing</a></li>
+        <li><a href="33-documentation-toolchain.html">Next: Documentation &amp; Toolchain →</a></li>
+        <li><a href="../index.html">Table of contents</a></li>
+      </ul>
+    </aside>
+
+    <main class="chapter-main" data-chapter-id="ch-32">
+      <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 32 · QUALITY &amp; SHIPPING</div>
+      <h1>Benchmarking &amp; Profiling</h1>
+      <p>Benchmarks are first-class citizens in Go, living right next to tests.
+         <code>go test -bench .</code> gives you nanosecond-precision
+         measurements; <code>pprof</code> tells you where time and memory go.</p>
+
+      <section id="objectives" class="learning-objectives">
+        <h3>Learning objectives</h3>
+        <ul>
+          <li>Write and run benchmarks with <code>testing.B</code>.</li>
+          <li>Understand <code>b.N</code> and how Go calibrates iteration counts.</li>
+          <li>Report allocations per operation with <code>b.ReportAllocs</code>.</li>
+          <li>Compare two benchmark runs with <code>benchstat</code>.</li>
+          <li>Profile CPU and memory with <code>pprof</code>.</li>
+        </ul>
+      </section>
+
+      <section id="write">
+        <h2>Writing a benchmark</h2>
+        <pre><code class="language-go">func BenchmarkAdd(b *testing.B) {
+    for i := 0; i < b.N; i++ {
+        _ = Add(2, 3)
+    }
+}
+</code></pre>
+
+        <p>Rules (mirror tests): file ending in <code>_test.go</code>, function
+           named <code>BenchmarkXxx</code>, single <code>*testing.B</code>.</p>
+      </section>
+
+      <section id="run">
+        <h2>Running benchmarks</h2>
+        <pre><code class="language-bash">go test -bench=. ./...              # run every benchmark
+go test -bench=Add . -benchtime=2s  # run for 2 seconds per benchmark
+go test -bench=. -count=5 .         # average over 5 runs (smooths noise)
+</code></pre>
+
+        <p>Sample output:</p>
+        <pre><code class="language-bash">BenchmarkAdd-10    1000000000    0.2570 ns/op
+        //            ^^^^^^^^^^   ^^^^^^^^^^^^^
+        //            b.N (iters)   ns per iteration
+</code></pre>
+      </section>
+
+      <section id="n">
+        <h2>Understanding <code>b.N</code></h2>
+        <p>Go runs your loop with increasing <code>b.N</code> values until the
+           benchmark runs long enough to get a stable measurement. Your job: put
+           one operation you want to measure <em>per iteration</em>, and make sure
+           setup work is outside the loop:</p>
+
+        <pre><code class="language-go">func BenchmarkJoin(b *testing.B) {
+    words := strings.Split(strings.Repeat("hello ", 1000), " ")   // setup outside
+    b.ResetTimer()                                                 // discount setup
+
+    for i := 0; i < b.N; i++ {
+        _ = strings.Join(words, "-")
+    }
+}
+</code></pre>
+      </section>
+
+      <section id="allocs">
+        <h2>Reporting allocations</h2>
+        <pre><code class="language-go">func BenchmarkStringConcat(b *testing.B) {
+    b.ReportAllocs()
+    for i := 0; i < b.N; i++ {
+        s := ""
+        for j := 0; j < 100; j++ { s += "x" }
+    }
+}
+</code></pre>
+
+        <p>Output now includes bytes-per-op and allocs-per-op:</p>
+        <pre><code class="language-bash">BenchmarkStringConcat-10   100000   12000 ns/op   5200 B/op   100 allocs/op
+</code></pre>
+
+        <p>Allocations are often where performance goes. Reducing them is
+           usually the #1 tuning lever.</p>
+      </section>
+
+      <section id="sub">
+        <h2>Sub-benchmarks</h2>
+        <pre><code class="language-go">func BenchmarkAppend(b *testing.B) {
+    for _, size := range []int{10, 100, 1000, 10000} {
+        b.Run(fmt.Sprintf("size-%d", size), func(b *testing.B) {
+            for i := 0; i < b.N; i++ {
+                s := make([]int, 0, 0)
+                for j := 0; j < size; j++ {
+                    s = append(s, j)
+                }
+            }
+        })
+    }
+}
+</code></pre>
+      </section>
+
+      <section id="benchstat">
+        <h2><code>benchstat</code> — comparing runs</h2>
+        <pre><code class="language-bash">go install golang.org/x/perf/cmd/benchstat@latest
+
+# before
+go test -bench=. -count=10 . > before.txt
+
+# make your change, then:
+go test -bench=. -count=10 . > after.txt
+
+benchstat before.txt after.txt
+</code></pre>
+
+        <p>Output tells you the <em>statistically significant</em> change
+           between runs (not just raw numbers — p-values too). Essential for
+           real performance work.</p>
+      </section>
+
+      <section id="pprof">
+        <h2><code>pprof</code></h2>
+        <p>When a benchmark tells you something's slow, pprof tells you where:</p>
+        <pre><code class="language-bash"># Capture CPU profile during benchmark
+go test -bench=Work -cpuprofile=cpu.prof .
+
+# Interactive explorer
+go tool pprof cpu.prof
+# > top
+# > list FuncName
+# > web          (opens a graph in your browser)
+
+# Memory
+go test -bench=Work -memprofile=mem.prof .
+go tool pprof mem.prof
+</code></pre>
+
+        <p>For a running HTTP server, import <code>net/http/pprof</code> (side
+           effects auto-register <code>/debug/pprof</code>) and fetch profiles
+           with <code>go tool pprof http://localhost:8080/debug/pprof/profile</code>.</p>
+      </section>
+
+      <section id="tips">
+        <h2>Benchmarking tips</h2>
+        <ul>
+          <li><strong>Close other apps.</strong> Background noise skews results.</li>
+          <li><strong>Warm up the CPU.</strong> First iteration is often slower. <code>-benchtime=2s</code> or longer averages it out.</li>
+          <li><strong>Prevent dead-code elimination.</strong> Assign results to a package-level <code>var</code> or use <code>_ = result</code>. The compiler may discard unused returns.</li>
+          <li><strong>One thing at a time.</strong> Don't change code + env + tooling between before/after runs.</li>
+          <li><strong>Measure, don't guess.</strong> Your intuition about perf is wrong more often than you'd like.</li>
+        </ul>
+      </section>
+
+      <section id="quiz">
+        <h2>Check your understanding</h2>
+        <div class="quiz" data-quiz data-chapter-id="ch-32">
+          <script type="application/json" class="quiz-data">
+          {
+            "title": "Quick quiz",
+            "questions": [
+              {"q":"What is b.N in a benchmark?","options":["A constant","The number of iterations Go chose to run your loop for, tuned to produce a stable measurement","A count of CPUs","A benchmark ID"],"answer":1,"explanation":"Go scales b.N until the benchmark runs long enough. Your loop body is one \"operation\" — Go reports ns/op based on total time / b.N."},
+              {"q":"Why call b.ResetTimer()?","options":["To restart the benchmark","To exclude pre-loop setup time from the measurement","To reset b.N","It's mandatory"],"answer":1,"explanation":"If your setup is nontrivial, call b.ResetTimer() after it. Otherwise setup time inflates ns/op artificially."},
+              {"q":"What does b.ReportAllocs() do?","options":["Logs stack traces","Adds B/op and allocs/op columns to the benchmark output","Allocates memory","Profiles the heap"],"answer":1,"explanation":"ReportAllocs instructs the benchmark to track and report allocations per op — critical for spotting allocation-heavy code."},
+              {"q":"Why use benchstat instead of eyeballing numbers?","options":["It's faster","It tells you whether a change is statistically significant (p-values) and gives a proper delta","It formats prettier","It's required"],"answer":1,"explanation":"Benchmark results are noisy. benchstat runs a statistical test to tell you if the delta is real. Rule of thumb: -count=10 or more runs for meaningful comparison."},
+              {"q":"To find where CPU time goes in a benchmark:","options":["Add print statements","-cpuprofile=x.prof, then go tool pprof x.prof","Use strace","Measure manually"],"answer":1,"explanation":"Go's built-in profiling hooks into benchmarks with -cpuprofile / -memprofile flags. Analyze with `go tool pprof` — `top`, `list FuncName`, and `web` commands."}
+            ]
+          }
+          </script>
+        </div>
+      </section>
+
+      <section id="exercises">
+        <h2>Practice exercises</h2>
+
+        <div class="exercise">
+          <div class="exercise-header"><span class="badge">EXERCISE 1</span><h3>Concat vs Builder</h3></div>
+          <div class="exercise-task"><p>Write two benchmarks: one that builds a 1000-character string with <code>+=</code>, another with <code>strings.Builder</code>. Enable <code>b.ReportAllocs()</code> and compare.</p></div>
+          <details class="exercise-solution"><summary>Show solution</summary>
+          <pre><code class="language-go">func BenchmarkConcat(b *testing.B) {
+    b.ReportAllocs()
+    for i := 0; i < b.N; i++ {
+        s := ""
+        for j := 0; j < 1000; j++ { s += "x" }
+        _ = s
+    }
+}
+
+func BenchmarkBuilder(b *testing.B) {
+    b.ReportAllocs()
+    for i := 0; i < b.N; i++ {
+        var bd strings.Builder
+        for j := 0; j < 1000; j++ { bd.WriteByte('x') }
+        _ = bd.String()
+    }
+}
+</code></pre>
+          <p>Expected: the Builder is 10–100x faster and does a tiny fraction of the allocations.</p>
+          </details>
+        </div>
+      </section>
+
+      <section id="further" class="further-reading">
+        <h3>Further reading</h3>
+        <ul>
+          <li><a href="https://pkg.go.dev/testing#hdr-Benchmarks" target="_blank" rel="noopener"><code>testing</code> benchmarks</a></li>
+          <li><a href="https://go.dev/doc/diagnostics" target="_blank" rel="noopener">Diagnostics — profiling, tracing, race</a></li>
+          <li><a href="https://go.dev/blog/pprof" target="_blank" rel="noopener">Profiling Go programs</a></li>
+        </ul>
+      </section>
+
+      <div class="complete-box"><p>Measure, don't guess.</p><button class="complete-btn" type="button" data-chapter-id="ch-32">✓ Mark this chapter complete</button></div>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a class="prev" href="31-testing.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 31 — Testing</div></a>
+        <a class="next" href="33-documentation-toolchain.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 33 — Documentation &amp; Toolchain</div></a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-line">Made with <span class="heart">❤️</span> by <a href="https://github.com/cyrus2281" target="_blank" rel="noopener">Cyrus Mobini</a></div>
+    <a class="bmac" href="https://buymeacoffee.com/cyrus2281" target="_blank" rel="noopener"><span class="bmac-icon">☕</span> Buy me a coffee</a>
+  </footer>
+
+  <script src="../assets/js/progress.js" defer></script>
+  <script src="../assets/js/prism.js" defer></script>
+  <script src="../assets/js/app.js" defer></script>
+  <script src="../assets/js/quiz.js" defer></script>
+  <script src="../assets/js/search.js" defer></script>
+</body>
+</html>

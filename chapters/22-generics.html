@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6YPTC2B9NR"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 22 · Generics — Learn Go by Cyrus Mobini</title>
+  <meta name="description" content="Type parameters, constraints, comparable, the constraints package, and pragmatic guidance on when generics actually pay off in Go.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Chapter 22 · Generics — Learn Go">
+  <meta property="og:description" content="Type parameters, constraints, and when to use generics in Go.">
+  <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/22-generics.html">
+  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Chapter 22 · Generics — Learn Go">
+  <meta name="twitter:description" content="Type parameters, constraints, and when to use generics.">
+  <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/22-generics.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/prism.css">
+  <script>(function(){try{var t=localStorage.getItem('go-course-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="../index.html" class="brand"><span class="brand-mark">Go</span><span class="brand-name">Learn <span class="brand-accent">Go</span></span></a>
+    <button id="menu-toggle" class="icon-btn menu-toggle" aria-label="Toggle chapter menu" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="header-spacer"></div>
+    <div class="search" role="search"><input id="search-input" type="search" placeholder="Search chapters…" autocomplete="off" aria-label="Search across all chapters"><kbd class="search-hint">/</kbd><div id="search-results" class="search-results"></div></div>
+    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" type="button"></button>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="chapter-sidebar">
+      <div class="side-title">On this page</div>
+      <ul>
+        <li><a href="#objectives">Learning objectives</a></li>
+        <li><a href="#type-params">Type parameters</a></li>
+        <li><a href="#constraints">Constraints</a></li>
+        <li><a href="#union">Union constraints</a></li>
+        <li><a href="#comparable"><code>comparable</code></a></li>
+        <li><a href="#types">Generic types</a></li>
+        <li><a href="#methods">Generic methods</a></li>
+        <li><a href="#inference">Type inference</a></li>
+        <li><a href="#when">When to use generics</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+        <li><a href="#exercises">Exercises</a></li>
+        <li><a href="#further">Further reading</a></li>
+      </ul>
+      <div class="side-title">Navigate</div>
+      <ul>
+        <li><a href="21-interfaces.html">← Previous: Interfaces</a></li>
+        <li><a href="23-error-handling.html">Next: Error Handling →</a></li>
+        <li><a href="../index.html">Table of contents</a></li>
+      </ul>
+    </aside>
+
+    <main class="chapter-main" data-chapter-id="ch-22">
+      <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 22 · TYPES &amp; ABSTRACTIONS</div>
+      <h1>Generics</h1>
+      <p>Generics (Go 1.18+) let you write functions and types parameterized by
+         the <em>types</em> they work with. Before generics, stuff like "generic
+         min" or a reusable "stack" required <code>interface{}</code> + runtime
+         type assertions. Now the compiler can check everything statically.</p>
+
+      <section id="objectives" class="learning-objectives">
+        <h3>Learning objectives</h3>
+        <ul>
+          <li>Declare generic functions with type parameters.</li>
+          <li>Constrain type parameters via interfaces (including unions).</li>
+          <li>Define generic structs and methods.</li>
+          <li>Use the <code>comparable</code> built-in constraint.</li>
+          <li>Know when generics <em>aren't</em> worth the complexity.</li>
+        </ul>
+      </section>
+
+      <section id="type-params">
+        <h2>Type parameters</h2>
+        <pre><code class="language-go">func PrintSlice[T any](s []T) {
+    for _, v := range s {
+        fmt.Println(v)
+    }
+}
+
+PrintSlice([]int{1, 2, 3})
+PrintSlice([]string{"a", "b"})
+</code></pre>
+
+        <p><code>[T any]</code> declares a <em>type parameter</em> <code>T</code>
+           with constraint <code>any</code> (accepts every type). Inside the body,
+           <code>T</code> behaves like a regular type.</p>
+      </section>
+
+      <section id="constraints">
+        <h2>Constraints</h2>
+        <p>A constraint is any interface. Methods required by the interface are
+           available on the type parameter:</p>
+
+        <pre><code class="language-go">type Stringer interface { String() string }
+
+func JoinStrings[T Stringer](xs []T, sep string) string {
+    parts := make([]string, len(xs))
+    for i, x := range xs {
+        parts[i] = x.String()   // allowed because T: Stringer
+    }
+    return strings.Join(parts, sep)
+}
+</code></pre>
+      </section>
+
+      <section id="union">
+        <h2>Union constraints</h2>
+        <p>You can express "one of these types" with <code>|</code>:</p>
+
+        <pre><code class="language-go">type Number interface {
+    ~int | ~int64 | ~float64        // | = union; ~ = "any type whose underlying type is"
+}
+
+func Sum[T Number](xs []T) T {
+    var s T
+    for _, x := range xs { s += x }
+    return s
+}
+
+fmt.Println(Sum([]int{1, 2, 3}))          // 6
+fmt.Println(Sum([]float64{1.5, 2.5}))     // 4.0
+</code></pre>
+
+        <p>The <code>~</code> ("tilde") lets custom types like
+           <code>type Cents int</code> also satisfy the constraint — otherwise
+           only the exact listed types would.</p>
+      </section>
+
+      <section id="comparable">
+        <h2>The <code>comparable</code> built-in</h2>
+        <p><code>comparable</code> is a predeclared constraint for any type
+           that supports <code>==</code> and <code>!=</code>:</p>
+
+        <pre><code class="language-go">func Contains[T comparable](xs []T, target T) bool {
+    for _, x := range xs {
+        if x == target { return true }
+    }
+    return false
+}
+</code></pre>
+      </section>
+
+      <section id="types">
+        <h2>Generic types</h2>
+        <pre><code class="language-go">type Stack[T any] struct { items []T }
+
+func (s *Stack[T]) Push(v T)  { s.items = append(s.items, v) }
+func (s *Stack[T]) Pop() (T, bool) {
+    var zero T
+    if len(s.items) == 0 { return zero, false }
+    v := s.items[len(s.items)-1]
+    s.items = s.items[:len(s.items)-1]
+    return v, true
+}
+
+s := &amp;Stack[int]{}
+s.Push(1); s.Push(2)
+v, _ := s.Pop()
+fmt.Println(v)     // 2
+</code></pre>
+      </section>
+
+      <section id="methods">
+        <h2>Generic methods</h2>
+        <p>Methods on a generic type automatically see its type parameters. You
+           can't add <em>extra</em> type parameters on a method that the type
+           doesn't already declare — a deliberate design choice.</p>
+      </section>
+
+      <section id="inference">
+        <h2>Type inference</h2>
+        <p>Most of the time you don't need to specify the type argument — the
+           compiler infers it from the arguments:</p>
+
+        <pre><code class="language-go">PrintSlice([]int{1, 2, 3})       // T inferred as int
+PrintSlice[int]([]int{1, 2, 3})  // explicit — rarely needed
+</code></pre>
+      </section>
+
+      <section id="when">
+        <h2>When to use generics (and when not to)</h2>
+        <p>Good cases:</p>
+        <ul>
+          <li>Container types: <code>Set[T]</code>, <code>Queue[T]</code>, <code>LinkedList[T]</code>.</li>
+          <li>Utility functions over slices/maps: <code>Map</code>, <code>Filter</code>, <code>Reduce</code>.</li>
+          <li>Libraries that need to work across multiple related types.</li>
+        </ul>
+
+        <p>Bad cases:</p>
+        <ul>
+          <li>Code that handles a single type. Just use that type.</li>
+          <li>Interface-based polymorphism that already works well. Don't rewrite <code>io.Reader</code> usage to be generic.</li>
+          <li>Clever constraints that sacrifice readability. Generics can make code <em>harder</em> to read.</li>
+        </ul>
+
+        <div class="callout tip">
+          <div class="ico">✓</div>
+          <div>
+            <span class="callout-title">Rule of thumb</span>
+            Start without generics. Refactor to generics only when you've got
+            clear code duplication across types and no interface can capture
+            the shared behavior. The Go stdlib's <code>slices</code> and
+            <code>maps</code> packages are good examples of generics well-used.
+          </div>
+        </div>
+      </section>
+
+      <section id="quiz">
+        <h2>Check your understanding</h2>
+        <div class="quiz" data-quiz data-chapter-id="ch-22">
+          <script type="application/json" class="quiz-data">
+          {
+            "title": "Quick quiz",
+            "questions": [
+              {"q":"In `func F[T any](x T)`, what is `any`?","options":["A keyword","A constraint interface (= interface{}) that accepts every type","A tag","A pointer"],"answer":1,"explanation":"any is a predeclared constraint (alias for interface{}) that every type satisfies. It's the most permissive constraint you can use."},
+              {"q":"What does `~int` mean in a constraint like `type N interface { ~int | ~float64 }`?","options":["Bitwise NOT of int","Any type whose underlying type is int","Integer approximation","Reserved syntax"],"answer":1,"explanation":"The tilde (~) lets named types like `type Cents int` also satisfy the constraint, not just the literal int."},
+              {"q":"Which built-in constraint is required to use `==` inside a generic function?","options":["any","Equal","comparable","Stringer"],"answer":2,"explanation":"comparable is the predeclared constraint for types that support == and != — exactly what you need to implement a `Contains` or `Equal` over any such type."},
+              {"q":"Can you call `Sum([]int{1,2,3})` without writing `Sum[int](...)`?","options":["No — must specify","Yes — Go infers T from the argument types","Only if T is any","Only at the package level"],"answer":1,"explanation":"Type inference usually works from argument types. Explicit type arguments are only needed when inference fails (rare)."},
+              {"q":"When is it a bad idea to reach for generics?","options":["When writing library code for multiple types","When you're handling just one type, or when an existing interface already solves the problem","When writing a linked list","When writing math helpers"],"answer":1,"explanation":"Generics add complexity. Don't introduce them unless they remove real duplication that interfaces can't. The stdlib's slices/maps packages demonstrate good use; most app code doesn't need generics at all."}
+            ]
+          }
+          </script>
+        </div>
+      </section>
+
+      <section id="exercises">
+        <h2>Practice exercises</h2>
+
+        <div class="exercise">
+          <div class="exercise-header"><span class="badge">EXERCISE 1</span><h3>Generic Map function</h3></div>
+          <div class="exercise-task"><p>Write <code>Map[T, U any](xs []T, f func(T) U) []U</code> that applies <code>f</code> to each element of <code>xs</code> and returns a new slice.</p></div>
+          <details class="exercise-solution"><summary>Show solution</summary>
+          <pre><code class="language-go">func Map[T, U any](xs []T, f func(T) U) []U {
+    out := make([]U, len(xs))
+    for i, x := range xs {
+        out[i] = f(x)
+    }
+    return out
+}
+
+nums := []int{1, 2, 3}
+strs := Map(nums, func(n int) string { return fmt.Sprintf("n=%d", n) })
+fmt.Println(strs)    // [n=1 n=2 n=3]
+</code></pre></details>
+        </div>
+      </section>
+
+      <section id="further" class="further-reading">
+        <h3>Further reading</h3>
+        <ul>
+          <li><a href="https://go.dev/doc/tutorial/generics" target="_blank" rel="noopener">Tutorial: Getting started with generics</a></li>
+          <li><a href="https://go.dev/blog/intro-generics" target="_blank" rel="noopener">An introduction to generics</a></li>
+          <li><a href="https://pkg.go.dev/slices" target="_blank" rel="noopener">slices package</a> and <a href="https://pkg.go.dev/maps" target="_blank" rel="noopener">maps package</a> — stdlib generics</li>
+        </ul>
+      </section>
+
+      <div class="complete-box"><p>Type-safe polymorphism achieved.</p><button class="complete-btn" type="button" data-chapter-id="ch-22">✓ Mark this chapter complete</button></div>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a class="prev" href="21-interfaces.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 21 — Interfaces</div></a>
+        <a class="next" href="23-error-handling.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 23 — Error Handling</div></a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-line">Made with <span class="heart">❤️</span> by <a href="https://github.com/cyrus2281" target="_blank" rel="noopener">Cyrus Mobini</a></div>
+    <a class="bmac" href="https://buymeacoffee.com/cyrus2281" target="_blank" rel="noopener"><span class="bmac-icon">☕</span> Buy me a coffee</a>
+  </footer>
+
+  <script src="../assets/js/progress.js" defer></script>
+  <script src="../assets/js/prism.js" defer></script>
+  <script src="../assets/js/app.js" defer></script>
+  <script src="../assets/js/quiz.js" defer></script>
+  <script src="../assets/js/search.js" defer></script>
+</body>
+</html>

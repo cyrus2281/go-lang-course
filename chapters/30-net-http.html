@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6YPTC2B9NR"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 30 · Networking with net/http — Learn Go by Cyrus Mobini</title>
+  <meta name="description" content="Build HTTP servers and clients with Go's stdlib. Handlers, ServeMux, middleware, http.Client, request context — enough to ship a real web service.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Chapter 30 · net/http — Learn Go">
+  <meta property="og:description" content="Go HTTP servers and clients from scratch: handlers, mux, middleware, clients.">
+  <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/30-net-http.html">
+  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Chapter 30 · net/http — Learn Go">
+  <meta name="twitter:description" content="Servers, handlers, middleware, clients.">
+  <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/30-net-http.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/prism.css">
+  <script>(function(){try{var t=localStorage.getItem('go-course-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="../index.html" class="brand"><span class="brand-mark">Go</span><span class="brand-name">Learn <span class="brand-accent">Go</span></span></a>
+    <button id="menu-toggle" class="icon-btn menu-toggle" aria-label="Toggle chapter menu" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="header-spacer"></div>
+    <div class="search" role="search"><input id="search-input" type="search" placeholder="Search chapters…" autocomplete="off" aria-label="Search across all chapters"><kbd class="search-hint">/</kbd><div id="search-results" class="search-results"></div></div>
+    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" type="button"></button>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="chapter-sidebar">
+      <div class="side-title">On this page</div>
+      <ul>
+        <li><a href="#objectives">Learning objectives</a></li>
+        <li><a href="#hello-server">Hello server</a></li>
+        <li><a href="#handler">http.Handler</a></li>
+        <li><a href="#mux">Routing with ServeMux</a></li>
+        <li><a href="#params">Path params (1.22+)</a></li>
+        <li><a href="#json-io">JSON in / JSON out</a></li>
+        <li><a href="#middleware">Middleware</a></li>
+        <li><a href="#client">http.Client</a></li>
+        <li><a href="#shutdown">Graceful shutdown</a></li>
+        <li><a href="#production">Production notes</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+        <li><a href="#exercises">Exercises</a></li>
+        <li><a href="#further">Further reading</a></li>
+      </ul>
+      <div class="side-title">Navigate</div>
+      <ul>
+        <li><a href="29-json.html">← Previous: JSON</a></li>
+        <li><a href="31-testing.html">Next: Testing →</a></li>
+        <li><a href="../index.html">Table of contents</a></li>
+      </ul>
+    </aside>
+
+    <main class="chapter-main" data-chapter-id="ch-30">
+      <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 30 · STANDARD LIBRARY</div>
+      <h1>Networking with <code>net/http</code></h1>
+      <p>Go's <code>net/http</code> is production-grade out of the box. Many
+         companies run real-world HTTP services against it with no framework
+         layered on top. This chapter gives you enough to ship a real JSON API.</p>
+
+      <section id="objectives" class="learning-objectives">
+        <h3>Learning objectives</h3>
+        <ul>
+          <li>Write a minimal HTTP server.</li>
+          <li>Understand <code>http.Handler</code> and <code>http.HandlerFunc</code>.</li>
+          <li>Route requests with <code>http.ServeMux</code> (including Go 1.22+ method + path-param patterns).</li>
+          <li>Parse JSON bodies and write JSON responses.</li>
+          <li>Compose middleware with a clean handler-wrapping pattern.</li>
+          <li>Make HTTP calls with <code>http.Client</code>.</li>
+        </ul>
+      </section>
+
+      <section id="hello-server">
+        <h2>Hello server</h2>
+        <pre><code class="language-go">package main
+
+import (
+    "fmt"
+    "net/http"
+)
+
+func main() {
+    http.HandleFunc("/hello", func(w http.ResponseWriter, r *http.Request) {
+        fmt.Fprintln(w, "hi,", r.URL.Query().Get("name"))
+    })
+    http.ListenAndServe(":8080", nil)
+}
+</code></pre>
+
+        <p>Hit <code>http://localhost:8080/hello?name=Alice</code>. That's
+           all it takes — no framework, no config file.</p>
+      </section>
+
+      <section id="handler">
+        <h2><code>http.Handler</code></h2>
+        <pre><code class="language-go">type Handler interface {
+    ServeHTTP(w ResponseWriter, r *Request)
+}
+</code></pre>
+
+        <p>Everything HTTP in Go boils down to this interface.
+           <code>http.HandlerFunc</code> is a type that adapts a
+           <code>func(w, r)</code> into a Handler:</p>
+
+        <pre><code class="language-go">var h http.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+    w.Write([]byte("hello"))
+})
+</code></pre>
+      </section>
+
+      <section id="mux">
+        <h2>Routing with <code>http.ServeMux</code></h2>
+        <pre><code class="language-go">mux := http.NewServeMux()
+
+mux.HandleFunc("/users", listUsers)        // any method
+mux.HandleFunc("/users/{id}", getUser)     // Go 1.22+ path params
+mux.HandleFunc("POST /users", createUser)  // Go 1.22+ method binding
+
+http.ListenAndServe(":8080", mux)
+</code></pre>
+
+        <p>Since Go 1.22, the built-in mux supports method verbs and path
+           wildcards — fewer teams now need a 3rd-party router for basic cases.</p>
+      </section>
+
+      <section id="params">
+        <h2>Path params (Go 1.22+)</h2>
+        <pre><code class="language-go">mux.HandleFunc("GET /users/{id}", func(w http.ResponseWriter, r *http.Request) {
+    id := r.PathValue("id")
+    fmt.Fprintf(w, "user %s\n", id)
+})
+</code></pre>
+      </section>
+
+      <section id="json-io">
+        <h2>JSON in / JSON out</h2>
+        <pre><code class="language-go">type User struct { Name string `json:"name"` }
+
+func createUser(w http.ResponseWriter, r *http.Request) {
+    var u User
+    if err := json.NewDecoder(r.Body).Decode(&amp;u); err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+    // ... save u ...
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(http.StatusCreated)
+    json.NewEncoder(w).Encode(u)
+}
+</code></pre>
+      </section>
+
+      <section id="middleware">
+        <h2>Middleware</h2>
+        <p>Middleware is a <code>func(http.Handler) http.Handler</code> — a
+           handler that wraps another handler. Log every request:</p>
+
+        <pre><code class="language-go">func logger(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        start := time.Now()
+        next.ServeHTTP(w, r)
+        log.Printf("%s %s (%s)", r.Method, r.URL.Path, time.Since(start))
+    })
+}
+
+// Chain them — innermost runs first:
+handler := logger(auth(mux))
+http.ListenAndServe(":8080", handler)
+</code></pre>
+      </section>
+
+      <section id="client">
+        <h2><code>http.Client</code></h2>
+        <pre><code class="language-go">client := &amp;http.Client{Timeout: 5 * time.Second}
+
+req, _ := http.NewRequestWithContext(ctx, "GET", url, nil)
+req.Header.Set("Accept", "application/json")
+
+resp, err := client.Do(req)
+if err != nil { /* handle */ }
+defer resp.Body.Close()
+
+var users []User
+json.NewDecoder(resp.Body).Decode(&amp;users)
+</code></pre>
+
+        <div class="callout pitfall">
+          <div class="ico">!</div>
+          <div>
+            <span class="callout-title">Always set a timeout</span>
+            The default <code>http.Client</code> has <em>no</em> timeout — a
+            hanging server will keep your goroutine blocked forever. Always
+            create your own client with a timeout, or use
+            <code>http.NewRequestWithContext</code> with a context deadline.
+          </div>
+        </div>
+      </section>
+
+      <section id="shutdown">
+        <h2>Graceful shutdown</h2>
+        <pre><code class="language-go">srv := &amp;http.Server{Addr: ":8080", Handler: mux}
+
+go func() {
+    if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+        log.Fatal(err)
+    }
+}()
+
+// Wait for SIGINT/SIGTERM
+stop := make(chan os.Signal, 1)
+signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
+<-stop
+
+// Give in-flight requests 10 seconds to finish
+ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+defer cancel()
+srv.Shutdown(ctx)
+</code></pre>
+      </section>
+
+      <section id="production">
+        <h2>Production notes</h2>
+        <ul>
+          <li><strong>Always set read/write timeouts</strong> on <code>http.Server</code> — <code>ReadHeaderTimeout</code> at minimum.</li>
+          <li><strong>Don't reinvent the wheel.</strong> <code>chi</code> or <code>gorilla/mux</code> are popular if you need more routing power. For most services Go 1.22's mux is plenty.</li>
+          <li><strong>Pass the request context</strong> (<code>r.Context()</code>) into any call that could outlive the request — DB queries, HTTP calls, goroutines.</li>
+          <li><strong>Use <code>httptest</code></strong> for fast, deterministic handler tests (Chapter 31).</li>
+        </ul>
+      </section>
+
+      <section id="quiz">
+        <h2>Check your understanding</h2>
+        <div class="quiz" data-quiz data-chapter-id="ch-30">
+          <script type="application/json" class="quiz-data">
+          {
+            "title": "Quick quiz",
+            "questions": [
+              {"q":"What single interface underlies all HTTP handling in Go?","options":["Servicer","http.Handler (with method ServeHTTP)","http.Router","Middleware"],"answer":1,"explanation":"http.Handler has one method: ServeHTTP(w, r). Everything — routers, middleware, handlers — is either a Handler or produces one."},
+              {"q":"Since Go 1.22, can http.ServeMux distinguish between GET /users and POST /users on its own?","options":["No","Yes — method verbs are part of the pattern","Only with Gorilla mux","Only for /api/*"],"answer":1,"explanation":"Go 1.22 upgraded the built-in mux to support method+path patterns like `POST /users/{id}` and path-value extraction via r.PathValue(\"id\")."},
+              {"q":"What's the shape of a middleware function?","options":["func(http.Handler) http.Handler","func(w, r) — like a handler","An interface","A method on http.Server"],"answer":0,"explanation":"Middleware takes the next Handler and returns a new Handler that does something around the call (log, auth, recover, etc.)."},
+              {"q":"Why should you avoid the default http.Client in production?","options":["It's slow","It has no timeout — a hanging server will block your goroutine forever","It only supports HTTP/1.0","It caches responses"],"answer":1,"explanation":"The default Client has no timeout. Always use your own with `Timeout: X` or pass a context with a deadline via http.NewRequestWithContext."},
+              {"q":"To shut down an HTTP server gracefully:","options":["os.Exit(0)","srv.Close()","srv.Shutdown(ctx) — waits for in-flight requests to finish","Nothing special — the process dies"],"answer":2,"explanation":"Shutdown stops accepting new connections and waits for existing handlers to finish (up to ctx's deadline). Perfect for SIGTERM handling in containers."}
+            ]
+          }
+          </script>
+        </div>
+      </section>
+
+      <section id="exercises">
+        <h2>Practice exercises</h2>
+
+        <div class="exercise">
+          <div class="exercise-header"><span class="badge">EXERCISE 1</span><h3>Tiny JSON API</h3></div>
+          <div class="exercise-task"><p>Build a server that stores an in-memory list of "notes" (a note has an <code>ID</code>, <code>Title</code>, <code>Body</code>). Support <code>GET /notes</code> (list), <code>POST /notes</code> (create), and <code>GET /notes/{id}</code> (fetch one). Use <code>sync.Mutex</code> around the store.</p></div>
+          <details class="exercise-solution"><summary>Show sketch solution</summary>
+          <pre><code class="language-go">package main
+
+import (
+    "encoding/json"
+    "net/http"
+    "strconv"
+    "sync"
+)
+
+type Note struct {
+    ID    int    `json:"id"`
+    Title string `json:"title"`
+    Body  string `json:"body"`
+}
+
+var (
+    mu    sync.Mutex
+    notes = map[int]Note{}
+    nextID = 1
+)
+
+func main() {
+    mux := http.NewServeMux()
+
+    mux.HandleFunc("GET /notes", func(w http.ResponseWriter, r *http.Request) {
+        mu.Lock(); defer mu.Unlock()
+        out := make([]Note, 0, len(notes))
+        for _, n := range notes { out = append(out, n) }
+        json.NewEncoder(w).Encode(out)
+    })
+
+    mux.HandleFunc("POST /notes", func(w http.ResponseWriter, r *http.Request) {
+        var n Note
+        if err := json.NewDecoder(r.Body).Decode(&amp;n); err != nil {
+            http.Error(w, err.Error(), http.StatusBadRequest); return
+        }
+        mu.Lock(); defer mu.Unlock()
+        n.ID = nextID; nextID++
+        notes[n.ID] = n
+        w.WriteHeader(http.StatusCreated)
+        json.NewEncoder(w).Encode(n)
+    })
+
+    mux.HandleFunc("GET /notes/{id}", func(w http.ResponseWriter, r *http.Request) {
+        id, _ := strconv.Atoi(r.PathValue("id"))
+        mu.Lock(); defer mu.Unlock()
+        n, ok := notes[id]
+        if !ok { http.NotFound(w, r); return }
+        json.NewEncoder(w).Encode(n)
+    })
+
+    http.ListenAndServe(":8080", mux)
+}
+</code></pre></details>
+        </div>
+      </section>
+
+      <section id="further" class="further-reading">
+        <h3>Further reading</h3>
+        <ul>
+          <li><a href="https://pkg.go.dev/net/http" target="_blank" rel="noopener"><code>net/http</code> package</a></li>
+          <li><a href="https://go.dev/doc/articles/wiki/" target="_blank" rel="noopener">Writing Web Applications</a> (official tutorial)</li>
+          <li><a href="https://go.dev/blog/routing-enhancements" target="_blank" rel="noopener">Go 1.22 routing enhancements</a></li>
+          <li><a href="https://github.com/go-chi/chi" target="_blank" rel="noopener">chi</a> — a popular 3rd-party router, if you outgrow the stdlib</li>
+        </ul>
+      </section>
+
+      <div class="complete-box"><p>Shippable web service — done.</p><button class="complete-btn" type="button" data-chapter-id="ch-30">✓ Mark this chapter complete</button></div>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a class="prev" href="29-json.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 29 — JSON</div></a>
+        <a class="next" href="31-testing.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 31 — Testing</div></a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-line">Made with <span class="heart">❤️</span> by <a href="https://github.com/cyrus2281" target="_blank" rel="noopener">Cyrus Mobini</a></div>
+    <a class="bmac" href="https://buymeacoffee.com/cyrus2281" target="_blank" rel="noopener"><span class="bmac-icon">☕</span> Buy me a coffee</a>
+  </footer>
+
+  <script src="../assets/js/progress.js" defer></script>
+  <script src="../assets/js/prism.js" defer></script>
+  <script src="../assets/js/app.js" defer></script>
+  <script src="../assets/js/quiz.js" defer></script>
+  <script src="../assets/js/search.js" defer></script>
+</body>
+</html>

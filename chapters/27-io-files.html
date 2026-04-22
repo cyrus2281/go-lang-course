@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6YPTC2B9NR"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 27 · I/O: Readers, Writers &amp; Files — Learn Go by Cyrus Mobini</title>
+  <meta name="description" content="io.Reader, io.Writer, io.Closer — Go's universal streaming abstractions. Plus os.File, bufio for buffering, and io.Copy.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Chapter 27 · I/O — Learn Go">
+  <meta property="og:description" content="io.Reader / io.Writer / io.Closer / os.File / bufio — Go's I/O ecosystem.">
+  <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/27-io-files.html">
+  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Chapter 27 · I/O — Learn Go">
+  <meta name="twitter:description" content="Readers, Writers, Closers, files, and buffering.">
+  <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/27-io-files.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/prism.css">
+  <script>(function(){try{var t=localStorage.getItem('go-course-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="../index.html" class="brand"><span class="brand-mark">Go</span><span class="brand-name">Learn <span class="brand-accent">Go</span></span></a>
+    <button id="menu-toggle" class="icon-btn menu-toggle" aria-label="Toggle chapter menu" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="header-spacer"></div>
+    <div class="search" role="search"><input id="search-input" type="search" placeholder="Search chapters…" autocomplete="off" aria-label="Search across all chapters"><kbd class="search-hint">/</kbd><div id="search-results" class="search-results"></div></div>
+    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" type="button"></button>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="chapter-sidebar">
+      <div class="side-title">On this page</div>
+      <ul>
+        <li><a href="#objectives">Learning objectives</a></li>
+        <li><a href="#reader">io.Reader</a></li>
+        <li><a href="#writer">io.Writer</a></li>
+        <li><a href="#closer">io.Closer</a></li>
+        <li><a href="#composition">Composing the trio</a></li>
+        <li><a href="#files">Reading and writing files</a></li>
+        <li><a href="#bufio">bufio for line-by-line</a></li>
+        <li><a href="#copy">io.Copy &amp; pipes</a></li>
+        <li><a href="#util">Useful helpers</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+        <li><a href="#exercises">Exercises</a></li>
+        <li><a href="#further">Further reading</a></li>
+      </ul>
+      <div class="side-title">Navigate</div>
+      <ul>
+        <li><a href="26-context.html">← Previous: Context</a></li>
+        <li><a href="28-time-dates.html">Next: Time, Dates &amp; Durations →</a></li>
+        <li><a href="../index.html">Table of contents</a></li>
+      </ul>
+    </aside>
+
+    <main class="chapter-main" data-chapter-id="ch-27">
+      <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 27 · STANDARD LIBRARY</div>
+      <h1>I/O: Readers, Writers &amp; Files</h1>
+      <p>Almost every Go program does I/O. The <code>io</code> package defines
+         the universal currency: <code>io.Reader</code>, <code>io.Writer</code>,
+         and <code>io.Closer</code>. Once you grok these three tiny interfaces,
+         every file, network connection, hash, compressor, encoder, and bytes
+         buffer in the stdlib clicks into place.</p>
+
+      <section id="objectives" class="learning-objectives">
+        <h3>Learning objectives</h3>
+        <ul>
+          <li>Read and write byte streams using <code>io.Reader</code> / <code>io.Writer</code>.</li>
+          <li>Open, read, and write files with <code>os</code>.</li>
+          <li>Wrap streams in <code>bufio</code> for efficient line-by-line work.</li>
+          <li>Use <code>io.Copy</code> to plumb data from one stream to another.</li>
+          <li>Recognize how composition (Reader-of-Reader, etc.) is the fundamental I/O pattern.</li>
+        </ul>
+      </section>
+
+      <section id="reader">
+        <h2><code>io.Reader</code></h2>
+        <pre><code class="language-go">type Reader interface {
+    Read(p []byte) (n int, err error)
+}
+</code></pre>
+
+        <p>One method. Fill the supplied slice with up to <code>len(p)</code>
+           bytes; return how many you wrote and any error. <code>io.EOF</code> at
+           the end is normal, not a real error.</p>
+
+        <p>Implementers: <code>os.File</code>, <code>net.Conn</code>,
+           <code>bytes.Buffer</code>, <code>strings.Reader</code>,
+           <code>http.Response.Body</code>, gzip readers, base64 decoders, and
+           dozens more.</p>
+      </section>
+
+      <section id="writer">
+        <h2><code>io.Writer</code></h2>
+        <pre><code class="language-go">type Writer interface {
+    Write(p []byte) (n int, err error)
+}
+</code></pre>
+
+        <p>The dual of Reader. Drain the slice into the underlying sink. Same
+           huge family of implementers — most types implement both.</p>
+      </section>
+
+      <section id="closer">
+        <h2><code>io.Closer</code></h2>
+        <pre><code class="language-go">type Closer interface {
+    Close() error
+}
+</code></pre>
+
+        <p>Anything that holds a resource (file descriptor, socket) implements
+           Closer. Pair with <code>defer x.Close()</code> as soon as you acquire.</p>
+      </section>
+
+      <section id="composition">
+        <h2>Composing the trio</h2>
+        <p>The standard library composes these into composite interfaces:</p>
+        <pre><code class="language-go">type ReadCloser  interface { Reader; Closer }
+type WriteCloser interface { Writer; Closer }
+type ReadWriter  interface { Reader; Writer }
+</code></pre>
+
+        <p>Functions accept the smallest interface that suffices. A function
+           that just consumes bytes accepts <code>io.Reader</code> — meaning it
+           works with files, sockets, in-memory buffers, HTTP bodies, and tests
+           that pass <code>strings.NewReader("...")</code>. Massive flexibility.</p>
+      </section>
+
+      <section id="files">
+        <h2>Reading and writing files</h2>
+
+        <h3>Read whole file (small)</h3>
+        <pre><code class="language-go">b, err := os.ReadFile("config.yaml")
+if err != nil { /* handle */ }
+fmt.Println(string(b))
+</code></pre>
+
+        <h3>Write whole file</h3>
+        <pre><code class="language-go">err := os.WriteFile("out.txt", []byte("hello\n"), 0o644)
+</code></pre>
+
+        <h3>Stream (large file)</h3>
+        <pre><code class="language-go">f, err := os.Open("big.csv")
+if err != nil { /* handle */ }
+defer f.Close()
+
+// f satisfies io.Reader — pass it anywhere a Reader is wanted
+</code></pre>
+
+        <h3>Create / append</h3>
+        <pre><code class="language-go">f, _ := os.Create("out.txt")                    // truncates
+f, _ := os.OpenFile("log.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
+defer f.Close()
+fmt.Fprintln(f, "line")
+</code></pre>
+      </section>
+
+      <section id="bufio">
+        <h2><code>bufio</code> — line-by-line is buffered</h2>
+        <pre><code class="language-go">f, _ := os.Open("data.txt")
+defer f.Close()
+
+scan := bufio.NewScanner(f)
+for scan.Scan() {
+    line := scan.Text()        // one line at a time, no trailing newline
+    // ...
+}
+if err := scan.Err(); err != nil { /* handle */ }
+</code></pre>
+
+        <p><code>bufio.Scanner</code> handles the buffering and line splitting.
+           For other tokenizations (words, runes, custom), use
+           <code>scan.Split(bufio.ScanWords)</code>.</p>
+      </section>
+
+      <section id="copy">
+        <h2><code>io.Copy</code> &amp; pipes</h2>
+        <pre><code class="language-go">// Copy file → file
+src, _ := os.Open("a.txt")
+dst, _ := os.Create("b.txt")
+defer src.Close(); defer dst.Close()
+
+n, err := io.Copy(dst, src)        // returns bytes copied
+fmt.Printf("wrote %d bytes\n", n)
+</code></pre>
+
+        <p>Same pattern downloads a URL to disk:</p>
+        <pre><code class="language-go">resp, _ := http.Get("https://example.com/data.zip")
+defer resp.Body.Close()
+
+f, _ := os.Create("data.zip")
+defer f.Close()
+
+io.Copy(f, resp.Body)
+</code></pre>
+
+        <p>This is the magic of <code>io.Reader</code>/<code>io.Writer</code>:
+           the same function that copies file → file also copies HTTP → file,
+           because both ends are just Reader/Writer.</p>
+      </section>
+
+      <section id="util">
+        <h2>Useful helpers</h2>
+        <ul>
+          <li><code>io.ReadAll(r)</code> — slurp a Reader into a byte slice.</li>
+          <li><code>io.LimitReader(r, n)</code> — wraps r to read at most n bytes.</li>
+          <li><code>io.MultiWriter(a, b)</code> — write to multiple writers at once (great for tee'ing logs).</li>
+          <li><code>io.MultiReader(r1, r2)</code> — concatenate readers.</li>
+          <li><code>io.Discard</code> — a Writer that drops everything (like /dev/null).</li>
+          <li><code>strings.NewReader(s)</code>, <code>bytes.NewReader(b)</code> — Reader over a string or []byte.</li>
+          <li><code>bytes.Buffer</code> — both a Reader and a Writer; great for tests.</li>
+        </ul>
+      </section>
+
+      <section id="quiz">
+        <h2>Check your understanding</h2>
+        <div class="quiz" data-quiz data-chapter-id="ch-27">
+          <script type="application/json" class="quiz-data">
+          {
+            "title": "Quick quiz",
+            "questions": [
+              {"q":"How many methods does io.Reader have?","options":["0","1","2","3"],"answer":1,"explanation":"Just one: Read([]byte) (int, error). The smallness is the genius — every byte stream in Go satisfies it."},
+              {"q":"Which is the easiest way to copy data from one stream to another?","options":["A manual for loop calling Read/Write","io.Copy(dst, src)","ioutil.Copy","strings.Copy"],"answer":1,"explanation":"io.Copy handles buffering, EOF, and partial reads correctly. Use it; resist the urge to roll your own."},
+              {"q":"You want to read a small text file into memory. Which is most concise?","options":["bufio.NewScanner loop","os.ReadFile(path)","io.Copy with a strings.Builder","Manual Read calls"],"answer":1,"explanation":"os.ReadFile reads the whole file into a []byte in one call. Perfect for config files and small inputs."},
+              {"q":"To process a large file line by line efficiently:","options":["os.ReadFile then strings.Split","bufio.NewScanner","fmt.Sscan in a loop","ioutil.ReadAll then split"],"answer":1,"explanation":"bufio.Scanner reads in buffered chunks and yields one line per Scan() call — memory-efficient for arbitrarily large files."},
+              {"q":"Why is io.Reader so widely used in the Go stdlib?","options":["It's faster than alternatives","It's the smallest possible interface for reading bytes — so every byte source can satisfy it, and any function consuming bytes can accept any source","It avoids allocations","It's required by the language"],"answer":1,"explanation":"Tiny interfaces are why Go's stdlib composes so well. Files, sockets, HTTP bodies, in-memory buffers all share the same Reader API."}
+            ]
+          }
+          </script>
+        </div>
+      </section>
+
+      <section id="exercises">
+        <h2>Practice exercises</h2>
+
+        <div class="exercise">
+          <div class="exercise-header"><span class="badge">EXERCISE 1</span><h3>Word counter (wc -w)</h3></div>
+          <div class="exercise-task"><p>Read a file (its path is the first CLI arg) and print the number of whitespace-separated words. Use <code>bufio.Scanner</code> with <code>bufio.ScanWords</code>.</p></div>
+          <details class="exercise-solution"><summary>Show solution</summary>
+          <pre><code class="language-go">package main
+
+import (
+    "bufio"
+    "fmt"
+    "os"
+)
+
+func main() {
+    f, err := os.Open(os.Args[1])
+    if err != nil { fmt.Fprintln(os.Stderr, err); os.Exit(1) }
+    defer f.Close()
+
+    scan := bufio.NewScanner(f)
+    scan.Split(bufio.ScanWords)
+    n := 0
+    for scan.Scan() { n++ }
+    fmt.Println(n)
+}
+</code></pre></details>
+        </div>
+      </section>
+
+      <section id="further" class="further-reading">
+        <h3>Further reading</h3>
+        <ul>
+          <li><a href="https://pkg.go.dev/io" target="_blank" rel="noopener"><code>io</code> package</a></li>
+          <li><a href="https://pkg.go.dev/os" target="_blank" rel="noopener"><code>os</code> package</a></li>
+          <li><a href="https://pkg.go.dev/bufio" target="_blank" rel="noopener"><code>bufio</code> package</a></li>
+        </ul>
+      </section>
+
+      <div class="complete-box"><p>The world is just Readers and Writers.</p><button class="complete-btn" type="button" data-chapter-id="ch-27">✓ Mark this chapter complete</button></div>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a class="prev" href="26-context.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 26 — Context</div></a>
+        <a class="next" href="28-time-dates.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 28 — Time, Dates &amp; Durations</div></a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-line">Made with <span class="heart">❤️</span> by <a href="https://github.com/cyrus2281" target="_blank" rel="noopener">Cyrus Mobini</a></div>
+    <a class="bmac" href="https://buymeacoffee.com/cyrus2281" target="_blank" rel="noopener"><span class="bmac-icon">☕</span> Buy me a coffee</a>
+  </footer>
+
+  <script src="../assets/js/progress.js" defer></script>
+  <script src="../assets/js/prism.js" defer></script>
+  <script src="../assets/js/app.js" defer></script>
+  <script src="../assets/js/quiz.js" defer></script>
+  <script src="../assets/js/search.js" defer></script>
+</body>
+</html>

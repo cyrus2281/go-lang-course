@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6YPTC2B9NR"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 24 · Goroutines — Learn Go by Cyrus Mobini</title>
+  <meta name="description" content="Launching goroutines, synchronizing with sync.WaitGroup and sync.Mutex, avoiding leaks, and using the -race detector.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Chapter 24 · Goroutines — Learn Go">
+  <meta property="og:description" content="The `go` keyword, WaitGroup, Mutex, race detection, goroutine leaks.">
+  <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/24-goroutines.html">
+  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Chapter 24 · Goroutines — Learn Go">
+  <meta name="twitter:description" content="The `go` keyword, WaitGroup, Mutex, race detection.">
+  <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
+  <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/24-goroutines.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/prism.css">
+  <script>(function(){try{var t=localStorage.getItem('go-course-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="../index.html" class="brand"><span class="brand-mark">Go</span><span class="brand-name">Learn <span class="brand-accent">Go</span></span></a>
+    <button id="menu-toggle" class="icon-btn menu-toggle" aria-label="Toggle chapter menu" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="header-spacer"></div>
+    <div class="search" role="search"><input id="search-input" type="search" placeholder="Search chapters…" autocomplete="off" aria-label="Search across all chapters"><kbd class="search-hint">/</kbd><div id="search-results" class="search-results"></div></div>
+    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" type="button"></button>
+  </header>
+
+  <div class="chapter-layout">
+    <aside class="chapter-sidebar">
+      <div class="side-title">On this page</div>
+      <ul>
+        <li><a href="#objectives">Learning objectives</a></li>
+        <li><a href="#what">What's a goroutine?</a></li>
+        <li><a href="#go">The <code>go</code> keyword</a></li>
+        <li><a href="#waitgroup">sync.WaitGroup</a></li>
+        <li><a href="#mutex">sync.Mutex &amp; RWMutex</a></li>
+        <li><a href="#race">Race conditions &amp; -race</a></li>
+        <li><a href="#leaks">Goroutine leaks</a></li>
+        <li><a href="#once">sync.Once</a></li>
+        <li><a href="#tips">Best practices</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+        <li><a href="#exercises">Exercises</a></li>
+        <li><a href="#further">Further reading</a></li>
+      </ul>
+      <div class="side-title">Navigate</div>
+      <ul>
+        <li><a href="23-error-handling.html">← Previous: Error Handling</a></li>
+        <li><a href="25-channels.html">Next: Channels →</a></li>
+        <li><a href="../index.html">Table of contents</a></li>
+      </ul>
+    </aside>
+
+    <main class="chapter-main" data-chapter-id="ch-24">
+      <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 24 · CONCURRENCY</div>
+      <h1>Goroutines</h1>
+      <p>Concurrency is Go's superpower. A <strong>goroutine</strong> is a
+         lightweight unit of concurrent execution, scheduled by the Go runtime.
+         You can spin up thousands — even millions — cheaply, because each starts
+         with just a small stack that grows as needed.</p>
+
+      <section id="objectives" class="learning-objectives">
+        <h3>Learning objectives</h3>
+        <ul>
+          <li>Launch concurrent work with the <code>go</code> keyword.</li>
+          <li>Wait for goroutines to finish with <code>sync.WaitGroup</code>.</li>
+          <li>Protect shared state with <code>sync.Mutex</code> / <code>sync.RWMutex</code>.</li>
+          <li>Use <code>-race</code> to detect data races early.</li>
+          <li>Avoid goroutine leaks.</li>
+        </ul>
+      </section>
+
+      <section id="what">
+        <h2>What's a goroutine?</h2>
+        <p>A goroutine is an independently-running function, <em>not</em> an OS
+           thread. The Go runtime multiplexes millions of them onto a handful of
+           OS threads (controlled by <code>GOMAXPROCS</code>). Key properties:</p>
+
+        <ul>
+          <li>Starts with ~2 KB of stack (grows/shrinks as needed).</li>
+          <li>Switching between them is orders of magnitude cheaper than thread switching.</li>
+          <li>Communication is via <em>channels</em> (Chapter 25) or explicit shared memory with locks.</li>
+        </ul>
+      </section>
+
+      <section id="go">
+        <h2>The <code>go</code> keyword</h2>
+        <pre><code class="language-go">func say(msg string) { fmt.Println(msg) }
+
+func main() {
+    go say("hello")         // runs concurrently
+    say("main")              // runs on main goroutine
+    time.Sleep(100 * time.Millisecond)  // give the goroutine time to print
+}
+</code></pre>
+
+        <p>The <code>time.Sleep</code> is a hack to wait for the goroutine
+           before <code>main</code> exits (exiting <code>main</code> kills all
+           goroutines). Real code uses <code>WaitGroup</code> or channels.</p>
+      </section>
+
+      <section id="waitgroup">
+        <h2>sync.WaitGroup</h2>
+        <pre><code class="language-go">package main
+
+import (
+    "fmt"
+    "sync"
+)
+
+func main() {
+    var wg sync.WaitGroup
+
+    for i := 1; i <= 3; i++ {
+        wg.Add(1)                            // register one goroutine
+        go func(n int) {
+            defer wg.Done()                   // mark it done when finished
+            fmt.Println("worker", n)
+        }(i)
+    }
+
+    wg.Wait()                                // block until counter reaches 0
+    fmt.Println("all done")
+}
+</code></pre>
+
+        <p>Rules:</p>
+        <ul>
+          <li>Call <code>Add</code> <em>before</em> starting the goroutine.</li>
+          <li><code>Done</code> in a <code>defer</code> so it fires even on panic.</li>
+          <li>Don't pass <code>WaitGroup</code> by value — it must be shared. Use <code>*sync.WaitGroup</code> or close over it with a closure.</li>
+        </ul>
+      </section>
+
+      <section id="mutex">
+        <h2>sync.Mutex &amp; RWMutex</h2>
+        <p>When multiple goroutines touch the same data, you need a lock:</p>
+
+        <pre><code class="language-go">type SafeCounter struct {
+    mu sync.Mutex
+    n  int
+}
+
+func (c *SafeCounter) Inc() {
+    c.mu.Lock()
+    defer c.mu.Unlock()
+    c.n++
+}
+</code></pre>
+
+        <p><code>sync.RWMutex</code> is a refined version: many readers can hold
+           it simultaneously, one writer at a time. Use it when reads vastly
+           outnumber writes.</p>
+      </section>
+
+      <section id="race">
+        <h2>Data races and the <code>-race</code> flag</h2>
+        <p>A <strong>data race</strong> is two goroutines touching the same
+           memory with at least one writer. Undefined behavior territory.</p>
+
+        <p>Go ships with a world-class race detector:</p>
+        <pre><code class="language-bash">go run -race .
+go test -race ./...</code></pre>
+
+        <p>The detector instruments your binary to catch races at runtime. Run
+           your tests with <code>-race</code> in CI — it has caught
+           incomprehensibly many real bugs.</p>
+      </section>
+
+      <section id="leaks">
+        <h2>Goroutine leaks</h2>
+        <p>A goroutine "leaks" when it's launched but never returns — typically
+           blocked on a channel that'll never send or receive. Each leaked
+           goroutine costs memory and CPU cycles.</p>
+
+        <pre><code class="language-go">func leaky(work <-chan int) {
+    for v := range work {
+        // if the caller forgets to close(work), this goroutine lives forever
+        fmt.Println(v)
+    }
+}
+</code></pre>
+
+        <p>Prevention: use <code>context.Context</code> (Chapter 26) to propagate
+           cancellation, and always have an unambiguous termination condition.</p>
+      </section>
+
+      <section id="once">
+        <h2>sync.Once</h2>
+        <p>Runs a function exactly once, even if called from many goroutines:</p>
+
+        <pre><code class="language-go">var (
+    cfg     *Config
+    cfgOnce sync.Once
+)
+
+func Config() *Config {
+    cfgOnce.Do(func() {
+        cfg = loadConfig()   // runs at most once
+    })
+    return cfg
+}
+</code></pre>
+      </section>
+
+      <section id="tips">
+        <h2>Best practices</h2>
+        <ul>
+          <li><strong>Prefer channels over locks</strong> when you can. "Don't communicate by sharing memory; share memory by communicating."</li>
+          <li><strong>Always know who closes a channel</strong>. Usually the sender.</li>
+          <li><strong>Every goroutine needs an exit path.</strong> Cancellation via context is the Go-native way.</li>
+          <li><strong>Run with <code>-race</code> in tests.</strong> It's almost free for small tests.</li>
+        </ul>
+      </section>
+
+      <section id="quiz">
+        <h2>Check your understanding</h2>
+        <div class="quiz" data-quiz data-chapter-id="ch-24">
+          <script type="application/json" class="quiz-data">
+          {
+            "title": "Quick quiz",
+            "questions": [
+              {"q":"What does the `go` keyword do?","options":["Starts a new process","Launches the function as a goroutine that runs concurrently","Installs a package","Compiles the file"],"answer":1,"explanation":"`go f()` starts f as a goroutine — the runtime schedules it independently of the caller. The caller keeps running without waiting."},
+              {"q":"Why use sync.WaitGroup?","options":["To make goroutines share memory","To block until N goroutines have finished","To limit the number of goroutines","To sort goroutines"],"answer":1,"explanation":"WaitGroup is a counter. Add(n) increments, Done() decrements, Wait() blocks until 0. Canonical tool for \"wait for all my goroutines to finish\"."},
+              {"q":"You run `go test -race ./...` and it reports a data race. What does that mean?","options":["Your tests are slow","Two goroutines accessed shared data concurrently with at least one writer, unsynchronized","The CPU is overheating","Go's race detector is broken"],"answer":1,"explanation":"The race detector found concurrent access with a write and insufficient synchronization. This is a real bug — fix it with a mutex or by restructuring access."},
+              {"q":"What's a goroutine leak?","options":["Memory fragmentation","A goroutine launched that never exits, typically blocked forever on a channel","An OS thread that exits early","Garbage in stdout"],"answer":1,"explanation":"Leaked goroutines accumulate memory and stay scheduled. Common cause: blocked on a channel that never receives, or a receive with no sender. Use context for cancellation."},
+              {"q":"Idiomatic use of sync.Mutex inside a method on a struct:","options":["Lock in every read, no Unlock","Lock at the start, defer Unlock()","Lock only on writes","Copy the mutex before locking"],"answer":1,"explanation":"Lock then `defer mu.Unlock()` ensures the mutex is released on every exit path (including panic). Never copy a sync.Mutex — pass by pointer."}
+            ]
+          }
+          </script>
+        </div>
+      </section>
+
+      <section id="exercises">
+        <h2>Practice exercises</h2>
+
+        <div class="exercise">
+          <div class="exercise-header"><span class="badge">EXERCISE 1</span><h3>Parallel URL fetcher</h3></div>
+          <div class="exercise-task"><p>Given a slice of URLs, fetch them concurrently and print each URL with its HTTP status code. Use <code>sync.WaitGroup</code>. (We'll use <code>net/http</code> in Chapter 30 — for now <code>http.Get</code> is enough.)</p></div>
+          <details class="exercise-solution"><summary>Show solution</summary>
+          <pre><code class="language-go">package main
+
+import (
+    "fmt"
+    "net/http"
+    "sync"
+)
+
+func main() {
+    urls := []string{
+        "https://go.dev",
+        "https://example.com",
+    }
+
+    var wg sync.WaitGroup
+    for _, u := range urls {
+        wg.Add(1)
+        go func(url string) {
+            defer wg.Done()
+            resp, err := http.Get(url)
+            if err != nil {
+                fmt.Println(url, "err:", err)
+                return
+            }
+            defer resp.Body.Close()
+            fmt.Printf("%-30s %d\n", url, resp.StatusCode)
+        }(u)
+    }
+    wg.Wait()
+}
+</code></pre>
+          <p>Note that we pass <code>u</code> as an argument to the closure. In Go 1.22+ this isn't strictly needed (loop variables are per-iteration), but it makes intent explicit.</p>
+          </details>
+        </div>
+      </section>
+
+      <section id="further" class="further-reading">
+        <h3>Further reading</h3>
+        <ul>
+          <li><a href="https://go.dev/tour/concurrency/1" target="_blank" rel="noopener">Tour of Go — Concurrency</a></li>
+          <li><a href="https://go.dev/doc/articles/race_detector" target="_blank" rel="noopener">The Go race detector</a></li>
+          <li><a href="https://go.dev/blog/pipelines" target="_blank" rel="noopener">Go concurrency patterns — pipelines &amp; cancellation</a></li>
+        </ul>
+      </section>
+
+      <div class="complete-box"><p>Concurrent Go — unlocked.</p><button class="complete-btn" type="button" data-chapter-id="ch-24">✓ Mark this chapter complete</button></div>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a class="prev" href="23-error-handling.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 23 — Error Handling</div></a>
+        <a class="next" href="25-channels.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 25 — Channels &amp; select</div></a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-line">Made with <span class="heart">❤️</span> by <a href="https://github.com/cyrus2281" target="_blank" rel="noopener">Cyrus Mobini</a></div>
+    <a class="bmac" href="https://buymeacoffee.com/cyrus2281" target="_blank" rel="noopener"><span class="bmac-icon">☕</span> Buy me a coffee</a>
+  </footer>
+
+  <script src="../assets/js/progress.js" defer></script>
+  <script src="../assets/js/prism.js" defer></script>
+  <script src="../assets/js/app.js" defer></script>
+  <script src="../assets/js/quiz.js" defer></script>
+  <script src="../assets/js/search.js" defer></script>
+</body>
+</html>
