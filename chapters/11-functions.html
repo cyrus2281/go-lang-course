@@ -5,18 +5,18 @@
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chapter 11 · Functions — Learn Go by Cyrus Mobini</title>
+  <title>Chapter 11 · Functions | Learn Go by Cyrus Mobini</title>
   <meta name="description" content="Declare Go functions, return multiple values, use variadic args, closures, named returns, and defer. A chapter-sized deep dive on Go's most useful building block.">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="Chapter 11 · Functions — Learn Go">
-  <meta property="og:description" content="Multiple returns, variadic, closures, named returns, defer — everything Go functions can do.">
+  <meta property="og:title" content="Chapter 11 · Functions | Learn Go">
+  <meta property="og:description" content="Multiple returns, variadic, closures, named returns, defer: everything Go functions can do.">
   <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/11-functions.html">
-  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta property="og:site_name" content="Learn Go | by Cyrus Mobini">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Chapter 11 · Functions — Learn Go">
+  <meta name="twitter:title" content="Chapter 11 · Functions | Learn Go">
   <meta name="twitter:description" content="Multiple returns, variadic, closures, named returns, defer.">
   <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/11-functions.html">
@@ -60,7 +60,7 @@
       <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 11 · CORE LANGUAGE</div>
       <h1>Functions</h1>
       <p>Functions are the backbone of every Go program. Go's functions are more
-         flexible than they first appear — multiple return values, variadic args,
+         flexible than they first appear. Multiple return values, variadic args,
          closures, and named returns are all everyday tools. This chapter covers
          all of them.</p>
 
@@ -138,13 +138,13 @@ func main() {
         <pre><code class="language-go">func divmod(a, b int) (q, r int) {
     q = a / b
     r = a % b
-    return    // naked return — returns q, r
+    return    // naked return: returns q, r
 }
 </code></pre>
 
         <p>Named returns are nice for documentation and for pre-declaring variables
            you'll modify in a <code>defer</code>. Avoid using them just to skip
-           typing — a plain <code>return q, r</code> is often clearer in small functions.</p>
+           typing. A plain <code>return q, r</code> is often clearer in small functions.</p>
       </section>
 
       <!-- ===================================================================== -->
@@ -162,7 +162,7 @@ func main() {
 }
 
 fmt.Println(sum(1, 2, 3))          // 6
-fmt.Println(sum())                 // 0  — no args is OK
+fmt.Println(sum())                 // 0  (no args is OK)
 </code></pre>
 
         <p>Inside the function, <code>nums</code> is a <code>[]int</code>. To pass
@@ -170,7 +170,7 @@ fmt.Println(sum())                 // 0  — no args is OK
            <code>...</code>:</p>
 
         <pre><code class="language-go">xs := []int{1, 2, 3}
-fmt.Println(sum(xs...))            // 6  — spread
+fmt.Println(sum(xs...))            // 6  (spread)
 </code></pre>
 
         <p>Common variadics you'll use all the time: <code>fmt.Println</code>,
@@ -275,7 +275,7 @@ fmt.Println(double(5), triple(5))    // 10 15
 }
 </code></pre>
 
-        <p>Go doesn't specially optimize tail calls — very deep recursion can blow
+        <p>Go doesn't specially optimize tail calls, so very deep recursion can blow
            the stack. For iterative problems, prefer a <code>for</code> loop.</p>
       </section>
 
@@ -283,7 +283,7 @@ fmt.Println(double(5), triple(5))    // 10 15
       <section id="defer">
         <h2><code>defer</code></h2>
         <p><code>defer</code> schedules a function call to run <em>just before</em>
-           the enclosing function returns — regardless of how it returns (normal
+           the enclosing function returns, regardless of how it returns (normal
            return, panic, or early return). It's Go's cleanup mechanism.</p>
 
         <pre><code class="language-go">package main
@@ -319,7 +319,7 @@ func readFile(path string) {
         <pre><code class="language-go">i := 0
 defer fmt.Println(i)    // prints 0
 i = 10
-// function returns here — fmt.Println runs with the captured i = 0
+// function returns here, and fmt.Println runs with the captured i = 0
 </code></pre>
 
         <p>If you need the current value at defer time, use a closure:
@@ -380,7 +380,7 @@ i = 10
                 "options": [
                   "Immediately, when the defer statement runs",
                   "Lazily, when the defer actually fires",
-                  "Never — they're the receiver",
+                  "Never, they're the receiver",
                   "At compile time"
                 ],
                 "answer": 0,
@@ -413,7 +413,7 @@ i = 10
                 "options": [
                   "For every recoverable error instead of returning an error",
                   "Only as a last resort for truly unrecoverable conditions; recover is called inside a deferred function",
-                  "To loop — panic inside, recover outside",
+                  "To loop: panic inside, recover outside",
                   "As a synonym for return"
                 ],
                 "answer": 1,
@@ -465,7 +465,7 @@ func main() {
     fmt.Println(v, ok)     // 0 false
 }
 </code></pre>
-            <p>Go 1.21+ has a built-in <code>min()</code> — but writing your own
+            <p>Go 1.21+ has a built-in <code>min()</code>, but writing your own
                once teaches variadics nicely.</p>
           </details>
         </div>
@@ -507,7 +507,7 @@ func main() {
     work()
 }
 </code></pre>
-            <p>This is a classic closure idiom — each call to <code>startTimer</code>
+            <p>This is a classic closure idiom. Each call to <code>startTimer</code>
                captures its own <code>start</code> in the returned closure.
                <code>defer ...()</code> (note the parens!) calls the returned
                closure when the surrounding function exits.</p>
@@ -519,9 +519,9 @@ func main() {
       <section id="further" class="further-reading">
         <h3>Further reading</h3>
         <ul>
-          <li><a href="https://go.dev/ref/spec#Function_declarations" target="_blank" rel="noopener">Go spec — Function declarations</a></li>
-          <li><a href="https://go.dev/blog/defer-panic-and-recover" target="_blank" rel="noopener">The Go Blog — Defer, Panic, and Recover</a></li>
-          <li><a href="https://go.dev/tour/moretypes/21" target="_blank" rel="noopener">Tour of Go — Closures</a></li>
+          <li><a href="https://go.dev/ref/spec#Function_declarations" target="_blank" rel="noopener">Go spec: Function declarations</a></li>
+          <li><a href="https://go.dev/blog/defer-panic-and-recover" target="_blank" rel="noopener">The Go Blog: Defer, Panic, and Recover</a></li>
+          <li><a href="https://go.dev/tour/moretypes/21" target="_blank" rel="noopener">Tour of Go: Closures</a></li>
         </ul>
       </section>
 
@@ -533,11 +533,11 @@ func main() {
       <nav class="chapter-nav" aria-label="Chapter navigation">
         <a class="prev" href="10-loops.html">
           <div class="nav-label">Previous</div>
-          <div class="nav-title">Chapter 10 — Loops</div>
+          <div class="nav-title">Chapter 10: Loops</div>
         </a>
         <a class="next" href="12-arrays.html">
           <div class="nav-label">Next</div>
-          <div class="nav-title">Chapter 12 — Arrays</div>
+          <div class="nav-title">Chapter 12: Arrays</div>
         </a>
       </nav>
     </main>

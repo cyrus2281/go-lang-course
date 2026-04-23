@@ -5,20 +5,20 @@
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chapter 1 · What is Coding? — Learn Go by Cyrus Mobini</title>
+  <title>Chapter 1 · What is Coding? | Learn Go by Cyrus Mobini</title>
   <meta name="description" content="Start with the fundamentals: what code is, how computers actually run it, compiled vs interpreted languages, and where Go fits in the landscape.">
 
   <meta property="og:type" content="article">
-  <meta property="og:title" content="Chapter 1 · What is Coding? — Learn Go">
+  <meta property="og:title" content="Chapter 1 · What is Coding? | Learn Go">
   <meta property="og:description" content="Start with the fundamentals: what code is, how computers actually run it, and where Go fits.">
   <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/01-what-is-coding.html">
-  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta property="og:site_name" content="Learn Go | by Cyrus Mobini">
 
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Chapter 1 · What is Coding? — Learn Go">
+  <meta name="twitter:title" content="Chapter 1 · What is Coding? | Learn Go">
   <meta name="twitter:description" content="Start with the fundamentals: what code is, how computers actually run it, and where Go fits.">
   <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
 
@@ -66,7 +66,7 @@
       <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 01 · FOUNDATIONS</div>
       <h1>What is Coding?</h1>
       <p>Before we write a single line of Go, let's zoom out. <strong>Coding</strong>
-         — also called programming or software development — is the act of writing
+         (also called programming or software development) is the act of writing
          precise instructions that a computer can carry out. Those instructions add
          up to everything from a tiny shell script to the app store in your pocket,
          from a spreadsheet to a jet's autopilot.</p>
@@ -80,7 +80,7 @@
         <ul>
           <li>Explain, in one sentence, what code is.</li>
           <li>Describe the path source code takes from your editor to the CPU.</li>
-          <li>Distinguish <strong>compiled</strong>, <strong>interpreted</strong>, and <strong>bytecode/JIT</strong> languages — and know which bucket Go is in.</li>
+          <li>Distinguish <strong>compiled</strong>, <strong>interpreted</strong>, and <strong>bytecode/JIT</strong> languages, and know which bucket Go is in.</li>
           <li>Recognize the major language families (systems, scripting, functional, markup, query).</li>
           <li>Articulate why Go was a deliberate choice for this course.</li>
         </ul>
@@ -92,7 +92,7 @@
         <p>At its core, a program is a <strong>recipe</strong>: a numbered list of
            steps detailed enough that a machine with no common sense can follow it
            and get the same result every time. You write the recipe in a
-           <strong>programming language</strong> — a notation humans can read that
+           <strong>programming language</strong>, a notation humans can read that
            can be translated into something the computer understands.</p>
 
         <p>A trivial example in Go looks like this:</p>
@@ -109,8 +109,8 @@ func main() {
         <p>That's six lines of precise instruction: declare a program, bring in a
            tool for printing, define an entry point, store the word
            <code>"world"</code> in a labeled box called <code>name</code>, and print
-           a greeting. We'll unpack every part of this program in Chapter 4 —
-           for now, just notice that the code <em>describes</em> behavior using
+           a greeting. We'll unpack every part of this program in Chapter 4.
+           For now, just notice that the code <em>describes</em> behavior using
            English-looking words and punctuation, not 1s and 0s.</p>
 
         <div class="callout info">
@@ -130,8 +130,8 @@ func main() {
       <section id="how-computers">
         <h2>How computers actually run code</h2>
         <p>Deep down, a CPU only understands one thing:
-           <strong>binary instructions</strong>. Every program you've ever run —
-           your browser, your game, this very web page's JavaScript — ends its life
+           <strong>binary instructions</strong>. Every program you've ever run
+           (your browser, your game, this very web page's JavaScript) ends its life
            as a stream of 1s and 0s shuffling through silicon.</p>
 
         <h3 id="layers">From source to silicon</h3>
@@ -178,7 +178,7 @@ func main() {
         </figure>
 
         <h3 id="binary">Why binary?</h3>
-        <p>Transistors — the building blocks of a CPU — are essentially switches:
+        <p>Transistors (the building blocks of a CPU) are essentially switches:
            they're either <strong>on</strong> or <strong>off</strong>. We call
            those states <code>1</code> and <code>0</code>. A modern CPU contains
            <em>billions</em> of them. By combining them into patterns, the hardware
@@ -188,15 +188,15 @@ func main() {
         <p>Here's a whirlwind translation of our <code>Hello, world!</code> in three
            layers, from the most human to the least:</p>
 
-        <pre><code class="language-go">// Level 1 — Go source (what you read and write)
+        <pre><code class="language-go">// Level 1: Go source (what you read and write)
 fmt.Println("Hello,", "world")</code></pre>
 
-        <pre><code class="language-bash"># Level 2 — x86-64 assembly (roughly — a human-readable sketch of machine code)
+        <pre><code class="language-bash"># Level 2: x86-64 assembly (roughly, a human-readable sketch of machine code)
 MOV    RDI, addr_of_string
 CALL   fmt.Println
 </code></pre>
 
-        <pre><code class="language-bash"># Level 3 — Raw machine code (what the CPU actually decodes)
+        <pre><code class="language-bash"># Level 3: Raw machine code (what the CPU actually decodes)
 48 8D 3D 00 00 00 00
 E8 00 00 00 00
 </code></pre>
@@ -213,7 +213,7 @@ E8 00 00 00 00
             Go ships with a built-in disassembler. Once you've written your first
             program, you can run <code>go tool objdump -s main.main ./hello</code>
             to see the actual machine instructions Go generated from your code.
-            Don't worry about this now — but know that Go is never a black box.
+            Don't worry about this now, but know that Go is never a black box.
           </div>
         </div>
       </section>
@@ -324,7 +324,7 @@ E8 00 00 00 00
 
         <p><strong>Go is firmly in the compiled camp.</strong> When you run
            <code>go build</code>, Go produces a single, self-contained binary file
-           — the CPU runs it directly. No virtual machine, no interpreter, no
+           that the CPU runs directly. No virtual machine, no interpreter, no
            "node_modules", no JVM. This is a big reason Go programs start so
            quickly and ship so easily (Chapter 4 will show this in action).</p>
 
@@ -336,7 +336,7 @@ E8 00 00 00 00
             bytecode (<code>.pyc</code> files) before interpreting. JavaScript
             engines like V8 use aggressive JIT compilation. Even Go has a
             <em>runtime</em> for goroutine scheduling and garbage collection. Don't
-            let purists fight over precise definitions — the table above captures
+            let purists fight over precise definitions. The table above captures
             the practical differences.
           </div>
         </div>
@@ -350,20 +350,20 @@ E8 00 00 00 00
            them by <strong>family</strong>:</p>
 
         <ul>
-          <li><strong>Systems / general-purpose</strong> — build pretty much anything;
+          <li><strong>Systems / general-purpose</strong>: build pretty much anything;
               performance-sensitive code, infrastructure, CLIs.
               <em>Examples:</em> Go, C, C++, Rust, Java.</li>
-          <li><strong>Scripting / dynamic</strong> — quick automation, glue code,
+          <li><strong>Scripting / dynamic</strong>: quick automation, glue code,
               prototypes, data analysis.
               <em>Examples:</em> Python, Ruby, Bash, Lua.</li>
-          <li><strong>Functional</strong> — emphasize pure functions and
+          <li><strong>Functional</strong>: emphasize pure functions and
               immutability. <em>Examples:</em> Haskell, Elixir, OCaml, Clojure.</li>
-          <li><strong>Markup</strong> — describe <em>structure</em> rather than
+          <li><strong>Markup</strong>: describe <em>structure</em> rather than
               behavior. Not really programming languages, but you'll read and
               write them constantly. <em>Examples:</em> HTML, XML, Markdown.</li>
-          <li><strong>Query</strong> — ask questions of data stores.
+          <li><strong>Query</strong>: ask questions of data stores.
               <em>Examples:</em> SQL, GraphQL, SPARQL.</li>
-          <li><strong>Domain-specific</strong> — hyper-specialized.
+          <li><strong>Domain-specific</strong>: hyper-specialized.
               <em>Examples:</em> Dockerfile, Terraform HCL, regex, CSS.</li>
         </ul>
 
@@ -379,17 +379,17 @@ E8 00 00 00 00
            one over another for a given job. Where does Go sit?</p>
 
         <ul>
-          <li><strong>Speed of a compiled language</strong> — Go compiles to a
+          <li><strong>Speed of a compiled language</strong>: Go compiles to a
               static binary that runs as fast as C or C++ for most day-to-day code.</li>
-          <li><strong>Simplicity of a scripting language</strong> — the syntax is
+          <li><strong>Simplicity of a scripting language</strong>: the syntax is
               intentionally small. You can read a Go program you've never seen and
               roughly understand it. This is by design.</li>
-          <li><strong>Concurrency built in</strong> — <code>go</code> and channels
+          <li><strong>Concurrency built in</strong>: <code>go</code> and channels
               are language keywords. No extra libraries needed. (Chapters 24–26.)</li>
-          <li><strong>Ergonomic tooling</strong> — formatter, linter, test runner,
+          <li><strong>Ergonomic tooling</strong>: formatter, linter, test runner,
               benchmark runner, and doc generator all ship with the compiler.</li>
-          <li><strong>A single deployable file</strong> — the classic Go pitch:
-              build once, copy the binary, run anywhere.</li>
+          <li><strong>A single deployable file</strong>: the classic Go pitch.
+              Build once, copy the binary, run anywhere.</li>
         </ul>
 
         <p>That's why Go powers so much modern infrastructure: Docker, Kubernetes,
@@ -409,7 +409,7 @@ E8 00 00 00 00
               fuzzy problems into tiny, precise steps. This skill transfers to
               basically everything else.</li>
           <li><strong>Leverage.</strong> A short script can do in seconds what would
-              take a human hours — every week, forever.</li>
+              take a human hours, every week, forever.</li>
           <li><strong>Career optionality.</strong> Software touches every industry;
               coding skills expand what jobs and roles are available to you.</li>
           <li><strong>Creation, not just consumption.</strong> Knowing how software
@@ -425,7 +425,7 @@ E8 00 00 00 00
             <em>change</em> the example and run it again. Reading without typing is
             the single fastest way to convince yourself you understand something
             you don't. Every page in this course has an
-            <strong>Open Go Playground</strong> button — use it.
+            <strong>Open Go Playground</strong> button: use it.
           </div>
         </div>
       </section>
@@ -452,10 +452,10 @@ E8 00 00 00 00
               {
                 "q": "Which category does Go fall into?",
                 "options": [
-                  "Interpreted — the interpreter reads the source each time",
-                  "Compiled — translated ahead of time into a standalone binary",
-                  "Markup — it only describes document structure",
-                  "Query — it's for databases"
+                  "Interpreted, the interpreter reads the source each time",
+                  "Compiled, translated ahead of time into a standalone binary",
+                  "Markup, it only describes document structure",
+                  "Query, it's for databases"
                 ],
                 "answer": 1,
                 "explanation": "Go is compiled. `go build` produces a single self-contained binary you can copy and run without any runtime installed."
@@ -464,7 +464,7 @@ E8 00 00 00 00
                 "q": "Which of these is NOT typically considered a programming language?",
                 "options": ["Go", "Python", "HTML", "Rust"],
                 "answer": 2,
-                "explanation": "HTML is a markup language — it describes the structure of a document. It doesn't express behavior or computations the way programming languages do."
+                "explanation": "HTML is a markup language that describes the structure of a document. It doesn't express behavior or computations the way programming languages do."
               },
               {
                 "q": "Which of the following is a fair trade-off of compiled languages vs interpreted ones?",
@@ -481,7 +481,7 @@ E8 00 00 00 00
                 "q": "Why does Go compile to a single static binary rather than run on a virtual machine like Java?",
                 "options": [
                   "Because CPUs can't run VMs anymore.",
-                  "For simpler deployment — one file runs anywhere compatible, no runtime installation required.",
+                  "For simpler deployment, one file runs anywhere compatible, no runtime installation required.",
                   "Because Go can't do garbage collection.",
                   "To support dynamic typing."
                 ],

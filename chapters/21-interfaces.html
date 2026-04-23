@@ -5,17 +5,17 @@
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chapter 21 · Interfaces — Learn Go by Cyrus Mobini</title>
+  <title>Chapter 21 · Interfaces | Learn Go by Cyrus Mobini</title>
   <meta name="description" content="Go's killer abstraction: implicit interfaces. Implementation is automatic, empty interface is `any`, type assertions + type switches, and the Stringer idiom.">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="Chapter 21 · Interfaces — Learn Go">
+  <meta property="og:title" content="Chapter 21 · Interfaces | Learn Go">
   <meta property="og:description" content="Implicit interfaces, any, type assertions, type switches, Stringer, and best practices.">
   <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
   <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/21-interfaces.html">
-  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta property="og:site_name" content="Learn Go | by Cyrus Mobini">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Chapter 21 · Interfaces — Learn Go">
+  <meta name="twitter:title" content="Chapter 21 · Interfaces | Learn Go">
   <meta name="twitter:description" content="Implicit interfaces, any, type assertions, type switches, Stringer.">
   <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/21-interfaces.html">
@@ -57,7 +57,7 @@
       <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 21 · TYPES &amp; ABSTRACTIONS</div>
       <h1>Interfaces</h1>
       <p>Interfaces are the single most powerful abstraction in Go. They specify
-         <em>behavior</em> — a set of method signatures a type must provide — and
+         <em>behavior</em> (a set of method signatures a type must provide), and
          Go's <em>implicit</em> implementation rule makes them effortless to use.
          If the method set fits, the type "is" the interface. No
          <code>implements</code> keyword, no rigid hierarchy.</p>
@@ -81,14 +81,14 @@
 }
 </code></pre>
 
-        <p>That's it. An interface is a named method set — zero or more
+        <p>That's it. An interface is a named method set with zero or more
            signatures. No fields, no implementations.</p>
       </section>
 
       <section id="implicit">
         <h2>Implicit implementation</h2>
-        <p>A type satisfies an interface simply by having the right methods —
-           you don't declare it, Go checks at compile time:</p>
+        <p>A type satisfies an interface simply by having the right methods.
+           You don't declare it; Go checks at compile time:</p>
 
         <pre><code class="language-go">type Dog struct{ Name string }
 func (d Dog) Speak() string { return "Woof, I'm " + d.Name }
@@ -131,7 +131,7 @@ fmt.Println(totalArea(shapes))
       </section>
 
       <section id="empty">
-        <h2>Empty interface — <code>any</code></h2>
+        <h2>Empty interface: <code>any</code></h2>
         <p>An interface with zero methods is satisfied by every type:</p>
         <pre><code class="language-go">var x any = 42
 x = "hello"
@@ -139,7 +139,7 @@ x = []int{1, 2, 3}
 </code></pre>
 
         <p>As of Go 1.18, <code>any</code> is an alias for
-           <code>interface{}</code>. Use <code>any</code> in new code — it reads
+           <code>interface{}</code>. Use <code>any</code> in new code; it reads
            better.</p>
 
         <div class="callout pitfall">
@@ -157,7 +157,7 @@ x = []int{1, 2, 3}
         <h2>Type assertions</h2>
         <pre><code class="language-go">var i any = "hello"
 
-s := i.(string)               // "hello" — panics if i isn't actually a string
+s := i.(string)               // "hello": panics if i isn't actually a string
 
 s, ok := i.(string)           // safe form: ok is false if wrong type
 if ok {
@@ -208,10 +208,10 @@ func (d Weekday) String() string {
     return []string{"Sun", "Mon", "Tue"}[d]
 }
 
-fmt.Println(Mon)     // Mon — not "1"
+fmt.Println(Mon)     // Mon: not "1"
 </code></pre>
 
-        <p>Also handy: <code>error</code> is literally an interface —
+        <p>Also handy: <code>error</code> is literally an interface,
            <code>type error interface { Error() string }</code>. Chapter 23
            covers that.</p>
       </section>
@@ -225,7 +225,7 @@ fmt.Println(Mon)     // Mon — not "1"
 var i any = p        // interface holding (type=*User, value=nil)
 
 fmt.Println(p == nil)    // true
-fmt.Println(i == nil)    // false — interface is NOT nil
+fmt.Println(i == nil)    // false: interface is NOT nil
 </code></pre>
 
         <p>This trips up nearly every Go programmer at least once. If you
@@ -249,9 +249,9 @@ fmt.Println(i == nil)    // false — interface is NOT nil
           {
             "title": "Quick quiz",
             "questions": [
-              {"q":"How does a type declare it implements an interface in Go?","options":["`implements Interface`","`: Interface`","It doesn't — Go checks implicitly by method set","Via tags"],"answer":2,"explanation":"Go uses structural typing. If a type has the required methods, it satisfies the interface automatically — no declaration needed."},
-              {"q":"What is `any` in Go?","options":["A special nil-capable type","An alias for interface{} (since Go 1.18)","A generic placeholder","A reserved word"],"answer":1,"explanation":"`any` is an alias for the empty interface interface{}. Prefer `any` in new code — it's more readable."},
-              {"q":"How do you safely extract a string from `var v any = \"hi\"`?","options":["v.String()","v.(string)","s, ok := v.(string); if ok { ... }","*string(v)"],"answer":2,"explanation":"The comma-ok form of type assertion is safe — ok is false if v doesn't hold a string. The single-return form panics on mismatch."},
+              {"q":"How does a type declare it implements an interface in Go?","options":["`implements Interface`","`: Interface`","It doesn't, Go checks implicitly by method set","Via tags"],"answer":2,"explanation":"Go uses structural typing. If a type has the required methods, it satisfies the interface automatically, with no declaration needed."},
+              {"q":"What is `any` in Go?","options":["A special nil-capable type","An alias for interface{} (since Go 1.18)","A generic placeholder","A reserved word"],"answer":1,"explanation":"`any` is an alias for the empty interface interface{}. Prefer `any` in new code; it's more readable."},
+              {"q":"How do you safely extract a string from `var v any = \"hi\"`?","options":["v.String()","v.(string)","s, ok := v.(string); if ok { ... }","*string(v)"],"answer":2,"explanation":"The comma-ok form of type assertion is safe: ok is false if v doesn't hold a string. The single-return form panics on mismatch."},
               {"q":"What prints the name of a weekday instead of its int value when you fmt.Println(myDay)?","options":["Override the type's hash","Implement Weekday's String() method (satisfying Stringer)","Annotate with @string","Set GOPRINT=name"],"answer":1,"explanation":"Implementing `String() string` satisfies fmt.Stringer, which fmt uses automatically. This is the Stringer idiom."},
               {"q":"`var p *User = nil; var i any = p; i == nil` evaluates to:","options":["true","false","panic","Compile error"],"answer":1,"explanation":"Interfaces are a (type, value) pair. Even with a nil value, the type component is non-nil (*User), so the interface itself is not nil. Classic Go gotcha."}
             ]
@@ -297,8 +297,8 @@ func describe(s Shape) {
       <section id="further" class="further-reading">
         <h3>Further reading</h3>
         <ul>
-          <li><a href="https://go.dev/tour/methods/9" target="_blank" rel="noopener">Tour of Go — Interfaces</a></li>
-          <li><a href="https://go.dev/doc/effective_go#interfaces" target="_blank" rel="noopener">Effective Go — Interfaces</a></li>
+          <li><a href="https://go.dev/tour/methods/9" target="_blank" rel="noopener">Tour of Go: Interfaces</a></li>
+          <li><a href="https://go.dev/doc/effective_go#interfaces" target="_blank" rel="noopener">Effective Go: Interfaces</a></li>
           <li><a href="https://go.dev/wiki/CodeReviewComments#interfaces" target="_blank" rel="noopener">Interface design conventions</a></li>
         </ul>
       </section>
@@ -306,8 +306,8 @@ func describe(s Shape) {
       <div class="complete-box"><p>Interfaces, Go's superpower.</p><button class="complete-btn" type="button" data-chapter-id="ch-21">✓ Mark this chapter complete</button></div>
 
       <nav class="chapter-nav" aria-label="Chapter navigation">
-        <a class="prev" href="20-methods-receivers.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 20 — Methods &amp; Receivers</div></a>
-        <a class="next" href="22-generics.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 22 — Generics</div></a>
+        <a class="prev" href="20-methods-receivers.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 20: Methods &amp; Receivers</div></a>
+        <a class="next" href="22-generics.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 22: Generics</div></a>
       </nav>
     </main>
   </div>

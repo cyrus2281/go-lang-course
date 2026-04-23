@@ -5,17 +5,17 @@
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chapter 31 · Testing — Learn Go by Cyrus Mobini</title>
+  <title>Chapter 31 · Testing | Learn Go by Cyrus Mobini</title>
   <meta name="description" content="Go's built-in testing package: writing tests, table-driven tests, subtests, helpers, coverage, and httptest for HTTP.">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="Chapter 31 · Testing — Learn Go">
+  <meta property="og:title" content="Chapter 31 · Testing | Learn Go">
   <meta property="og:description" content="testing package, table-driven tests, subtests, coverage, httptest.">
   <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
   <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/31-testing.html">
-  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta property="og:site_name" content="Learn Go | by Cyrus Mobini">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Chapter 31 · Testing — Learn Go">
+  <meta name="twitter:title" content="Chapter 31 · Testing | Learn Go">
   <meta name="twitter:description" content="testing package, table-driven tests, subtests, coverage.">
   <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/31-testing.html">
@@ -106,7 +106,7 @@ func TestAdd(t *testing.T) {
         <h2>Running tests</h2>
         <pre><code class="language-bash">go test .                  # run this package
 go test ./...              # run every package in the module
-go test -v ./...           # verbose — show each test
+go test -v ./...           # verbose: show each test
 go test -run TestAdd .     # run only tests matching regex
 go test -race ./...        # with race detector (Chapter 24)
 go test -timeout 30s ./... # set a timeout
@@ -152,7 +152,7 @@ go test -timeout 30s ./... # set a timeout
       </section>
 
       <section id="helpers">
-        <h2>Test helpers — <code>t.Helper()</code></h2>
+        <h2>Test helpers with <code>t.Helper()</code></h2>
         <pre><code class="language-go">func assertEqual(t *testing.T, got, want any) {
     t.Helper()                  // report errors at the CALL SITE, not inside this func
     if !reflect.DeepEqual(got, want) {
@@ -176,8 +176,8 @@ go test -timeout 30s ./... # set a timeout
 }
 </code></pre>
 
-        <p><code>t.Cleanup</code> is like <code>defer</code> but test-aware —
-           it runs after the test, in LIFO order, even on failure.</p>
+        <p><code>t.Cleanup</code> is like <code>defer</code> but test-aware.
+           It runs after the test, in LIFO order, even on failure.</p>
       </section>
 
       <section id="examples">
@@ -199,13 +199,13 @@ go test -timeout 30s ./... # set a timeout
 go test -coverprofile=cov.out ./...; go tool cover -html=cov.out
 </code></pre>
 
-        <p>The HTML report highlights which lines were executed — green for
+        <p>The HTML report highlights which lines were executed: green for
            covered, red for not. Use it as a diagnostic, not a score (100%
            coverage with bad tests is worse than 60% with good ones).</p>
       </section>
 
       <section id="httptest">
-        <h2>HTTP handler tests — <code>net/http/httptest</code></h2>
+        <h2>HTTP handler tests with <code>net/http/httptest</code></h2>
         <pre><code class="language-go">func TestHello(t *testing.T) {
     req := httptest.NewRequest("GET", "/hello?name=Alice", nil)
     rec := httptest.NewRecorder()
@@ -221,7 +221,7 @@ go test -coverprofile=cov.out ./...; go tool cover -html=cov.out
 }
 </code></pre>
 
-        <p>No real HTTP server required — <code>ResponseRecorder</code> captures
+        <p>No real HTTP server required. <code>ResponseRecorder</code> captures
            the output so you can assert on it. For integration-style tests,
            <code>httptest.NewServer</code> spins up a real listener on a random
            port.</p>
@@ -235,7 +235,7 @@ go test -coverprofile=cov.out ./...; go tool cover -html=cov.out
             "title": "Quick quiz",
             "questions": [
               {"q":"What must a Go test function look like?","options":["Annotate with @Test","Named `TestXxx` with a single `*testing.T` parameter, in a file ending in _test.go","Inherit from TestCase","Return a bool"],"answer":1,"explanation":"Naming and signature are the whole convention. No annotations, no setup files, no framework."},
-              {"q":"t.Errorf vs t.Fatalf?","options":["Identical","Errorf marks the test as failed and continues; Fatalf marks and stops the test","Errorf is silent","Fatalf runs defers"],"answer":1,"explanation":"Errorf keeps running so multiple failures can be reported. Fatalf stops — use when subsequent assertions don't make sense."},
+              {"q":"t.Errorf vs t.Fatalf?","options":["Identical","Errorf marks the test as failed and continues; Fatalf marks and stops the test","Errorf is silent","Fatalf runs defers"],"answer":1,"explanation":"Errorf keeps running so multiple failures can be reported. Fatalf stops, so use it when subsequent assertions don't make sense."},
               {"q":"Why use t.Helper() inside a test assertion helper?","options":["It speeds up tests","It makes failure messages point to the caller, not the helper itself","It's required by Go vet","It hides the helper from coverage"],"answer":1,"explanation":"Without t.Helper(), failure lines in the output point to the helper. With it, they point to the calling test, which is usually what you want."},
               {"q":"Best way to write many variants of the same test?","options":["One test per variant","Table-driven test: a slice of cases, a for loop with t.Run","Nested function calls","Use reflection"],"answer":1,"explanation":"Table-driven tests are idiomatic: each case is a row in the table, t.Run gives each a name and independent pass/fail status."},
               {"q":"How do you test an http.Handler in-process (no real network)?","options":["You can't","Use httptest.NewRecorder + handler(rec, req)","Use net.Dial","Use goroutines"],"answer":1,"explanation":"httptest.NewRecorder implements http.ResponseWriter but captures writes in memory. Perfect for fast, deterministic handler tests."}
@@ -284,8 +284,8 @@ go test -coverprofile=cov.out ./...; go tool cover -html=cov.out
       <div class="complete-box"><p>Tests in the bank.</p><button class="complete-btn" type="button" data-chapter-id="ch-31">✓ Mark this chapter complete</button></div>
 
       <nav class="chapter-nav" aria-label="Chapter navigation">
-        <a class="prev" href="30-net-http.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 30 — net/http</div></a>
-        <a class="next" href="32-benchmarking.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 32 — Benchmarking</div></a>
+        <a class="prev" href="30-net-http.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 30: net/http</div></a>
+        <a class="next" href="32-benchmarking.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 32: Benchmarking</div></a>
       </nav>
     </main>
   </div>
