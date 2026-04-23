@@ -5,17 +5,17 @@
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chapter 14 · Maps — Learn Go by Cyrus Mobini</title>
+  <title>Chapter 14 · Maps | Learn Go by Cyrus Mobini</title>
   <meta name="description" content="Go maps: creation, access, comma-ok, deletion, iteration order, reference semantics, and when to reach for sync.Map.">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="Chapter 14 · Maps — Learn Go">
+  <meta property="og:title" content="Chapter 14 · Maps | Learn Go">
   <meta property="og:description" content="Everything about Go maps: comma-ok, random iteration, zero values, sync.Map.">
   <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
   <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/14-maps.html">
-  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta property="og:site_name" content="Learn Go | by Cyrus Mobini">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Chapter 14 · Maps — Learn Go">
+  <meta name="twitter:title" content="Chapter 14 · Maps | Learn Go">
   <meta name="twitter:description" content="comma-ok, random iteration, zero values, sync.Map.">
   <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/14-maps.html">
@@ -73,7 +73,7 @@
 
       <section id="create">
         <h2>Creating maps</h2>
-        <pre><code class="language-go">// Literal — most common
+        <pre><code class="language-go">// Literal, most common
 m := map[string]int{
     "Alice": 30,
     "Bob":   25,
@@ -97,7 +97,7 @@ fmt.Println(m["Alice"])  // 30
 
         <p>If the key isn't in the map, Go returns the <strong>zero value</strong>
            of the value type. This is subtle and a common source of bugs:</p>
-        <pre><code class="language-go">fmt.Println(m["Nobody"])  // 0  — but that could also mean "0 years old"!
+        <pre><code class="language-go">fmt.Println(m["Nobody"])  // 0 , but that could also mean "0 years old"!
 </code></pre>
       </section>
 
@@ -120,7 +120,7 @@ if ok {
         <pre><code class="language-go">delete(m, "Bob")
 </code></pre>
         <p><code>delete</code> is a built-in function. It's safe to call even if
-           the key isn't in the map — no-op.</p>
+           the key isn't in the map, no-op.</p>
       </section>
 
       <section id="iterate">
@@ -145,7 +145,7 @@ if ok {
       <section id="nil">
         <h2>The nil-map trap</h2>
         <pre><code class="language-go">var m map[string]int       // nil map
-fmt.Println(m["x"])         // 0 — READ is fine
+fmt.Println(m["x"])         // 0, READ is fine
 m["x"] = 1                  // PANIC: assignment to entry in nil map
 </code></pre>
 
@@ -165,7 +165,7 @@ m["x"] = 1                  // PANIC: assignment to entry in nil map
         <pre><code class="language-go">a := map[string]int{"x": 1}
 b := a
 b["y"] = 2
-fmt.Println(a)          // map[x:1 y:2]  — shared
+fmt.Println(a)          // map[x:1 y:2] , shared
 </code></pre>
 
         <p>Like slices, maps are effectively a handle to shared storage.
@@ -181,7 +181,7 @@ fmt.Println(a)          // map[x:1 y:2]  — shared
         <p>Options for concurrent maps:</p>
         <ul>
           <li>Guard with a <code>sync.RWMutex</code> (most common).</li>
-          <li><code>sync.Map</code> — a specialized concurrent map in the stdlib. Good for "append-only" or "many readers, few writers" patterns.</li>
+          <li><code>sync.Map</code>: a specialized concurrent map in the stdlib. Good for "append-only" or "many readers, few writers" patterns.</li>
           <li>Actor pattern: one goroutine owns the map, others send requests via a channel.</li>
         </ul>
 
@@ -199,7 +199,7 @@ fmt.Println(a)          // map[x:1 y:2]  — shared
               {"q":"Why does iterating a map give different orders on different runs?","options":["Go uses a linked list","The Go runtime deliberately randomizes iteration order","Maps are sorted by hash","Undefined behavior"],"answer":1,"explanation":"Go randomizes the starting index to discourage code from depending on iteration order. Sort keys when you need determinism."},
               {"q":"What happens if you write to a nil map?","options":["The map is created automatically","The write is silently ignored","Panic: assignment to entry in nil map","The value is discarded"],"answer":2,"explanation":"Writing to a nil map panics. Always initialize with make() or a literal before writing. Reads from a nil map return the zero value and don't panic."},
               {"q":"Which of these types can NOT be a map key?","options":["string","int","[3]int (array)","[]int (slice)"],"answer":3,"explanation":"Keys must be comparable with ==. Slices, maps, and functions aren't comparable, so they can't be keys. Arrays of comparable types are fine."},
-              {"q":"What does `delete(m, \"absent\")` do when the key isn't in the map?","options":["Panics","Returns an error","Nothing — it's a safe no-op","Creates the key"],"answer":2,"explanation":"delete silently does nothing if the key isn't present. You don't need to check first."}
+              {"q":"What does `delete(m, \"absent\")` do when the key isn't in the map?","options":["Panics","Returns an error","Nothing, it's a safe no-op","Creates the key"],"answer":2,"explanation":"delete silently does nothing if the key isn't present. You don't need to check first."}
             ]
           }
           </script>
@@ -256,17 +256,17 @@ func printSorted(m map[string]int) {
       <section id="further" class="further-reading">
         <h3>Further reading</h3>
         <ul>
-          <li><a href="https://go.dev/blog/maps" target="_blank" rel="noopener">The Go Blog — Go maps in action</a></li>
+          <li><a href="https://go.dev/blog/maps" target="_blank" rel="noopener">The Go Blog, Go maps in action</a></li>
           <li><a href="https://pkg.go.dev/sync#Map" target="_blank" rel="noopener"><code>sync.Map</code> reference</a></li>
-          <li><a href="https://pkg.go.dev/maps" target="_blank" rel="noopener"><code>maps</code> package</a> — Go 1.21+ helpers (Clone, Copy, Keys, Values, Equal)</li>
+          <li><a href="https://pkg.go.dev/maps" target="_blank" rel="noopener"><code>maps</code> package</a>: Go 1.21+ helpers (Clone, Copy, Keys, Values, Equal)</li>
         </ul>
       </section>
 
       <div class="complete-box"><p>Hashes done.</p><button class="complete-btn" type="button" data-chapter-id="ch-14">✓ Mark this chapter complete</button></div>
 
       <nav class="chapter-nav" aria-label="Chapter navigation">
-        <a class="prev" href="13-slices.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 13 — Slices</div></a>
-        <a class="next" href="15-structs.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 15 — Structs &amp; Embedding</div></a>
+        <a class="prev" href="13-slices.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 13: Slices</div></a>
+        <a class="next" href="15-structs.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 15: Structs &amp; Embedding</div></a>
       </nav>
     </main>
   </div>

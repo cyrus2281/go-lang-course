@@ -5,17 +5,17 @@
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chapter 25 · Channels &amp; select — Learn Go by Cyrus Mobini</title>
+  <title>Chapter 25 · Channels &amp; select | Learn Go by Cyrus Mobini</title>
   <meta name="description" content="Typed pipes between goroutines. Buffered vs unbuffered, select, closing, direction, fan-in/fan-out patterns, deadlocks.">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="Chapter 25 · Channels &amp; select — Learn Go">
+  <meta property="og:title" content="Chapter 25 · Channels &amp; select | Learn Go">
   <meta property="og:description" content="Channels, select, buffered vs unbuffered, direction, fan-in/fan-out, deadlocks.">
   <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
   <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/25-channels.html">
-  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta property="og:site_name" content="Learn Go | by Cyrus Mobini">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Chapter 25 · Channels &amp; select — Learn Go">
+  <meta name="twitter:title" content="Chapter 25 · Channels &amp; select | Learn Go">
   <meta name="twitter:description" content="Channels, select, patterns, deadlocks.">
   <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/25-channels.html">
@@ -104,12 +104,12 @@ fmt.Println(msg)
         <pre><code class="language-go">ch := make(chan int, 3)
 ch <- 1
 ch <- 2
-ch <- 3          // no blocking — buffer has room
+ch <- 3          // no blocking, buffer has room
 // ch <- 4       // THIS would block until a receive happens
 fmt.Println(&lt;-ch, &lt;-ch, &lt;-ch)    // 1 2 3
 </code></pre>
 
-        <p>Buffers decouple producer and consumer timing. Use sparingly — a big
+        <p>Buffers decouple producer and consumer timing. Use sparingly; a big
            buffer often indicates a design smell.</p>
       </section>
 
@@ -151,7 +151,7 @@ for v := range ch {
       <section id="direction">
         <h2>Channel direction</h2>
         <p>You can constrain a channel parameter to be send-only or receive-only
-           — a powerful safety mechanism:</p>
+          , a powerful safety mechanism:</p>
 
         <pre><code class="language-go">func producer(out chan<- int)    { out <- 1 }       // send-only
 func consumer(in  <-chan int) int{ return <-in }    // receive-only
@@ -164,7 +164,7 @@ fmt.Println(consumer(ch))
 
       <section id="select">
         <h2><code>select</code></h2>
-        <p><code>select</code> waits on multiple channel operations — whichever
+        <p><code>select</code> waits on multiple channel operations, whichever
            is ready first wins:</p>
 
         <pre><code class="language-go">select {
@@ -254,9 +254,9 @@ ch <- 1   // fatal error: all goroutines are asleep - deadlock!
             "title": "Quick quiz",
             "questions": [
               {"q":"What's the difference between a buffered and unbuffered channel?","options":["Unbuffered is faster","Unbuffered: send blocks until a receive is ready (synchronous handoff). Buffered: send blocks only when the buffer is full.","Buffered channels don't support close","Unbuffered can't be used with select"],"answer":1,"explanation":"Unbuffered channels synchronize sender and receiver. Buffered channels allow up to `cap` sends before blocking."},
-              {"q":"Who should close a channel?","options":["The receiver","The sender (or the last sender if there are many)","Both","Neither — channels auto-close"],"answer":1,"explanation":"Only senders should close. Closing tells receivers \"no more values coming\". Sending on a closed channel panics. Never close from the receive side."},
+              {"q":"Who should close a channel?","options":["The receiver","The sender (or the last sender if there are many)","Both","Neither, channels auto-close"],"answer":1,"explanation":"Only senders should close. Closing tells receivers \"no more values coming\". Sending on a closed channel panics. Never close from the receive side."},
               {"q":"What does `for v := range ch { ... }` do?","options":["Iterates ch infinitely","Reads from ch until it's closed and drained, then exits","Iterates any channel type","Reads exactly N values"],"answer":1,"explanation":"Range over a channel receives until the channel is closed and empty. It's the idiomatic way to consume all values from a producer that closes when done."},
-              {"q":"What does `select` do?","options":["Waits on multiple channel operations and runs whichever case is ready first","Chooses randomly between goroutines","Applies filters to a channel","Opens a switch statement"],"answer":0,"explanation":"select blocks on multiple channel ops at once — the first case that can proceed fires. If multiple are ready, one is picked at random (deliberately fair)."},
+              {"q":"What does `select` do?","options":["Waits on multiple channel operations and runs whichever case is ready first","Chooses randomly between goroutines","Applies filters to a channel","Opens a switch statement"],"answer":0,"explanation":"select blocks on multiple channel ops at once, the first case that can proceed fires. If multiple are ready, one is picked at random (deliberately fair)."},
               {"q":"Fatal error: all goroutines are asleep - deadlock. Likely cause?","options":["OS is out of memory","Your goroutines are blocked on channel operations with no one to satisfy them","Too many goroutines","Network failure"],"answer":1,"explanation":"Go detects when every goroutine is blocked and no progress is possible. Usual culprits: send with no receiver, receive with no sender, or forgetting to close before a range loop."}
             ]
           }
@@ -314,8 +314,8 @@ func main() {
       <section id="further" class="further-reading">
         <h3>Further reading</h3>
         <ul>
-          <li><a href="https://go.dev/tour/concurrency/2" target="_blank" rel="noopener">Tour of Go — Channels</a></li>
-          <li><a href="https://go.dev/blog/pipelines" target="_blank" rel="noopener">Go concurrency patterns — pipelines and cancellation</a></li>
+          <li><a href="https://go.dev/tour/concurrency/2" target="_blank" rel="noopener">Tour of Go, Channels</a></li>
+          <li><a href="https://go.dev/blog/pipelines" target="_blank" rel="noopener">Go concurrency patterns, pipelines and cancellation</a></li>
           <li><a href="https://go.dev/blog/codelab-share" target="_blank" rel="noopener">Share Memory by Communicating</a></li>
         </ul>
       </section>
@@ -323,8 +323,8 @@ func main() {
       <div class="complete-box"><p>Channels mastered.</p><button class="complete-btn" type="button" data-chapter-id="ch-25">✓ Mark this chapter complete</button></div>
 
       <nav class="chapter-nav" aria-label="Chapter navigation">
-        <a class="prev" href="24-goroutines.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 24 — Goroutines</div></a>
-        <a class="next" href="26-context.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 26 — Context</div></a>
+        <a class="prev" href="24-goroutines.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 24: Goroutines</div></a>
+        <a class="next" href="26-context.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 26: Context</div></a>
       </nav>
     </main>
   </div>

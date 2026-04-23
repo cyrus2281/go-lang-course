@@ -5,20 +5,20 @@
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chapter 2 · The Story of Go — Learn Go by Cyrus Mobini</title>
+  <title>Chapter 2 · The Story of Go | Learn Go by Cyrus Mobini</title>
   <meta name="description" content="Why Go was created at Google in 2007, who built it, what problems it set out to solve, and the modern infrastructure it powers today.">
 
   <meta property="og:type" content="article">
-  <meta property="og:title" content="Chapter 2 · The Story of Go — Learn Go">
+  <meta property="og:title" content="Chapter 2 · The Story of Go | Learn Go">
   <meta property="og:description" content="Why Go was created at Google, what problems it solves, and the infrastructure it now powers.">
   <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/02-story-of-go.html">
-  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta property="og:site_name" content="Learn Go | by Cyrus Mobini">
 
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Chapter 2 · The Story of Go — Learn Go">
+  <meta name="twitter:title" content="Chapter 2 · The Story of Go | Learn Go">
   <meta name="twitter:description" content="Why Go was created at Google, what problems it solves, and the infrastructure it now powers.">
   <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
 
@@ -85,11 +85,11 @@
            engineers with serious systems pedigree:</p>
 
         <ul>
-          <li><strong>Robert Griesemer</strong> — co-designed the V8 JavaScript
+          <li><strong>Robert Griesemer</strong>: co-designed the V8 JavaScript
               engine and Java HotSpot's compiler.</li>
-          <li><strong>Rob Pike</strong> — co-creator of Plan 9 and UTF-8, long-time
+          <li><strong>Rob Pike</strong>: co-creator of Plan 9 and UTF-8, long-time
               member of the original Unix team at Bell Labs.</li>
-          <li><strong>Ken Thompson</strong> — co-author of Unix itself, co-creator
+          <li><strong>Ken Thompson</strong>: co-author of Unix itself, co-creator
               of the B language (a precursor to C), Turing Award winner.</li>
         </ul>
 
@@ -142,7 +142,7 @@
             <span class="callout-title">The original sketch</span>
             Pike has told the story that the idea coalesced while waiting on a
             massive C++ build. Go's near-instant compilation was the first feature
-            on the wishlist — and it remains true today: even large Go projects
+            on the wishlist, and it remains true today: even large Go projects
             typically rebuild in seconds.
           </div>
         </div>
@@ -156,7 +156,7 @@
 
         <ul>
           <li><strong>Simple, readable syntax</strong>. The language spec is short
-              by design. Fewer features means fewer ways to write something — code
+              by design. Fewer features means fewer ways to write something, code
               looks similar across teams and projects.</li>
           <li><strong>Fast compilation</strong>. Even big repos build in seconds.</li>
           <li><strong>Statically typed, garbage collected</strong>. You get the
@@ -164,14 +164,14 @@
           <li><strong>First-class concurrency</strong>. The <code>go</code> keyword
               and channels are part of the language, not bolt-on libraries.</li>
           <li><strong>Excellent standard library</strong>. HTTP servers, JSON,
-              templating, crypto, archives, testing — all in the box.</li>
+              templating, crypto, archives, testing: all in the box.</li>
           <li><strong>Single binary deployment</strong>. <code>go build</code>
               produces one self-contained executable. No runtime to install on
               the target machine.</li>
           <li><strong>Cross-compilation</strong>. Build a Linux binary from your
               Mac with one environment variable.</li>
           <li><strong>Tooling included</strong>. Formatter, vet, test runner,
-              benchmark runner, doc tool, race detector — all ship with the
+              benchmark runner, doc tool, race detector: all ship with the
               compiler.</li>
         </ul>
       </section>
@@ -277,7 +277,7 @@
         <ul>
           <li><strong>No inheritance.</strong> Composition (embedding) is preferred. You'll see this in Chapter 15.</li>
           <li><strong>No exceptions.</strong> Errors are values returned from functions. (Chapter 23.)</li>
-          <li><strong>No generics</strong> — until 2022, when they were added very carefully (Chapter 22).</li>
+          <li><strong>No generics</strong>: until 2022, when they were added very carefully (Chapter 22).</li>
           <li><strong>One canonical formatting</strong> via <code>gofmt</code>. There are no style debates in Go projects, because there's no style choice. (Chapter 19.)</li>
           <li><strong>Unused imports and variables are compile errors.</strong> Annoying at first, valuable forever.</li>
           <li><strong>The standard library is enough for most things.</strong> You can build a real web server with zero third-party dependencies.</li>
@@ -331,7 +331,7 @@
                   "Adding object-oriented inheritance to systems languages"
                 ],
                 "answer": 3,
-                "explanation": "Go deliberately omits classical inheritance — it favors composition and interfaces. The pain points it set out to fix were build speed, dependency management, and concurrency."
+                "explanation": "Go deliberately omits classical inheritance, it favors composition and interfaces. The pain points it set out to fix were build speed, dependency management, and concurrency."
               },
               {
                 "q": "What does Go's 'compatibility promise' (Go 1) mean in practice?",
@@ -354,12 +354,12 @@
                 "q": "Why does Go produce a single static binary by default?",
                 "options": [
                   "Because it can't link to libraries.",
-                  "To make deployment trivial — no runtime, JVM, or interpreter needed on the target machine.",
+                  "To make deployment trivial, no runtime, JVM, or interpreter needed on the target machine.",
                   "Because static binaries are required by the language spec.",
                   "Because dynamic linking is impossible on Linux."
                 ],
                 "answer": 1,
-                "explanation": "A static binary is just a file you copy. This dramatically simplifies shipping software, especially for cloud and CLI tooling — which is why Go dominates that niche."
+                "explanation": "A static binary is just a file you copy. This dramatically simplifies shipping software, especially for cloud and CLI tooling, which is why Go dominates that niche."
               }
             ]
           }
@@ -382,15 +382,15 @@
                your daily life (Docker, your CLI tools, your favorite static-site
                generator, your VPN, your CI provider, your monitoring stack…) and
                find at least two that are written in Go.</p>
-            <p>Goal: realize that you're not just learning a language — you're
+            <p>Goal: realize that you're not just learning a language, you're
                learning the <em>de facto</em> language of modern infrastructure.</p>
           </div>
           <details class="exercise-solution">
             <summary>Tips on where to look</summary>
             <ul>
-              <li>Open your <code>~/Applications</code> or <code>/usr/local/bin</code> — anything from Docker, Hugo, kubectl, Helm, Tailscale, Syncthing, gh (GitHub CLI), terraform, vault, consul is Go.</li>
-              <li>Look at your CI/CD: GitHub Actions runners, Drone, Concourse — Go.</li>
-              <li>Check your servers: Caddy, Traefik, NATS — Go.</li>
+              <li>Open your <code>~/Applications</code> or <code>/usr/local/bin</code>: anything from Docker, Hugo, kubectl, Helm, Tailscale, Syncthing, gh (GitHub CLI), terraform, vault, consul is Go.</li>
+              <li>Look at your CI/CD: GitHub Actions runners, Drone, Concourse, Go.</li>
+              <li>Check your servers: Caddy, Traefik, NATS. All Go.</li>
               <li>Most cloud-vendor CLIs (<code>aws</code>, <code>gcloud</code>, <code>az</code>) have major components in Go.</li>
             </ul>
           </details>
@@ -405,17 +405,16 @@
             <p>Imagine a coworker asks: "Why are you learning Go instead of
                Python / Rust / Java?" Write a one-sentence answer based on what
                you learned in this chapter. The constraint: keep it under 25 words
-               and avoid empty buzzwords ("modern", "powerful", "scalable" —
-               nope).</p>
+               and avoid empty buzzwords (no "modern", "powerful", or "scalable").</p>
           </div>
           <details class="exercise-solution">
             <summary>A few sample answers</summary>
             <ul>
               <li>"It compiles to a single static binary, has built-in concurrency, and forces my whole team to write code that looks the same."</li>
-              <li>"It's the language Kubernetes, Docker, and most cloud infra are written in — and it builds in seconds, not minutes."</li>
+              <li>"It's the language Kubernetes, Docker, and most cloud infra are written in, and it builds in seconds, not minutes."</li>
               <li>"I want C-level deployment simplicity without the C-level footguns or compile times."</li>
             </ul>
-            <p>Yours is probably better than these — the point of the exercise is
+            <p>Yours is probably better than these, the point of the exercise is
                to make sure you've internalized <em>why</em>, not which exact words you use.</p>
           </details>
         </div>
@@ -425,10 +424,10 @@
       <section id="further" class="further-reading">
         <h3>Further reading</h3>
         <ul>
-          <li><a href="https://go.dev/talks/2012/splash.article" target="_blank" rel="noopener">Rob Pike — Go at Google: Language Design in the Service of Software Engineering</a></li>
-          <li><a href="https://go.dev/doc/go1compat" target="_blank" rel="noopener">Go 1 and the Future of Go Programs</a> — the compatibility promise itself.</li>
-          <li><a href="https://go-proverbs.github.io/" target="_blank" rel="noopener">Go Proverbs</a> — Pike's pithy distillation of Go's philosophy.</li>
-          <li><a href="https://github.com/avelino/awesome-go" target="_blank" rel="noopener">Awesome Go</a> — community-curated list of notable Go libraries and projects.</li>
+          <li><a href="https://go.dev/talks/2012/splash.article" target="_blank" rel="noopener">Rob Pike, Go at Google: Language Design in the Service of Software Engineering</a></li>
+          <li><a href="https://go.dev/doc/go1compat" target="_blank" rel="noopener">Go 1 and the Future of Go Programs</a>: the compatibility promise itself.</li>
+          <li><a href="https://go-proverbs.github.io/" target="_blank" rel="noopener">Go Proverbs</a>: Pike's pithy distillation of Go's philosophy.</li>
+          <li><a href="https://github.com/avelino/awesome-go" target="_blank" rel="noopener">Awesome Go</a>: community-curated list of notable Go libraries and projects.</li>
         </ul>
       </section>
 
@@ -440,11 +439,11 @@
       <nav class="chapter-nav" aria-label="Chapter navigation">
         <a class="prev" href="01-what-is-coding.html">
           <div class="nav-label">Previous</div>
-          <div class="nav-title">Chapter 1 — What is Coding?</div>
+          <div class="nav-title">Chapter 1: What is Coding?</div>
         </a>
         <a class="next" href="03-installation.html">
           <div class="nav-label">Next</div>
-          <div class="nav-title">Chapter 3 — Installing Go</div>
+          <div class="nav-title">Chapter 3: Installing Go</div>
         </a>
       </nav>
     </main>

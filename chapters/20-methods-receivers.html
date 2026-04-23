@@ -5,17 +5,17 @@
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chapter 20 · Methods &amp; Receivers — Learn Go by Cyrus Mobini</title>
+  <title>Chapter 20 · Methods &amp; Receivers | Learn Go by Cyrus Mobini</title>
   <meta name="description" content="Methods on named types, value vs pointer receivers, method sets, type definitions, type aliases. Where Go does its OOP-ish thing.">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="Chapter 20 · Methods &amp; Receivers — Learn Go">
+  <meta property="og:title" content="Chapter 20 · Methods &amp; Receivers | Learn Go">
   <meta property="og:description" content="Defining methods, value vs pointer receivers, method sets, named types and aliases.">
   <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
   <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/20-methods-receivers.html">
-  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta property="og:site_name" content="Learn Go | by Cyrus Mobini">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Chapter 20 · Methods &amp; Receivers — Learn Go">
+  <meta name="twitter:title" content="Chapter 20 · Methods &amp; Receivers | Learn Go">
   <meta name="twitter:description" content="Methods, value vs pointer receivers, method sets, type definitions.">
   <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/20-methods-receivers.html">
@@ -39,7 +39,7 @@
         <li><a href="#aliases">Type aliases</a></li>
         <li><a href="#non-struct">Methods on non-struct types</a></li>
         <li><a href="#embedding">Methods through embedding</a></li>
-        <li><a href="#decision">Picking a receiver — decision guide</a></li>
+        <li><a href="#decision">Picking a receiver, decision guide</a></li>
         <li><a href="#quiz">Quiz</a></li>
         <li><a href="#exercises">Exercises</a></li>
         <li><a href="#further">Further reading</a></li>
@@ -56,7 +56,7 @@
       <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 20 · TYPES &amp; ABSTRACTIONS</div>
       <h1>Methods &amp; Receivers</h1>
       <p>A <strong>method</strong> is a function with a special <em>receiver</em>
-         argument, attaching behavior to a named type. Go has no classes —
+         argument, attaching behavior to a named type. Go has no classes;
          methods are how you give types behavior. This chapter also covers
          <em>type definitions</em> and <em>type aliases</em>, which are how you
          create the named types you'll attach methods to.</p>
@@ -102,13 +102,13 @@ func (c *Counter) Inc()        { c.n++ }   // mutates the original
 func main() {
     c := Counter{}
     c.IncByValue()
-    fmt.Println(c.n)     // 0  — the copy was incremented, not c
+    fmt.Println(c.n)     // 0 , the copy was incremented, not c
     c.Inc()
-    fmt.Println(c.n)     // 1  — pointer receiver mutated c
+    fmt.Println(c.n)     // 1 : pointer receiver mutated c
 }
 </code></pre>
 
-        <p>Notice you call <code>c.Inc()</code>, not <code>(&amp;c).Inc()</code> —
+        <p>Notice you call <code>c.Inc()</code>, not <code>(&amp;c).Inc()</code>.
            Go automatically takes the address of an addressable value when calling
            a pointer-receiver method.</p>
       </section>
@@ -129,8 +129,8 @@ func main() {
 type T struct{}
 func (t *T) String() string { return "T" }
 
-var _ Stringer = &amp;T{}     // ✓ — *T satisfies Stringer
-// var _ Stringer = T{}    // ❌ — T does NOT (only *T's method set has String)
+var _ Stringer = &amp;T{}     // ✓, *T satisfies Stringer
+// var _ Stringer = T{}    // ❌: T does NOT (only *T's method set has String)
 </code></pre>
       </section>
 
@@ -151,7 +151,7 @@ fmt.Println(c.ToFahrenheit())     // 212
 </code></pre>
 
         <p>Even though <code>Celsius</code> and <code>Fahrenheit</code> have
-           the same underlying type, the compiler won't let you mix them — the
+           the same underlying type, the compiler won't let you mix them, the
            type system prevents accidental temperature confusion.</p>
 
         <pre><code class="language-go">var x Celsius = 100
@@ -174,7 +174,7 @@ type rune = int32     // built-in alias
         <div class="callout pitfall">
           <div class="ico">!</div>
           <div>
-            <span class="callout-title">Definition vs alias — the equals sign</span>
+            <span class="callout-title">Definition vs alias, the equals sign</span>
             <code>type X Y</code> = new type. <code>type X = Y</code> = alias.
             One character, very different behavior.
           </div>
@@ -194,7 +194,7 @@ fmt.Println(w.JoinComma())    // Go, Rust, Zig
 </code></pre>
 
         <p>Methods can be attached to any type defined in the same package.
-           You can't attach methods to types from other packages — define your
+           You can't attach methods to types from other packages, define your
            own type wrapping it first.</p>
       </section>
 
@@ -212,7 +212,7 @@ type Dog struct {
 }
 
 d := Dog{Animal: Animal{Name: "Buddy"}, Breed: "Husky"}
-fmt.Println(d.Speak())     // Hi, I'm Buddy — promoted from Animal
+fmt.Println(d.Speak())     // Hi, I'm Buddy, promoted from Animal
 </code></pre>
 
         <p>This is how Go does code reuse without inheritance. <code>Dog</code>
@@ -220,7 +220,7 @@ fmt.Println(d.Speak())     // Hi, I'm Buddy — promoted from Animal
       </section>
 
       <section id="decision">
-        <h2>Picking a receiver — decision guide</h2>
+        <h2>Picking a receiver, decision guide</h2>
         <ul>
           <li><strong>Pointer receiver if</strong>: the method modifies the receiver, or the type contains a sync primitive (<code>sync.Mutex</code>) that mustn't be copied, or the type is large.</li>
           <li><strong>Value receiver if</strong>: the type is small (basic types, small structs) and the method only reads.</li>
@@ -235,11 +235,11 @@ fmt.Println(d.Speak())     // Hi, I'm Buddy — promoted from Animal
           {
             "title": "Quick quiz",
             "questions": [
-              {"q":"What's the difference between `type X Y` and `type X = Y`?","options":["No difference","The first creates a new type; the second is an alias for Y","The second is faster","The first is exported"],"answer":1,"explanation":"`type X Y` defines a new distinct type. `type X = Y` is an alias — X and Y are the same type. You can attach methods to a definition but not to an alias."},
-              {"q":"Given `func (c *Counter) Inc()`, can you call `c.Inc()` if c is a Counter (value, not pointer)?","options":["No","Yes — Go automatically takes the address","Only inside the same package","Only if Counter is exported"],"answer":1,"explanation":"For an addressable value, Go automatically takes its address when calling a pointer-receiver method. So c.Inc() is sugar for (&c).Inc()."},
+              {"q":"What's the difference between `type X Y` and `type X = Y`?","options":["No difference","The first creates a new type; the second is an alias for Y","The second is faster","The first is exported"],"answer":1,"explanation":"`type X Y` defines a new distinct type. `type X = Y` is an alias, X and Y are the same type. You can attach methods to a definition but not to an alias."},
+              {"q":"Given `func (c *Counter) Inc()`, can you call `c.Inc()` if c is a Counter (value, not pointer)?","options":["No","Yes, Go automatically takes the address","Only inside the same package","Only if Counter is exported"],"answer":1,"explanation":"For an addressable value, Go automatically takes its address when calling a pointer-receiver method. So c.Inc() is sugar for (&c).Inc()."},
               {"q":"You have `func (t *T) Foo()`. Which method set includes Foo?","options":["T's","*T's","Both","Neither"],"answer":1,"explanation":"Only *T's method set includes pointer-receiver methods. T's method set has only value-receiver methods. This matters for interface satisfaction."},
-              {"q":"If you define `type Celsius float64`, can you assign a float64 to a Celsius variable directly?","options":["Yes — same underlying type","No — need explicit Celsius(x) conversion","Only with iota","Only as a return value"],"answer":1,"explanation":"Despite identical underlying types, named types are distinct from their base — you must convert explicitly. This is the whole point: prevents accidental mixing."},
-              {"q":"What's the recommended convention for choosing receiver type?","options":["Always value","Always pointer","Pointer if you mutate or the type is large; value for small read-only types — and be consistent across all methods","Whichever the linter says"],"answer":2,"explanation":"Use a pointer when you need to mutate or avoid copying a large struct. Use value for small immutable-feeling types. Above all, be consistent across one type's methods."}
+              {"q":"If you define `type Celsius float64`, can you assign a float64 to a Celsius variable directly?","options":["Yes, same underlying type","No, need explicit Celsius(x) conversion","Only with iota","Only as a return value"],"answer":1,"explanation":"Despite identical underlying types, named types are distinct from their base, you must convert explicitly. This is the whole point: prevents accidental mixing."},
+              {"q":"What's the recommended convention for choosing receiver type?","options":["Always value","Always pointer","Pointer if you mutate or the type is large; value for small read-only types, and be consistent across all methods","Whichever the linter says"],"answer":2,"explanation":"Use a pointer when you need to mutate or avoid copying a large struct. Use value for small immutable-feeling types. Above all, be consistent across one type's methods."}
             ]
           }
           </script>
@@ -259,7 +259,7 @@ func (m Money) Dollars() float64        { return float64(m) / 100 }
 func (m Money) Add(o Money) Money       { return m + o }
 func (m Money) String() string          { return fmt.Sprintf("$%.2f", m.Dollars()) }
 </code></pre>
-          <p>Defining a <code>String() string</code> method means <code>fmt</code> uses it automatically (this is the <code>Stringer</code> interface — Chapter 21).</p>
+          <p>Defining a <code>String() string</code> method means <code>fmt</code> uses it automatically (this is the <code>Stringer</code> interface, Chapter 21).</p>
           </details>
         </div>
       </section>
@@ -267,16 +267,16 @@ func (m Money) String() string          { return fmt.Sprintf("$%.2f", m.Dollars(
       <section id="further" class="further-reading">
         <h3>Further reading</h3>
         <ul>
-          <li><a href="https://go.dev/tour/methods/1" target="_blank" rel="noopener">Tour of Go — Methods and interfaces</a></li>
+          <li><a href="https://go.dev/tour/methods/1" target="_blank" rel="noopener">Tour of Go, Methods and interfaces</a></li>
           <li><a href="https://go.dev/wiki/CodeReviewComments#receiver-type" target="_blank" rel="noopener">Receiver type guidelines</a></li>
         </ul>
       </section>
 
-      <div class="complete-box"><p>Behavior on types — done.</p><button class="complete-btn" type="button" data-chapter-id="ch-20">✓ Mark this chapter complete</button></div>
+      <div class="complete-box"><p>Behavior on types, done.</p><button class="complete-btn" type="button" data-chapter-id="ch-20">✓ Mark this chapter complete</button></div>
 
       <nav class="chapter-nav" aria-label="Chapter navigation">
-        <a class="prev" href="19-naming-and-style.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 19 — Naming &amp; Style</div></a>
-        <a class="next" href="21-interfaces.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 21 — Interfaces</div></a>
+        <a class="prev" href="19-naming-and-style.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 19: Naming &amp; Style</div></a>
+        <a class="next" href="21-interfaces.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 21: Interfaces</div></a>
       </nav>
     </main>
   </div>

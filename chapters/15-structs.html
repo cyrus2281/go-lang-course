@@ -5,17 +5,17 @@
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chapter 15 · Structs &amp; Embedding — Learn Go by Cyrus Mobini</title>
+  <title>Chapter 15 · Structs &amp; Embedding | Learn Go by Cyrus Mobini</title>
   <meta name="description" content="Define custom types with struct. Field access, nested and anonymous structs, embedded fields (Go's composition), struct tags, and equality.">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="Chapter 15 · Structs &amp; Embedding — Learn Go">
+  <meta property="og:title" content="Chapter 15 · Structs &amp; Embedding | Learn Go">
   <meta property="og:description" content="Go's custom types: fields, embedding, tags, comparison.">
   <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
   <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/15-structs.html">
-  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta property="og:site_name" content="Learn Go | by Cyrus Mobini">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Chapter 15 · Structs &amp; Embedding — Learn Go">
+  <meta name="twitter:title" content="Chapter 15 · Structs &amp; Embedding | Learn Go">
   <meta name="twitter:description" content="Go's custom types: fields, embedding, tags, comparison.">
   <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/15-structs.html">
@@ -56,7 +56,7 @@
       <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 15 · COMPOSITE TYPES</div>
       <h1>Structs &amp; Embedding</h1>
       <p>A <code>struct</code> is a named group of fields. It's how Go builds
-         domain types — <code>User</code>, <code>Order</code>, <code>Request</code>,
+         domain types, <code>User</code>, <code>Order</code>, <code>Request</code>,
          anything with multiple attributes. Structs replace "classes" from
          object-oriented languages, but with a simpler, composition-first mindset.</p>
 
@@ -79,7 +79,7 @@
 }
 </code></pre>
         <p>Conventions: capitalize field names to <em>export</em> them (visible
-           outside the package — Chapter 18). Keep related fields together.</p>
+           outside the package, Chapter 18). Keep related fields together.</p>
       </section>
 
       <section id="init">
@@ -87,13 +87,13 @@
         <pre><code class="language-go">// Zero value
 var p Person              // {Name:"" Age:0}
 
-// Named fields (PREFERRED — survives refactors)
+// Named fields (PREFERRED, survives refactors)
 p := Person{Name: "Alice", Age: 30}
 
-// Positional (fragile — avoid in production code)
+// Positional (fragile, avoid in production code)
 p := Person{"Alice", 30}
 
-// Partial — other fields get zero values
+// Partial, other fields get zero values
 p := Person{Name: "Alice"}
 </code></pre>
       </section>
@@ -105,9 +105,9 @@ fmt.Println(p.Name)       // Alice
 p.Age++                    // 31
 </code></pre>
 
-        <p>Access works through both values and pointers — Go auto-dereferences:</p>
+        <p>Access works through both values and pointers, Go auto-dereferences:</p>
         <pre><code class="language-go">pp := &amp;p
-fmt.Println(pp.Name)       // Alice — no explicit (*pp).Name needed
+fmt.Println(pp.Name)       // Alice, no explicit (*pp).Name needed
 </code></pre>
       </section>
 
@@ -119,7 +119,7 @@ type User struct {
     Address Address        // nested
 }
 
-// Anonymous struct — inline, one-off
+// Anonymous struct, inline, one-off
 config := struct {
     Host string
     Port int
@@ -130,13 +130,13 @@ config := struct {
 </code></pre>
 
         <p>Anonymous structs are handy in tests and one-shot data carriers.
-           Don't use them for anything reused — give it a name.</p>
+           Don't use them for anything reused, give it a name.</p>
       </section>
 
       <section id="embedding">
         <h2>Embedding: composition, not inheritance</h2>
         <p>Instead of class inheritance, Go has <strong>embedded fields</strong>
-           — declare a field with only a type name, and that type's fields and
+          , declare a field with only a type name, and that type's fields and
            methods are promoted:</p>
 
         <pre><code class="language-go">type Entity struct {
@@ -145,7 +145,7 @@ config := struct {
 }
 
 type User struct {
-    Entity                  // embedded — no field name!
+    Entity                  // embedded, no field name!
     Name string
     Email string
 }
@@ -155,14 +155,14 @@ u := User{
     Name:   "Alice",
 }
 
-fmt.Println(u.ID)           // 1 — promoted from Entity
-fmt.Println(u.Entity.ID)    // 1 — also accessible explicitly
+fmt.Println(u.ID)           // 1, promoted from Entity
+fmt.Println(u.Entity.ID)    // 1: also accessible explicitly
 </code></pre>
 
         <p>This is Go's idiom for sharing common fields and behavior.
            <code>User</code> <em>is not</em> an <code>Entity</code> (no inheritance),
            but it <em>has</em> one and its fields look like they belong to
-           <code>User</code>. Methods work the same way — if <code>Entity</code>
+           <code>User</code>. Methods work the same way: if <code>Entity</code>
            has a <code>Save()</code> method, <code>u.Save()</code> works too
            (Chapter 20).</p>
       </section>
@@ -205,7 +205,7 @@ fmt.Println(p1 == p2)         // true
       </section>
 
       <section id="empty">
-        <h2>The empty struct — <code>struct{}</code></h2>
+        <h2>The empty struct, <code>struct{}</code></h2>
         <p>A struct with no fields takes <strong>zero bytes</strong>. Useful as a
            "marker" value:</p>
 
@@ -216,7 +216,7 @@ set := map[string]struct{}{
 }
 if _, ok := set["apple"]; ok { /* … */ }
 
-// Signal-only channel — Chapter 25
+// Signal-only channel, Chapter 25
 done := make(chan struct{})
 close(done)
 </code></pre>
@@ -232,8 +232,8 @@ close(done)
               {"q":"What's the zero value of `type P struct { N string; A int }`?","options":["nil","P{}  (empty string and 0)","undefined","P{N:\"\", A:0} only after initialization"],"answer":1,"explanation":"Every field is zero-valued automatically: Name=\"\", Age=0. No explicit init needed."},
               {"q":"How do you make a User struct embed an Entity struct so Entity's fields are accessible as if they belonged to User?","options":["Put `embedded Entity` inside User","Put just `Entity` (with no field name) inside User","Put `Entity *Entity` inside User","Use `extends Entity`"],"answer":1,"explanation":"An embedded field is declared with just the type name. The embedded type's fields and methods are promoted to the containing struct."},
               {"q":"What are struct tags used for?","options":["Tagging git commits","Runtime reflection-based metadata (e.g. JSON field names, validation rules)","Comments in code","Marking structs as exported"],"answer":1,"explanation":"Tags are backtick strings that packages like encoding/json read via reflection to customize marshaling. They follow the `key:\"value,options\"` convention."},
-              {"q":"Can you compare `struct{Items []string}` values with `==`?","options":["Yes","No — slices are not comparable","Only if both slices are nil","Only in a switch"],"answer":1,"explanation":"A struct is == comparable only if all its fields are. Slices, maps, and functions are not comparable, so any struct containing one isn't either."},
-              {"q":"What's a common use of `struct{}` (the empty struct)?","options":["As a zero-size marker in sets (map[K]struct{}) and signal channels","As Go's null value","As a replacement for nil","To allocate fixed-size memory"],"answer":0,"explanation":"Empty struct takes 0 bytes — perfect for sets (map[K]struct{}) and signal-only channels (chan struct{})."}
+              {"q":"Can you compare `struct{Items []string}` values with `==`?","options":["Yes","No, slices are not comparable","Only if both slices are nil","Only in a switch"],"answer":1,"explanation":"A struct is == comparable only if all its fields are. Slices, maps, and functions are not comparable, so any struct containing one isn't either."},
+              {"q":"What's a common use of `struct{}` (the empty struct)?","options":["As a zero-size marker in sets (map[K]struct{}) and signal channels","As Go's null value","As a replacement for nil","To allocate fixed-size memory"],"answer":0,"explanation":"Empty struct takes 0 bytes, perfect for sets (map[K]struct{}) and signal-only channels (chan struct{})."}
             ]
           }
           </script>
@@ -297,17 +297,17 @@ func main() {
       <section id="further" class="further-reading">
         <h3>Further reading</h3>
         <ul>
-          <li><a href="https://go.dev/ref/spec#Struct_types" target="_blank" rel="noopener">Go spec — Struct types</a></li>
-          <li><a href="https://go.dev/doc/effective_go#embedding" target="_blank" rel="noopener">Effective Go — Embedding</a></li>
-          <li><a href="https://pkg.go.dev/encoding/json" target="_blank" rel="noopener"><code>encoding/json</code></a> — the most common struct-tag user (Chapter 29)</li>
+          <li><a href="https://go.dev/ref/spec#Struct_types" target="_blank" rel="noopener">Go spec, Struct types</a></li>
+          <li><a href="https://go.dev/doc/effective_go#embedding" target="_blank" rel="noopener">Effective Go, Embedding</a></li>
+          <li><a href="https://pkg.go.dev/encoding/json" target="_blank" rel="noopener"><code>encoding/json</code></a>: the most common struct-tag user (Chapter 29)</li>
         </ul>
       </section>
 
-      <div class="complete-box"><p>Structs — the shape of your data.</p><button class="complete-btn" type="button" data-chapter-id="ch-15">✓ Mark this chapter complete</button></div>
+      <div class="complete-box"><p>Structs, the shape of your data.</p><button class="complete-btn" type="button" data-chapter-id="ch-15">✓ Mark this chapter complete</button></div>
 
       <nav class="chapter-nav" aria-label="Chapter navigation">
-        <a class="prev" href="14-maps.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 14 — Maps</div></a>
-        <a class="next" href="16-pointers.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 16 — Pointers</div></a>
+        <a class="prev" href="14-maps.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 14: Maps</div></a>
+        <a class="next" href="16-pointers.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 16: Pointers</div></a>
       </nav>
     </main>
   </div>

@@ -5,18 +5,18 @@
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chapter 10 · Loops — Learn Go by Cyrus Mobini</title>
+  <title>Chapter 10 · Loops | Learn Go by Cyrus Mobini</title>
   <meta name="description" content="Go's one and only loop construct: for. Learn the classic three-part form, while-equivalent, infinite loops, range, labeled break/continue.">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="Chapter 10 · Loops — Learn Go">
-  <meta property="og:description" content="Go has exactly one loop keyword — for. Here's every form it takes, plus range, labels, and common patterns.">
+  <meta property="og:title" content="Chapter 10 · Loops | Learn Go">
+  <meta property="og:description" content="Go has exactly one loop keyword, for. Here's every form it takes, plus range, labels, and common patterns.">
   <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/10-loops.html">
-  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta property="og:site_name" content="Learn Go | by Cyrus Mobini">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Chapter 10 · Loops — Learn Go">
+  <meta name="twitter:title" content="Chapter 10 · Loops | Learn Go">
   <meta name="twitter:description" content="for loops in every form Go supports: three-part, while, infinite, range, labeled.">
   <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/10-loops.html">
@@ -81,9 +81,9 @@
 
         <p>Three pieces separated by semicolons:</p>
         <ol>
-          <li><strong>Init</strong> — runs once before the loop.</li>
-          <li><strong>Condition</strong> — checked before each iteration. <code>false</code> ends the loop.</li>
-          <li><strong>Post</strong> — runs after each iteration.</li>
+          <li><strong>Init</strong>: runs once before the loop.</li>
+          <li><strong>Condition</strong>: checked before each iteration. <code>false</code> ends the loop.</li>
+          <li><strong>Post</strong>: runs after each iteration.</li>
         </ol>
 
         <p>Any of the three can be omitted.</p>
@@ -179,7 +179,7 @@ for name, age := range ages {
 }
 </code></pre>
 
-        <p>See Chapter 7 — range over a string yields runes, not bytes.</p>
+        <p>See Chapter 7: range over a string yields runes, not bytes.</p>
 
         <h3>Channels</h3>
         <pre><code class="language-go">for v := range ch {
@@ -199,7 +199,7 @@ for range nums { ... }             // just iterate (Go 1.4+)
       <!-- ===================================================================== -->
       <section id="range-int">
         <h2><code>range</code> over an int (Go 1.22+)</h2>
-        <p>Since Go 1.22, you can range over an integer literally — a cleaner
+        <p>Since Go 1.22, you can range over an integer literally, a cleaner
            way to run a fixed number of iterations:</p>
 
         <pre><code class="language-go">for i := range 5 {
@@ -247,8 +247,8 @@ outer:
         <h2>Common patterns &amp; pitfalls</h2>
 
         <h3>Classic loop-variable-in-closure (fixed in Go 1.22)</h3>
-        <pre><code class="language-go">// In Go 1.21 and earlier, this prints "3 3 3" — surprise!
-// In Go 1.22+, it prints "0 1 2" — per-iteration variables.
+        <pre><code class="language-go">// In Go 1.21 and earlier, this prints "3 3 3", surprise!
+// In Go 1.22+, it prints "0 1 2", per-iteration variables.
 for i := 0; i < 3; i++ {
     go func() {
         fmt.Println(i)
@@ -260,7 +260,7 @@ for i := 0; i < 3; i++ {
           <div class="ico">i</div>
           <div>
             <span class="callout-title">Loop variables are scoped per iteration (Go 1.22+)</span>
-            Before Go 1.22, loop variables were shared across iterations — a
+            Before Go 1.22, loop variables were shared across iterations, a
             classic source of bugs, especially with goroutines and closures.
             Modern Go fixes this. If you're on an older version, capture the
             value: <code>i := i</code> inside the loop body, then use that.
@@ -295,7 +295,7 @@ fmt.Println("lift-off!")
             "questions": [
               {
                 "q": "How many loop keywords does Go have?",
-                "options": ["3 (for, while, do)", "2 (for, while)", "1 (for)", "0 — use goto"],
+                "options": ["3 (for, while, do)", "2 (for, while)", "1 (for)", "0, use goto"],
                 "answer": 2,
                 "explanation": "Go has exactly one: `for`. It takes four forms (three-part, condition-only, infinite, range) but it's one keyword."
               },
@@ -315,7 +315,7 @@ fmt.Println("lift-off!")
                 "options": [
                   "Insertion order",
                   "Alphabetical by key",
-                  "Randomized — different every run",
+                  "Randomized, different every run",
                   "Ascending by value"
                 ],
                 "answer": 2,
@@ -326,7 +326,7 @@ fmt.Println("lift-off!")
                 "options": [
                   "Breaks the innermost loop",
                   "Breaks the loop labeled `outer`",
-                  "Compile error — break doesn't take arguments",
+                  "Compile error, break doesn't take arguments",
                   "Exits the whole function"
                 ],
                 "answer": 1,
@@ -337,11 +337,11 @@ fmt.Println("lift-off!")
                 "options": [
                   "Iterates i over the characters of the string \"5\"",
                   "Iterates i from 0 to 4",
-                  "Compile error — range needs a collection",
+                  "Compile error, range needs a collection",
                   "Iterates i from 1 to 5"
                 ],
                 "answer": 1,
-                "explanation": "Since Go 1.22, range over an int iterates from 0 up to but not including that int — just like `for i := 0; i < 5; i++`."
+                "explanation": "Since Go 1.22, range over an int iterates from 0 up to but not including that int, just like `for i := 0; i < 5; i++`."
               }
             ]
           }
@@ -423,9 +423,9 @@ func main() {
       <section id="further" class="further-reading">
         <h3>Further reading</h3>
         <ul>
-          <li><a href="https://go.dev/ref/spec#For_statements" target="_blank" rel="noopener">Go spec — For statements</a></li>
+          <li><a href="https://go.dev/ref/spec#For_statements" target="_blank" rel="noopener">Go spec, For statements</a></li>
           <li><a href="https://go.dev/blog/loopvar-preview" target="_blank" rel="noopener">The loopvar change in Go 1.22</a></li>
-          <li><a href="https://go.dev/tour/flowcontrol/1" target="_blank" rel="noopener">Tour of Go — Flow control</a></li>
+          <li><a href="https://go.dev/tour/flowcontrol/1" target="_blank" rel="noopener">Tour of Go, Flow control</a></li>
         </ul>
       </section>
 
@@ -437,11 +437,11 @@ func main() {
       <nav class="chapter-nav" aria-label="Chapter navigation">
         <a class="prev" href="09-conditionals.html">
           <div class="nav-label">Previous</div>
-          <div class="nav-title">Chapter 9 — Conditional Flow</div>
+          <div class="nav-title">Chapter 9: Conditional Flow</div>
         </a>
         <a class="next" href="11-functions.html">
           <div class="nav-label">Next</div>
-          <div class="nav-title">Chapter 11 — Functions</div>
+          <div class="nav-title">Chapter 11: Functions</div>
         </a>
       </nav>
     </main>

@@ -8,7 +8,7 @@
       "slug": "01-what-is-coding",
       "part": "Foundations",
       "title": "What is Coding?",
-      "description": "Programming fundamentals — compilers vs interpreters, where Go fits.",
+      "description": "Programming fundamentals: compilers vs interpreters, where Go fits.",
       "headings": ["What is Coding?", "How Computers Understand Code", "Compiled vs Interpreted Languages", "Types of Programming Languages", "Why Learn to Code?"],
       "terms": ["machine code", "compiled", "interpreted", "binary", "compiler", "interpreter", "high-level language", "programming language", "source code", "bytecode", "CPU"]
     },
@@ -127,7 +127,7 @@
       "number": 13,
       "slug": "13-slices",
       "part": "Composite Types",
-      "title": "Slices — Internals & Idioms",
+      "title": "Slices, Internals & Idioms",
       "description": "Slice internals (pointer, len, cap), append, nil vs empty, aliasing pitfalls.",
       "headings": ["Declaring", "Slice Header", "make()", "Slicing", "append", "copy", "Length vs Capacity", "Nil Slices", "Aliasing Pitfalls"],
       "terms": ["slice", "append", "copy", "len", "cap", "make", "nil slice", "empty slice", "header", "underlying array", "aliasing", "pointer"]
@@ -338,7 +338,7 @@
       "slug": "34-capstone-cli",
       "part": "Capstone",
       "title": "Capstone: Build a CLI App",
-      "description": "Tie everything together — a small but real CLI app with flags, files, JSON, errors, tests.",
+      "description": "Tie everything together with a small but real CLI app: flags, files, JSON, errors, tests.",
       "headings": ["Project Setup", "Parsing Flags", "Reading / Writing Files", "Commands", "Error Handling", "Testing the App", "Shipping It"],
       "terms": ["capstone", "cli", "flag package", "cobra", "project structure", "main"]
     }

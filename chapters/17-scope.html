@@ -5,17 +5,17 @@
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chapter 17 · Scope &amp; Shadowing — Learn Go by Cyrus Mobini</title>
+  <title>Chapter 17 · Scope &amp; Shadowing | Learn Go by Cyrus Mobini</title>
   <meta name="description" content="Block scope, package scope, and the famous variable-shadowing pitfall that stings every Go programmer at least once.">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="Chapter 17 · Scope &amp; Shadowing — Learn Go">
+  <meta property="og:title" content="Chapter 17 · Scope &amp; Shadowing | Learn Go">
   <meta property="og:description" content="How Go scopes variables, and how to avoid the classic shadowing bug.">
   <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
   <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/17-scope.html">
-  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta property="og:site_name" content="Learn Go | by Cyrus Mobini">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Chapter 17 · Scope &amp; Shadowing — Learn Go">
+  <meta name="twitter:title" content="Chapter 17 · Scope &amp; Shadowing | Learn Go">
   <meta name="twitter:description" content="Block scope, package scope, and avoiding shadowing bugs.">
   <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/17-scope.html">
@@ -54,7 +54,7 @@
       <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 17 · ORGANIZING CODE</div>
       <h1>Scope &amp; Shadowing</h1>
       <p><strong>Scope</strong> determines where a name is visible. Go's rules
-         are intuitive — the <em>innermost block</em> that contains a declaration
+         are intuitive, the <em>innermost block</em> that contains a declaration
          is its scope. The subtle gotcha is <strong>shadowing</strong>: declaring
          a new variable with the same name as an outer one, which is legal,
          common, and occasionally catastrophic.</p>
@@ -73,11 +73,11 @@
         <h2>Scope levels</h2>
         <p>Top to bottom, narrowest at the bottom:</p>
         <ol>
-          <li><strong>Universe</strong> — built-ins like <code>int</code>, <code>len</code>, <code>nil</code>, <code>true</code>.</li>
-          <li><strong>Package</strong> — any name declared at file level, in any file of the package.</li>
-          <li><strong>File</strong> — imported package names.</li>
-          <li><strong>Function</strong> — parameters and results.</li>
-          <li><strong>Block</strong> — any <code>{ ... }</code> including the body of <code>if</code>, <code>for</code>, <code>switch</code>.</li>
+          <li><strong>Universe</strong>: built-ins like <code>int</code>, <code>len</code>, <code>nil</code>, <code>true</code>.</li>
+          <li><strong>Package</strong>: any name declared at file level, in any file of the package.</li>
+          <li><strong>File</strong>: imported package names.</li>
+          <li><strong>Function</strong>: parameters and results.</li>
+          <li><strong>Block</strong>: any <code>{ ... }</code> including the body of <code>if</code>, <code>for</code>, <code>switch</code>.</li>
         </ol>
       </section>
 
@@ -100,7 +100,7 @@ func main() {
 </code></pre>
 
         <p>The short-statement form of <code>if</code>/<code>for</code>/<code>switch</code>
-           introduces a variable scoped to that statement only — a pattern we've
+           introduces a variable scoped to that statement only, a pattern we've
            used all over this course.</p>
       </section>
 
@@ -108,10 +108,10 @@ func main() {
         <h2>Shadowing</h2>
         <pre><code class="language-go">x := 1
 {
-    x := 2          // a NEW variable named x — shadows the outer one
+    x := 2          // a NEW variable named x, shadows the outer one
     fmt.Println(x)   // 2
 }
-fmt.Println(x)       // 1 — outer x unchanged
+fmt.Println(x)       // 1: outer x unchanged
 </code></pre>
 
         <p>Perfectly legal. Sometimes useful. Sometimes a catastrophe.</p>
@@ -129,8 +129,8 @@ fmt.Println(x)       // 1 — outer x unchanged
     if info, err := f.Stat(); err == nil {   // ⚠ new err!
         fmt.Println(info.Size())
     }
-    // If we reached here assuming err from Stat was handled... we didn't —
-    // the err we see now is still the OUTER one from os.Open.
+    // If we reached here assuming err from Stat was handled... we didn't.
+    // The err we see now is still the OUTER one from os.Open.
     return err
 }
 </code></pre>
@@ -178,8 +178,8 @@ shadow ./...</code></pre>
             "questions": [
               {"q":"In `if y := 20; y > 0 { ... }`, what's the scope of y?","options":["The enclosing function","Package","The if block (and its else if/else)","Universe"],"answer":2,"explanation":"The short statement declares y in a scope that covers the if's body plus any else if / else chained off it. Outside the whole construct, y is gone."},
               {"q":"What does `x := 1; { x := 2; ... }` print inside and outside the block?","options":["1 then 1","2 then 1","2 then 2","Compile error: x redeclared"],"answer":1,"explanation":"The inner := creates a new variable also named x, shadowing the outer one. Inside the block we see 2; outside, the outer x is unchanged at 1."},
-              {"q":"If a := statement has at least one new name on its left, what happens to the existing ones?","options":["They're redeclared","They're assigned to — the existing vars are mutated, not shadowed (in the same scope)","They're ignored","Compile error"],"answer":1,"explanation":"In the SAME scope, := assigns to existing variables and declares new ones. In a DIFFERENT (inner) scope, := always declares fresh shadowed variables — that's where the shadowing bug bites."},
-              {"q":"How do you catch shadowing bugs automatically?","options":["go vet does it by default","Install and run the `shadow` analyzer (golang.org/x/tools/go/analysis/passes/shadow)","Use gofmt","You can't — it's a style choice"],"answer":1,"explanation":"The shadow analyzer isn't in go vet by default. Install it and run it (often in CI) to flag suspicious shadows."}
+              {"q":"If a := statement has at least one new name on its left, what happens to the existing ones?","options":["They're redeclared","They're assigned to, the existing vars are mutated, not shadowed (in the same scope)","They're ignored","Compile error"],"answer":1,"explanation":"In the SAME scope, := assigns to existing variables and declares new ones. In a DIFFERENT (inner) scope, := always declares fresh shadowed variables, that's where the shadowing bug bites."},
+              {"q":"How do you catch shadowing bugs automatically?","options":["go vet does it by default","Install and run the `shadow` analyzer (golang.org/x/tools/go/analysis/passes/shadow)","Use gofmt","You can't, it's a style choice"],"answer":1,"explanation":"The shadow analyzer isn't in go vet by default. Install it and run it (often in CI) to flag suspicious shadows."}
             ]
           }
           </script>
@@ -191,7 +191,7 @@ shadow ./...</code></pre>
 
         <div class="exercise">
           <div class="exercise-header"><span class="badge">EXERCISE 1</span><h3>Find the shadow</h3></div>
-          <div class="exercise-task"><p>Read the following snippet carefully. What does it print — and <em>why</em>?</p>
+          <div class="exercise-task"><p>Read the following snippet carefully. What does it print, and <em>why</em>?</p>
           <pre><code class="language-go">package main
 
 import "fmt"
@@ -223,16 +223,16 @@ final: 1</code></pre>
       <section id="further" class="further-reading">
         <h3>Further reading</h3>
         <ul>
-          <li><a href="https://go.dev/ref/spec#Declarations_and_scope" target="_blank" rel="noopener">Go spec — Declarations and scope</a></li>
+          <li><a href="https://go.dev/ref/spec#Declarations_and_scope" target="_blank" rel="noopener">Go spec, Declarations and scope</a></li>
           <li><a href="https://pkg.go.dev/golang.org/x/tools/go/analysis/passes/shadow" target="_blank" rel="noopener">shadow analyzer</a></li>
         </ul>
       </section>
 
-      <div class="complete-box"><p>Scope handled — no more silent variable swaps.</p><button class="complete-btn" type="button" data-chapter-id="ch-17">✓ Mark this chapter complete</button></div>
+      <div class="complete-box"><p>Scope handled, no more silent variable swaps.</p><button class="complete-btn" type="button" data-chapter-id="ch-17">✓ Mark this chapter complete</button></div>
 
       <nav class="chapter-nav" aria-label="Chapter navigation">
-        <a class="prev" href="16-pointers.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 16 — Pointers</div></a>
-        <a class="next" href="18-packages-modules.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 18 — Packages &amp; Modules</div></a>
+        <a class="prev" href="16-pointers.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 16: Pointers</div></a>
+        <a class="next" href="18-packages-modules.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 18: Packages &amp; Modules</div></a>
       </nav>
     </main>
   </div>

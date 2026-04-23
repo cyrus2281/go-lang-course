@@ -5,17 +5,17 @@
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chapter 30 · Networking with net/http — Learn Go by Cyrus Mobini</title>
-  <meta name="description" content="Build HTTP servers and clients with Go's stdlib. Handlers, ServeMux, middleware, http.Client, request context — enough to ship a real web service.">
+  <title>Chapter 30 · Networking with net/http | Learn Go by Cyrus Mobini</title>
+  <meta name="description" content="Build HTTP servers and clients with Go's stdlib. Handlers, ServeMux, middleware, http.Client, request context, enough to ship a real web service.">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="Chapter 30 · net/http — Learn Go">
+  <meta property="og:title" content="Chapter 30 · net/http | Learn Go">
   <meta property="og:description" content="Go HTTP servers and clients from scratch: handlers, mux, middleware, clients.">
   <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
   <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/30-net-http.html">
-  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta property="og:site_name" content="Learn Go | by Cyrus Mobini">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Chapter 30 · net/http — Learn Go">
+  <meta name="twitter:title" content="Chapter 30 · net/http | Learn Go">
   <meta name="twitter:description" content="Servers, handlers, middleware, clients.">
   <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/30-net-http.html">
@@ -90,7 +90,7 @@ func main() {
 </code></pre>
 
         <p>Hit <code>http://localhost:8080/hello?name=Alice</code>. That's
-           all it takes — no framework, no config file.</p>
+           all it takes, no framework, no config file.</p>
       </section>
 
       <section id="handler">
@@ -122,7 +122,7 @@ http.ListenAndServe(":8080", mux)
 </code></pre>
 
         <p>Since Go 1.22, the built-in mux supports method verbs and path
-           wildcards — fewer teams now need a 3rd-party router for basic cases.</p>
+           wildcards, fewer teams now need a 3rd-party router for basic cases.</p>
       </section>
 
       <section id="params">
@@ -154,7 +154,7 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 
       <section id="middleware">
         <h2>Middleware</h2>
-        <p>Middleware is a <code>func(http.Handler) http.Handler</code> — a
+        <p>Middleware is a <code>func(http.Handler) http.Handler</code>: a
            handler that wraps another handler. Log every request:</p>
 
         <pre><code class="language-go">func logger(next http.Handler) http.Handler {
@@ -165,7 +165,7 @@ func createUser(w http.ResponseWriter, r *http.Request) {
     })
 }
 
-// Chain them — innermost runs first:
+// Chain them, innermost runs first:
 handler := logger(auth(mux))
 http.ListenAndServe(":8080", handler)
 </code></pre>
@@ -190,7 +190,7 @@ json.NewDecoder(resp.Body).Decode(&amp;users)
           <div class="ico">!</div>
           <div>
             <span class="callout-title">Always set a timeout</span>
-            The default <code>http.Client</code> has <em>no</em> timeout — a
+            The default <code>http.Client</code> has <em>no</em> timeout, a
             hanging server will keep your goroutine blocked forever. Always
             create your own client with a timeout, or use
             <code>http.NewRequestWithContext</code> with a context deadline.
@@ -223,9 +223,9 @@ srv.Shutdown(ctx)
       <section id="production">
         <h2>Production notes</h2>
         <ul>
-          <li><strong>Always set read/write timeouts</strong> on <code>http.Server</code> — <code>ReadHeaderTimeout</code> at minimum.</li>
+          <li><strong>Always set read/write timeouts</strong> on <code>http.Server</code>: <code>ReadHeaderTimeout</code> at minimum.</li>
           <li><strong>Don't reinvent the wheel.</strong> <code>chi</code> or <code>gorilla/mux</code> are popular if you need more routing power. For most services Go 1.22's mux is plenty.</li>
-          <li><strong>Pass the request context</strong> (<code>r.Context()</code>) into any call that could outlive the request — DB queries, HTTP calls, goroutines.</li>
+          <li><strong>Pass the request context</strong> (<code>r.Context()</code>) into any call that could outlive the request, DB queries, HTTP calls, goroutines.</li>
           <li><strong>Use <code>httptest</code></strong> for fast, deterministic handler tests (Chapter 31).</li>
         </ul>
       </section>
@@ -237,11 +237,11 @@ srv.Shutdown(ctx)
           {
             "title": "Quick quiz",
             "questions": [
-              {"q":"What single interface underlies all HTTP handling in Go?","options":["Servicer","http.Handler (with method ServeHTTP)","http.Router","Middleware"],"answer":1,"explanation":"http.Handler has one method: ServeHTTP(w, r). Everything — routers, middleware, handlers — is either a Handler or produces one."},
-              {"q":"Since Go 1.22, can http.ServeMux distinguish between GET /users and POST /users on its own?","options":["No","Yes — method verbs are part of the pattern","Only with Gorilla mux","Only for /api/*"],"answer":1,"explanation":"Go 1.22 upgraded the built-in mux to support method+path patterns like `POST /users/{id}` and path-value extraction via r.PathValue(\"id\")."},
-              {"q":"What's the shape of a middleware function?","options":["func(http.Handler) http.Handler","func(w, r) — like a handler","An interface","A method on http.Server"],"answer":0,"explanation":"Middleware takes the next Handler and returns a new Handler that does something around the call (log, auth, recover, etc.)."},
-              {"q":"Why should you avoid the default http.Client in production?","options":["It's slow","It has no timeout — a hanging server will block your goroutine forever","It only supports HTTP/1.0","It caches responses"],"answer":1,"explanation":"The default Client has no timeout. Always use your own with `Timeout: X` or pass a context with a deadline via http.NewRequestWithContext."},
-              {"q":"To shut down an HTTP server gracefully:","options":["os.Exit(0)","srv.Close()","srv.Shutdown(ctx) — waits for in-flight requests to finish","Nothing special — the process dies"],"answer":2,"explanation":"Shutdown stops accepting new connections and waits for existing handlers to finish (up to ctx's deadline). Perfect for SIGTERM handling in containers."}
+              {"q":"What single interface underlies all HTTP handling in Go?","options":["Servicer","http.Handler (with method ServeHTTP)","http.Router","Middleware"],"answer":1,"explanation":"http.Handler has one method: ServeHTTP(w, r). Everything (routers, middleware, handlers) is either a Handler or produces one."},
+              {"q":"Since Go 1.22, can http.ServeMux distinguish between GET /users and POST /users on its own?","options":["No","Yes, method verbs are part of the pattern","Only with Gorilla mux","Only for /api/*"],"answer":1,"explanation":"Go 1.22 upgraded the built-in mux to support method+path patterns like `POST /users/{id}` and path-value extraction via r.PathValue(\"id\")."},
+              {"q":"What's the shape of a middleware function?","options":["func(http.Handler) http.Handler","func(w, r), like a handler","An interface","A method on http.Server"],"answer":0,"explanation":"Middleware takes the next Handler and returns a new Handler that does something around the call (log, auth, recover, etc.)."},
+              {"q":"Why should you avoid the default http.Client in production?","options":["It's slow","It has no timeout, a hanging server will block your goroutine forever","It only supports HTTP/1.0","It caches responses"],"answer":1,"explanation":"The default Client has no timeout. Always use your own with `Timeout: X` or pass a context with a deadline via http.NewRequestWithContext."},
+              {"q":"To shut down an HTTP server gracefully:","options":["os.Exit(0)","srv.Close()","srv.Shutdown(ctx), waits for in-flight requests to finish","Nothing special, the process dies"],"answer":2,"explanation":"Shutdown stops accepting new connections and waits for existing handlers to finish (up to ctx's deadline). Perfect for SIGTERM handling in containers."}
             ]
           }
           </script>
@@ -318,15 +318,15 @@ func main() {
           <li><a href="https://pkg.go.dev/net/http" target="_blank" rel="noopener"><code>net/http</code> package</a></li>
           <li><a href="https://go.dev/doc/articles/wiki/" target="_blank" rel="noopener">Writing Web Applications</a> (official tutorial)</li>
           <li><a href="https://go.dev/blog/routing-enhancements" target="_blank" rel="noopener">Go 1.22 routing enhancements</a></li>
-          <li><a href="https://github.com/go-chi/chi" target="_blank" rel="noopener">chi</a> — a popular 3rd-party router, if you outgrow the stdlib</li>
+          <li><a href="https://github.com/go-chi/chi" target="_blank" rel="noopener">chi</a>: a popular 3rd-party router, if you outgrow the stdlib</li>
         </ul>
       </section>
 
-      <div class="complete-box"><p>Shippable web service — done.</p><button class="complete-btn" type="button" data-chapter-id="ch-30">✓ Mark this chapter complete</button></div>
+      <div class="complete-box"><p>Shippable web service, done.</p><button class="complete-btn" type="button" data-chapter-id="ch-30">✓ Mark this chapter complete</button></div>
 
       <nav class="chapter-nav" aria-label="Chapter navigation">
-        <a class="prev" href="29-json.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 29 — JSON</div></a>
-        <a class="next" href="31-testing.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 31 — Testing</div></a>
+        <a class="prev" href="29-json.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 29: JSON</div></a>
+        <a class="next" href="31-testing.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 31: Testing</div></a>
       </nav>
     </main>
   </div>

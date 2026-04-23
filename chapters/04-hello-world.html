@@ -5,21 +5,21 @@
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chapter 4 · Hello, World — Learn Go by Cyrus Mobini</title>
+  <title>Chapter 4 · Hello, World | Learn Go by Cyrus Mobini</title>
   <meta name="description" content="Write your first Go program from scratch. Understand every line, then meet go run, go build, go install, go fmt, and your first Go module.">
 
   <meta property="og:type" content="article">
-  <meta property="og:title" content="Chapter 4 · Hello, World — Learn Go">
-  <meta property="og:description" content="Your first Go program, line by line — plus go run / build / install / fmt / mod init.">
+  <meta property="og:title" content="Chapter 4 · Hello, World | Learn Go">
+  <meta property="og:description" content="Your first Go program, line by line, plus go run / build / install / fmt / mod init.">
   <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/04-hello-world.html">
-  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta property="og:site_name" content="Learn Go | by Cyrus Mobini">
 
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Chapter 4 · Hello, World — Learn Go">
-  <meta name="twitter:description" content="Your first Go program, line by line — plus go run / build / install / fmt / mod init.">
+  <meta name="twitter:title" content="Chapter 4 · Hello, World | Learn Go">
+  <meta name="twitter:description" content="Your first Go program, line by line, plus go run / build / install / fmt / mod init.">
   <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
 
   <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/04-hello-world.html">
@@ -116,7 +116,7 @@ func main() {
         <h3><code>import "fmt"</code></h3>
         <p><code>import</code> pulls in another package so you can use its
            exported names. <code>fmt</code> is Go's standard library package for
-           <em>formatted I/O</em> — printing, string formatting, scanning input.
+           <em>formatted I/O</em>: printing, string formatting, scanning input.
            You'll see <code>fmt</code> in almost every program.</p>
 
         <div class="callout pitfall">
@@ -126,7 +126,7 @@ func main() {
             If you import a package but never use it, Go refuses to compile. This
             prevents dead imports from accumulating in your codebase. Your editor
             (with <code>goimports</code> enabled) manages imports automatically
-            — add or remove <code>fmt.Println</code> calls and the import line
+           , add or remove <code>fmt.Println</code> calls and the import line
             will update on save.
           </div>
         </div>
@@ -163,7 +163,7 @@ func main() {
         <pre><code class="language-bash">Hello, World!</code></pre>
 
         <p><code>go run</code> compiles your code to a temporary binary, executes
-           it, then deletes the binary. It's perfect for iteration — no artifacts
+           it, then deletes the binary. It's perfect for iteration, no artifacts
            left behind.</p>
 
         <p>You can also pass a directory or a package path:</p>
@@ -192,7 +192,7 @@ go 1.22
 
         <p>The <code>module</code> line declares the module's import path. It's
            typically a URL where the code lives (like <code>github.com/you/hello</code>)
-           — even if you never publish it. The <code>go</code> line records the
+          , even if you never publish it. The <code>go</code> line records the
            minimum Go version this module supports. You rarely edit
            <code>go.mod</code> by hand; Go tools do it when you add dependencies.</p>
 
@@ -242,7 +242,7 @@ hello.exe          # Windows</code></pre>
             <tr>
               <td><code>go run</code></td>
               <td>Compiles to a temp binary, runs it, deletes it</td>
-              <td>Iterating — changing code and re-running quickly</td>
+              <td>Iterating, changing code and re-running quickly</td>
             </tr>
             <tr>
               <td><code>go build</code></td>
@@ -271,12 +271,12 @@ go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest</code></pr
         <p>Go has <strong>one</strong> canonical code style, enforced by the
            <code>gofmt</code> tool. No tabs-vs-spaces debates, no bikeshedding
            over where to put braces. Your editor should format on save (Chapter 3)
-           — but you can also run it manually:</p>
+          , but you can also run it manually:</p>
 
         <pre><code class="language-bash">go fmt ./...</code></pre>
 
         <p>(The <code>./...</code> pattern means "the current directory and all
-           subdirectories recursively" — a common Go idiom.)</p>
+           subdirectories recursively", a common Go idiom.)</p>
 
         <p>An even better version is <code>goimports</code>, which runs
            <code>gofmt</code> <em>and</em> manages the <code>import</code> block
@@ -315,7 +315,7 @@ import (
 func main() {
     if len(os.Args) < 2 {
         fmt.Fprintln(os.Stderr, "usage: greet NAME")
-        os.Exit(1) // exit code 1 — "usage error"
+        os.Exit(1) // exit code 1, "usage error"
     }
     fmt.Println("Hello,", os.Args[1])
 }
@@ -326,7 +326,7 @@ func main() {
           <li><code>os.Args</code> is a slice containing the program name followed
               by command-line arguments. (We'll cover slices in Chapter 13.)</li>
           <li><code>fmt.Fprintln(os.Stderr, ...)</code> writes to standard error
-              instead of standard output — the Unix-conventional channel for
+              instead of standard output, the Unix-conventional channel for
               errors.</li>
         </ul>
 
@@ -358,7 +358,7 @@ GOOS=linux  GOARCH=arm64  go build -o hello-pi      .</code></pre>
 
         <p>This is why Go has become the go-to language for shipping CLI tools
            and cloud-native infrastructure: one developer, on one laptop, can
-           produce binaries for every platform the tool needs to run on — no
+           produce binaries for every platform the tool needs to run on, no
            Docker or cross-toolchain setup required.</p>
       </section>
 
@@ -374,7 +374,7 @@ GOOS=linux  GOARCH=arm64  go build -o hello-pi      .</code></pre>
                 "q": "Which function does Go execute first when you run a main-package program?",
                 "options": ["start()", "init() only", "main()", "run()"],
                 "answer": 2,
-                "explanation": "The `main` function in the `main` package is the entry point. (`init` functions in that package run before it — we'll meet those in Chapter 18.)"
+                "explanation": "The `main` function in the `main` package is the entry point. (`init` functions in that package run before it, we'll meet those in Chapter 18.)"
               },
               {
                 "q": "What does `go run .` do?",
@@ -408,7 +408,7 @@ GOOS=linux  GOARCH=arm64  go build -o hello-pi      .</code></pre>
                   "You can't without installing a Windows VM."
                 ],
                 "answer": 1,
-                "explanation": "Set the GOOS and GOARCH environment variables before `go build`. Go ships with every target it supports — no extra setup required."
+                "explanation": "Set the GOOS and GOARCH environment variables before `go build`. Go ships with every target it supports, no extra setup required."
               }
             ]
           }
@@ -459,7 +459,7 @@ func main() {
 </code></pre>
             <p>You'll see <code>strings.Join</code>, <code>switch</code>, and
                slicing again in future chapters. Don't worry if the syntax feels
-               new — you're pattern-matching, which is exactly the right skill.</p>
+               new, you're pattern-matching, which is exactly the right skill.</p>
           </details>
         </div>
 
@@ -480,7 +480,7 @@ file greet-linux    # should say: ELF 64-bit LSB executable</code></pre>
           <details class="exercise-solution">
             <summary>What you've just done</summary>
             <p>You produced a self-contained binary with no runtime dependencies
-               — the same kind of artifact Docker, Kubernetes, and Terraform
+              , the same kind of artifact Docker, Kubernetes, and Terraform
                ship. The <code>file</code> command confirms the binary matches
                the target OS.</p>
             <p>This pattern (cross-compile to a target, upload, run) is the core
@@ -501,18 +501,18 @@ file greet-linux    # should say: ELF 64-bit LSB executable</code></pre>
       </section>
 
       <div class="complete-box">
-        <p>First program shipped — well done.</p>
+        <p>First program shipped, well done.</p>
         <button class="complete-btn" type="button" data-chapter-id="ch-04">✓ Mark this chapter complete</button>
       </div>
 
       <nav class="chapter-nav" aria-label="Chapter navigation">
         <a class="prev" href="03-installation.html">
           <div class="nav-label">Previous</div>
-          <div class="nav-title">Chapter 3 — Installing Go</div>
+          <div class="nav-title">Chapter 3: Installing Go</div>
         </a>
         <a class="next" href="05-variables.html">
           <div class="nav-label">Next</div>
-          <div class="nav-title">Chapter 5 — Variables &amp; Constants</div>
+          <div class="nav-title">Chapter 5: Variables &amp; Constants</div>
         </a>
       </nav>
     </main>

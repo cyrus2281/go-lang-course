@@ -24,7 +24,7 @@
         if (indexCache && indexCache.chapters) return indexCache;
       } catch (e) { /* try next */ }
     }
-    // Inline fallback — empty
+    // Inline fallback: empty
     indexCache = { chapters: [] };
     return indexCache;
   }

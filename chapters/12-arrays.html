@@ -169,7 +169,7 @@ fmt.Println(grid)    // [[0 0 0] [0 0 7] [0 0 0]]
           {
             "title": "Quick quiz",
             "questions": [
-              {"q":"Can you assign a [3]int to a variable declared as [5]int?","options":["Yes","No — different types","Only if you use conversion","Only inside a function"],"answer":1,"explanation":"Array length is part of the type. [3]int and [5]int are distinct types."},
+              {"q":"Can you assign a [3]int to a variable declared as [5]int?","options":["Yes","No, different types","Only if you use conversion","Only inside a function"],"answer":1,"explanation":"Array length is part of the type. [3]int and [5]int are distinct types."},
               {"q":"What does `[...]int{1,2,3}` do?","options":["Creates an infinite array","Creates a slice","Declares an array whose length is inferred from the literal","Syntax error"],"answer":2,"explanation":"The `...` tells Go to count the elements and pick the length. Here the type becomes [3]int."},
               {"q":"When you pass an array to a function, what does the function receive?","options":["A reference to the original array","A copy of the entire array","A pointer to the array","A slice view"],"answer":1,"explanation":"Arrays are value types: a full copy is passed. For big arrays use a slice or a pointer to avoid the copy."},
               {"q":"Are arrays comparable with ==?","options":["Yes, if elements are comparable","No, never","Only if they have different lengths","Only in switch statements"],"answer":0,"explanation":"Arrays of comparable element types can be compared element-wise with ==. This is unique to arrays; slices can't (except to nil)."}
@@ -199,16 +199,16 @@ fmt.Println(grid)    // [[0 0 0] [0 0 7] [0 0 0]]
       <section id="further" class="further-reading">
         <h3>Further reading</h3>
         <ul>
-          <li><a href="https://go.dev/blog/slices-intro" target="_blank" rel="noopener">Go slices: usage and internals</a> — starts with arrays</li>
-          <li><a href="https://go.dev/ref/spec#Array_types" target="_blank" rel="noopener">Go spec — Array types</a></li>
+          <li><a href="https://go.dev/blog/slices-intro" target="_blank" rel="noopener">Go slices: usage and internals</a>: starts with arrays</li>
+          <li><a href="https://go.dev/ref/spec#Array_types" target="_blank" rel="noopener">Go spec, Array types</a></li>
         </ul>
       </section>
 
       <div class="complete-box"><p>On to slices.</p><button class="complete-btn" type="button" data-chapter-id="ch-12">✓ Mark this chapter complete</button></div>
 
       <nav class="chapter-nav" aria-label="Chapter navigation">
-        <a class="prev" href="11-functions.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 11 — Functions</div></a>
-        <a class="next" href="13-slices.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 13 — Slices</div></a>
+        <a class="prev" href="11-functions.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 11: Functions</div></a>
+        <a class="next" href="13-slices.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 13: Slices</div></a>
       </nav>
     </main>
   </div>

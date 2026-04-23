@@ -486,7 +486,7 @@ E8 00 00 00 00
                   "To support dynamic typing."
                 ],
                 "answer": 1,
-                "explanation": "Static binaries are a pragmatic deployment win: no JVM, no interpreter, no `node_modules` — just copy the file and run it. This is one of Go's signature strengths."
+                "explanation": "Static binaries are a pragmatic deployment win: no JVM, no interpreter, no `node_modules`, just copy the file and run it. This is one of Go's signature strengths."
               }
             ]
           }
@@ -506,7 +506,7 @@ E8 00 00 00 00
           <div class="exercise-task">
             <p>For each of the following languages, write down whether you think it's
                <strong>compiled</strong>, <strong>interpreted</strong>, or
-               <strong>bytecode + JIT</strong>. If unsure, guess — then look it up.</p>
+               <strong>bytecode + JIT</strong>. If unsure, guess, then look it up.</p>
             <ol>
               <li>Go</li>
               <li>Python</li>
@@ -515,18 +515,18 @@ E8 00 00 00 00
               <li>Bash</li>
               <li>Java</li>
             </ol>
-            <p>No code to write — this is a thinking exercise.</p>
+            <p>No code to write. This is a thinking exercise.</p>
           </div>
           <details class="exercise-solution">
             <summary>Show one possible answer</summary>
             <div>
               <ol>
-                <li><strong>Go</strong> — compiled. Produces a static binary via <code>go build</code>.</li>
-                <li><strong>Python</strong> — mostly interpreted (it compiles to <code>.pyc</code> bytecode behind the scenes, then interprets that).</li>
-                <li><strong>Rust</strong> — compiled. LLVM-backed, produces native binaries.</li>
-                <li><strong>JavaScript</strong> — bytecode + JIT in modern engines like V8. "Interpreted" is the textbook answer but practically inaccurate today.</li>
-                <li><strong>Bash</strong> — interpreted. The <code>bash</code> program reads and runs your script line by line.</li>
-                <li><strong>Java</strong> — bytecode + JIT. Compiled to <code>.class</code> files, run by the JVM which JITs hot code to native.</li>
+                <li><strong>Go</strong>: compiled. Produces a static binary via <code>go build</code>.</li>
+                <li><strong>Python</strong>: mostly interpreted (it compiles to <code>.pyc</code> bytecode behind the scenes, then interprets that).</li>
+                <li><strong>Rust</strong>: compiled. LLVM-backed, produces native binaries.</li>
+                <li><strong>JavaScript</strong>: bytecode + JIT in modern engines like V8. "Interpreted" is the textbook answer but practically inaccurate today.</li>
+                <li><strong>Bash</strong>: interpreted. The <code>bash</code> program reads and runs your script line by line.</li>
+                <li><strong>Java</strong>: bytecode + JIT. Compiled to <code>.class</code> files, run by the JVM which JITs hot code to native.</li>
               </ol>
             </div>
           </details>
@@ -539,7 +539,7 @@ E8 00 00 00 00
           </div>
           <div class="exercise-task">
             <p>Below is a slightly bigger Go snippet than the one at the top of this
-               chapter. You don't know Go yet — but you know English. Read it slowly
+               chapter. You don't know Go yet, but you know English. Read it slowly
                and try to <em>predict</em>, in plain words, what it will print when
                you click <strong>Open Go Playground</strong> and run it there.</p>
             <pre><code class="language-go">package main
@@ -568,10 +568,10 @@ func main() {
 That's 4 languages total.</code></pre>
             <p><strong>Things to notice, even without "knowing" Go yet:</strong></p>
             <ul>
-              <li><code>[]string{"Go", "Python", ...}</code> — a list of text items. Go calls these <em>slices</em> (Chapter 13).</li>
-              <li><code>for i, lang := range languages</code> — loop over the list, giving each item an index <code>i</code> and a value <code>lang</code>.</li>
-              <li><code>%d</code> is a placeholder for a number, <code>%s</code> for a string — same idea as <code>printf</code> in other languages.</li>
-              <li><code>len(...)</code> — the built-in length function.</li>
+              <li><code>[]string{"Go", "Python", ...}</code>: a list of text items. Go calls these <em>slices</em> (Chapter 13).</li>
+              <li><code>for i, lang := range languages</code>: loop over the list, giving each item an index <code>i</code> and a value <code>lang</code>.</li>
+              <li><code>%d</code> is a placeholder for a number, <code>%s</code> for a string, same idea as <code>printf</code> in other languages.</li>
+              <li><code>len(...)</code>: the built-in length function.</li>
             </ul>
             <p>We'll meet every one of these in future chapters. Today, the goal is
                just to see that <em>you can already mostly read Go</em>.</p>
@@ -583,10 +583,10 @@ That's 4 languages total.</code></pre>
       <section id="further" class="further-reading">
         <h3>Further reading</h3>
         <ul>
-          <li><a href="https://go.dev/" target="_blank" rel="noopener">go.dev</a> — the official home of Go.</li>
-          <li><a href="https://en.wikipedia.org/wiki/Compiled_language" target="_blank" rel="noopener">Compiled vs interpreted languages (Wikipedia)</a> — deeper dive into the spectrum.</li>
-          <li><a href="https://en.wikipedia.org/wiki/Machine_code" target="_blank" rel="noopener">Machine code (Wikipedia)</a> — what the CPU really speaks.</li>
-          <li><a href="https://research.swtch.com/interpreters" target="_blank" rel="noopener">Russ Cox — A primer on implementing languages</a> — an accessible compiler/interpreter essay from one of Go's core contributors.</li>
+          <li><a href="https://go.dev/" target="_blank" rel="noopener">go.dev</a>: the official home of Go.</li>
+          <li><a href="https://en.wikipedia.org/wiki/Compiled_language" target="_blank" rel="noopener">Compiled vs interpreted languages (Wikipedia)</a>: deeper dive into the spectrum.</li>
+          <li><a href="https://en.wikipedia.org/wiki/Machine_code" target="_blank" rel="noopener">Machine code (Wikipedia)</a>: what the CPU really speaks.</li>
+          <li><a href="https://research.swtch.com/interpreters" target="_blank" rel="noopener">Russ Cox, A primer on implementing languages</a>: an accessible compiler/interpreter essay from one of Go's core contributors.</li>
         </ul>
       </section>
 
@@ -602,7 +602,7 @@ That's 4 languages total.</code></pre>
         </a>
         <a class="next" href="02-story-of-go.html">
           <div class="nav-label">Next</div>
-          <div class="nav-title">Chapter 2 — The Story of Go</div>
+          <div class="nav-title">Chapter 2: The Story of Go</div>
         </a>
       </nav>
     </main>

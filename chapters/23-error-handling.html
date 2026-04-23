@@ -5,17 +5,17 @@
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chapter 23 · Error Handling — Learn Go by Cyrus Mobini</title>
+  <title>Chapter 23 · Error Handling | Learn Go by Cyrus Mobini</title>
   <meta name="description" content="Go's errors-as-values model: error interface, error wrapping with %w, errors.Is / errors.As, sentinel and custom errors, and when (not) to use panic.">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="Chapter 23 · Error Handling — Learn Go">
+  <meta property="og:title" content="Chapter 23 · Error Handling | Learn Go">
   <meta property="og:description" content="Idiomatic Go error handling: return values, wrapping, Is/As, sentinels, custom types, panic.">
   <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
   <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/23-error-handling.html">
-  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta property="og:site_name" content="Learn Go | by Cyrus Mobini">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Chapter 23 · Error Handling — Learn Go">
+  <meta name="twitter:title" content="Chapter 23 · Error Handling | Learn Go">
   <meta name="twitter:description" content="Idiomatic Go error handling.">
   <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/23-error-handling.html">
@@ -57,7 +57,7 @@
       <h1>Error Handling</h1>
       <p>Go has no exceptions. Instead, functions return <em>error values</em>
          that callers check explicitly. This reads verbose at first, but pays off
-         in code that's easy to reason about — control flow is linear, and error
+         in code that's easy to reason about, control flow is linear, and error
          handling is impossible to "forget".</p>
 
       <section id="objectives" class="learning-objectives">
@@ -104,7 +104,7 @@ fmt.Println(result)
 
         <p>The convention: <code>error</code> is the <em>last</em> return value;
            it's <code>nil</code> on success. Never return a non-nil result
-           alongside a non-nil error (and vice versa) — callers shouldn't have to
+           alongside a non-nil error (and vice versa), callers shouldn't have to
            check both.</p>
       </section>
 
@@ -124,30 +124,30 @@ fmt.Println(result)
 
         <p>Now an error message like <code>loadConfig "a.yaml": open a.yaml: no
            such file or directory</code> tells you both what high-level action
-           failed and the underlying cause — and the original error object is
+           failed and the underlying cause, and the original error object is
            still accessible.</p>
       </section>
 
       <section id="is-as">
         <h2><code>errors.Is</code> and <code>errors.As</code></h2>
         <pre><code class="language-go">if errors.Is(err, os.ErrNotExist) {
-    // err chain contains os.ErrNotExist — create the file
+    // err chain contains os.ErrNotExist, create the file
 }
 
 var pathErr *os.PathError
 if errors.As(err, &amp;pathErr) {
-    // err chain contains a *os.PathError — pathErr is now usable
+    // err chain contains a *os.PathError: pathErr is now usable
     fmt.Println(pathErr.Path)
 }
 </code></pre>
 
         <ul>
-          <li><code>errors.Is(err, target)</code> — "does err's chain contain <em>this exact error value</em>?"</li>
-          <li><code>errors.As(err, &amp;v)</code> — "does err's chain contain an error <em>of this type</em>? If so, put it in v."</li>
+          <li><code>errors.Is(err, target)</code>: "does err's chain contain <em>this exact error value</em>?"</li>
+          <li><code>errors.As(err, &amp;v)</code>: "does err's chain contain an error <em>of this type</em>? If so, put it in v."</li>
         </ul>
 
         <p>Both walk the chain created by <code>%w</code>. Never compare with
-           <code>==</code> directly — if the error's been wrapped, <code>==</code>
+           <code>==</code> directly, if the error's been wrapped, <code>==</code>
            will miss it.</p>
       </section>
 
@@ -167,7 +167,7 @@ if errors.Is(err, ErrNotFound) { ... }
 
         <p>Sentinels are great when there's a clear set of known failure modes
            callers might want to branch on (<code>io.EOF</code> is the classic).
-           Use them sparingly — too many sentinels and your package becomes a
+           Use them sparingly, too many sentinels and your package becomes a
            jungle.</p>
       </section>
 
@@ -227,14 +227,14 @@ if errors.As(err, &amp;verr) {
         <ul>
           <li><strong>Check errors immediately.</strong> Don't stockpile for later.</li>
           <li><strong>Add context when wrapping.</strong> "opening config: ..." is more useful than just "file not found".</li>
-          <li><strong>Don't log-and-return.</strong> Either log <em>or</em> return — not both. The caller logs at the top.</li>
+          <li><strong>Don't log-and-return.</strong> Either log <em>or</em> return, not both. The caller logs at the top.</li>
           <li><strong>Use <code>fmt.Errorf</code> for dynamic errors</strong>, <code>errors.New</code> for static ones (like sentinels).</li>
         </ul>
 
         <h3>Anti-patterns</h3>
         <ul>
-          <li><code>_ = err</code> — silently ignoring. Almost always a bug.</li>
-          <li>Comparing with <code>err.Error() == "no rows"</code> — fragile. Use <code>errors.Is</code>.</li>
+          <li><code>_ = err</code>: silently ignoring. Almost always a bug.</li>
+          <li>Comparing with <code>err.Error() == "no rows"</code>: fragile. Use <code>errors.Is</code>.</li>
           <li>Returning <code>nil</code> from an error-returning function by accident. Always check before returning data.</li>
         </ul>
       </section>
@@ -284,7 +284,7 @@ func main() {
     _, err := readConfig("missing.yaml")
     switch {
     case errors.Is(err, os.ErrNotExist):
-        fmt.Println("config doesn't exist — using defaults")
+        fmt.Println("config doesn't exist, using defaults")
     case err != nil:
         fmt.Println("other error:", err)
     }
@@ -296,8 +296,8 @@ func main() {
       <section id="further" class="further-reading">
         <h3>Further reading</h3>
         <ul>
-          <li><a href="https://go.dev/blog/error-handling-and-go" target="_blank" rel="noopener">The Go Blog — Error handling and Go</a></li>
-          <li><a href="https://go.dev/blog/go1.13-errors" target="_blank" rel="noopener">Go 1.13 errors — wrapping, Is, As</a></li>
+          <li><a href="https://go.dev/blog/error-handling-and-go" target="_blank" rel="noopener">The Go Blog, Error handling and Go</a></li>
+          <li><a href="https://go.dev/blog/go1.13-errors" target="_blank" rel="noopener">Go 1.13 errors, wrapping, Is, As</a></li>
           <li><a href="https://pkg.go.dev/errors" target="_blank" rel="noopener"><code>errors</code> package</a></li>
         </ul>
       </section>
@@ -305,8 +305,8 @@ func main() {
       <div class="complete-box"><p>Errors as first-class values.</p><button class="complete-btn" type="button" data-chapter-id="ch-23">✓ Mark this chapter complete</button></div>
 
       <nav class="chapter-nav" aria-label="Chapter navigation">
-        <a class="prev" href="22-generics.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 22 — Generics</div></a>
-        <a class="next" href="24-goroutines.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 24 — Goroutines</div></a>
+        <a class="prev" href="22-generics.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 22: Generics</div></a>
+        <a class="next" href="24-goroutines.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 24: Goroutines</div></a>
       </nav>
     </main>
   </div>

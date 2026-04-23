@@ -5,18 +5,18 @@
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chapter 6 · Basic Types — Learn Go by Cyrus Mobini</title>
-  <meta name="description" content="Integers, floats, booleans, strings, and complex numbers in Go — their bit sizes, ranges, overflow behavior, and explicit type conversions.">
+  <title>Chapter 6 · Basic Types | Learn Go by Cyrus Mobini</title>
+  <meta name="description" content="Integers, floats, booleans, strings, and complex numbers in Go, their bit sizes, ranges, overflow behavior, and explicit type conversions.">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="Chapter 6 · Basic Types — Learn Go">
-  <meta property="og:description" content="The primitive types Go builds on: int, uint, float, bool, string, complex — and the conversion rules that glue them together.">
+  <meta property="og:title" content="Chapter 6 · Basic Types | Learn Go">
+  <meta property="og:description" content="The primitive types Go builds on: int, uint, float, bool, string, complex, and the conversion rules that glue them together.">
   <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/06-basic-types.html">
-  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta property="og:site_name" content="Learn Go | by Cyrus Mobini">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Chapter 6 · Basic Types — Learn Go">
+  <meta name="twitter:title" content="Chapter 6 · Basic Types | Learn Go">
   <meta name="twitter:description" content="The primitive types Go builds on: int, uint, float, bool, string, complex.">
   <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/06-basic-types.html">
@@ -57,8 +57,8 @@
     <main class="chapter-main" data-chapter-id="ch-06">
       <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 06 · CORE LANGUAGE</div>
       <h1>Basic Types</h1>
-      <p>Every value in Go has a type. The <em>basic</em> types — integers, floats,
-         booleans, strings, and complex numbers — are the atoms you'll combine
+      <p>Every value in Go has a type. The <em>basic</em> types (integers, floats,
+         booleans, strings, and complex numbers) are the atoms you'll combine
          into everything else. This chapter is a reference tour: ranges, sizes,
          overflow, and Go's strict conversion rules.</p>
 
@@ -94,9 +94,9 @@
 
         <p>Two aliases worth noticing:</p>
         <ul>
-          <li><code>byte</code> is an alias for <code>uint8</code> — you'll see
+          <li><code>byte</code> is an alias for <code>uint8</code>: you'll see
               it constantly when dealing with bytes of data.</li>
-          <li><code>rune</code> is an alias for <code>int32</code> — it represents
+          <li><code>rune</code> is an alias for <code>int32</code>: it represents
               a Unicode code point. Chapter 7 is entirely about runes and strings.</li>
         </ul>
 
@@ -108,7 +108,7 @@
             general numeric work. Reach for a sized type like <code>int64</code>
             when you need a specific range, performance characteristic, or
             binary/protocol compatibility. Unsigned types are less common than
-            you'd think — <code>int</code> is fine for "counts of things".
+            you'd think, <code>int</code> is fine for "counts of things".
           </div>
         </div>
       </section>
@@ -150,8 +150,8 @@ func main() {
         <p>Go has two floating-point types, both IEEE 754:</p>
 
         <ul>
-          <li><code>float32</code> — single precision, ~7 decimal digits.</li>
-          <li><code>float64</code> — double precision, ~15 digits. <strong>The default choice.</strong></li>
+          <li><code>float32</code>: single precision, ~7 decimal digits.</li>
+          <li><code>float64</code>: double precision, ~15 digits. <strong>The default choice.</strong></li>
         </ul>
 
         <pre><code class="language-go">var pi float64 = 3.14159265358979
@@ -206,15 +206,15 @@ func main() {
            functions <code>complex(real, imag)</code>, <code>real()</code>, and
            <code>imag()</code> construct and decompose them.</p>
 
-        <p>You probably won't reach for these in typical application code —
-           included here for completeness.</p>
+        <p>You probably won't reach for these in typical application code.
+           They're included here for completeness.</p>
       </section>
 
       <!-- ===================================================================== -->
       <section id="bools">
         <h2>Booleans</h2>
         <p><code>bool</code> is either <code>true</code> or <code>false</code>. No
-           truthy/falsy values — <code>0</code> is not false, <code>""</code> is
+           truthy/falsy values, <code>0</code> is not false, <code>""</code> is
            not false. Only a <code>bool</code> works in a condition:</p>
 
         <pre><code class="language-go">package main
@@ -232,7 +232,7 @@ func main() {
 }
 </code></pre>
 
-        <p>This strictness is deliberate — it prevents whole categories of bugs
+        <p>This strictness is deliberate, it prevents whole categories of bugs
            (e.g. accidentally treating <code>0</code> as "no value"). Chapter 8
            covers the <code>&amp;&amp;</code>, <code>||</code>, and
            <code>!</code> operators in detail.</p>
@@ -242,7 +242,7 @@ func main() {
       <section id="strings">
         <h2>Strings (quick intro)</h2>
         <p>A <code>string</code> in Go is an <strong>immutable</strong> sequence
-           of bytes — typically UTF-8 encoded text. You can't modify individual
+           of bytes, typically UTF-8 encoded text. You can't modify individual
            bytes; to "change" a string you build a new one.</p>
 
         <pre><code class="language-go">package main
@@ -258,7 +258,7 @@ func main() {
 }
 </code></pre>
 
-        <p>There's a LOT more to strings — indexing returns a <em>byte</em>,
+        <p>There's a LOT more to strings, indexing returns a <em>byte</em>,
            ranging gives you <em>runes</em>, and UTF-8 encoding has subtleties
            that trip up nearly everyone. All of that is the entire next chapter.</p>
       </section>
@@ -267,7 +267,7 @@ func main() {
       <section id="conversions">
         <h2>Type conversions</h2>
         <p>Go does no implicit numeric conversions. This is unusual if you're
-           coming from C or JavaScript — even "compatible" numeric types need an
+           coming from C or JavaScript, even "compatible" numeric types need an
            explicit cast:</p>
 
         <pre><code class="language-go">package main
@@ -297,8 +297,8 @@ func main() {
           </div>
         </div>
 
-        <p>Converting to/from strings is a whole different kind of operation —
-           you'll use the <code>strconv</code> package:</p>
+        <p>Converting to/from strings is a whole different kind of operation.
+           You'll use the <code>strconv</code> package:</p>
 
         <pre><code class="language-go">package main
 
@@ -340,7 +340,7 @@ func main() {
             <tr><td>Complex</td><td><code>complex64</code>, <code>complex128</code></td><td><code>complex128</code></td><td>Rarely used</td></tr>
             <tr><td>Bool</td><td><code>bool</code></td><td><code>bool</code></td><td>No truthy/falsy</td></tr>
             <tr><td>String</td><td><code>string</code></td><td><code>string</code></td><td>Immutable, typically UTF-8</td></tr>
-            <tr><td>Alias</td><td><code>rune</code> = <code>int32</code></td><td>—</td><td>A Unicode code point</td></tr>
+            <tr><td>Alias</td><td><code>rune</code> = <code>int32</code></td><td>n/a</td><td>A Unicode code point</td></tr>
           </tbody>
         </table>
       </section>
@@ -396,7 +396,7 @@ func main() {
                   "`n.String()`"
                 ],
                 "answer": 1,
-                "explanation": "`strconv.Itoa` produces the text representation. `string(n)` is a type conversion that treats n as a Unicode code point — rarely what you want."
+                "explanation": "`strconv.Itoa` produces the text representation. `string(n)` is a type conversion that treats n as a Unicode code point, rarely what you want."
               }
             ]
           }
@@ -486,10 +486,10 @@ func main() {
       <section id="further" class="further-reading">
         <h3>Further reading</h3>
         <ul>
-          <li><a href="https://go.dev/ref/spec#Types" target="_blank" rel="noopener">Go spec — Types</a></li>
-          <li><a href="https://go.dev/ref/spec#Numeric_types" target="_blank" rel="noopener">Go spec — Numeric types</a></li>
+          <li><a href="https://go.dev/ref/spec#Types" target="_blank" rel="noopener">Go spec, Types</a></li>
+          <li><a href="https://go.dev/ref/spec#Numeric_types" target="_blank" rel="noopener">Go spec, Numeric types</a></li>
           <li><a href="https://pkg.go.dev/strconv" target="_blank" rel="noopener">strconv package</a></li>
-          <li><a href="https://0.30000000000000004.com/" target="_blank" rel="noopener">0.30000000000000004.com</a> — why floating-point math is imprecise.</li>
+          <li><a href="https://0.30000000000000004.com/" target="_blank" rel="noopener">0.30000000000000004.com</a>: why floating-point math is imprecise.</li>
         </ul>
       </section>
 
@@ -501,11 +501,11 @@ func main() {
       <nav class="chapter-nav" aria-label="Chapter navigation">
         <a class="prev" href="05-variables.html">
           <div class="nav-label">Previous</div>
-          <div class="nav-title">Chapter 5 — Variables &amp; Constants</div>
+          <div class="nav-title">Chapter 5: Variables &amp; Constants</div>
         </a>
         <a class="next" href="07-strings-runes-unicode.html">
           <div class="nav-label">Next</div>
-          <div class="nav-title">Chapter 7 — Strings, Runes &amp; Unicode</div>
+          <div class="nav-title">Chapter 7: Strings, Runes &amp; Unicode</div>
         </a>
       </nav>
     </main>

@@ -5,18 +5,18 @@
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chapter 7 · Strings, Runes &amp; Unicode — Learn Go by Cyrus Mobini</title>
+  <title>Chapter 7 · Strings, Runes &amp; Unicode | Learn Go by Cyrus Mobini</title>
   <meta name="description" content="Understand Go's string-as-bytes model, the rune type, UTF-8 encoding, and how to correctly iterate, slice, and count characters.">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="Chapter 7 · Strings, Runes &amp; Unicode — Learn Go">
+  <meta property="og:title" content="Chapter 7 · Strings, Runes &amp; Unicode | Learn Go">
   <meta property="og:description" content="Strings-as-bytes, runes, UTF-8, and how to iterate and slice correctly. The chapter nobody warns you about.">
   <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/07-strings-runes-unicode.html">
-  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta property="og:site_name" content="Learn Go | by Cyrus Mobini">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Chapter 7 · Strings, Runes &amp; Unicode — Learn Go">
+  <meta name="twitter:title" content="Chapter 7 · Strings, Runes &amp; Unicode | Learn Go">
   <meta name="twitter:description" content="Strings-as-bytes, runes, UTF-8, and correct iteration.">
   <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/07-strings-runes-unicode.html">
@@ -60,7 +60,7 @@
       <h1>Strings, Runes &amp; Unicode</h1>
       <p>Every programming language has strings. Go's are simple on the surface
          and quietly clever underneath. Once you understand the byte-vs-rune
-         split, a whole category of bugs evaporates — the kind where
+         split, a whole category of bugs evaporates, the kind where
          <code>"café"</code> seems to have 5 characters instead of 4.</p>
 
       <section id="objectives" class="learning-objectives">
@@ -88,7 +88,7 @@
         </ol>
 
         <p>That's it. Immutable, countable, byte-indexable. A string <em>doesn't</em>
-           have a built-in notion of "characters" — because the definition of
+           have a built-in notion of "characters", because the definition of
            character is tangled up in text encoding, and Go took a strong stance:
            <strong>source code and strings default to UTF-8.</strong></p>
 
@@ -99,8 +99,8 @@ import "fmt"
 func main() {
     s := "hello"
     fmt.Println(len(s))          // 5  (bytes)
-    fmt.Println(s[0])            // 104 — the byte value of 'h'
-    fmt.Printf("%c\n", s[0])     // h  — interpreted as a rune
+    fmt.Println(s[0])            // 104, the byte value of 'h'
+    fmt.Printf("%c\n", s[0])     // h , interpreted as a rune
 }
 </code></pre>
       </section>
@@ -127,7 +127,7 @@ func main() {
 
         <p>Two consequences that matter for Go strings:</p>
         <ul>
-          <li><strong>ASCII is UTF-8.</strong> Old ASCII strings are valid UTF-8 — no conversion needed.</li>
+          <li><strong>ASCII is UTF-8.</strong> Old ASCII strings are valid UTF-8, no conversion needed.</li>
           <li><strong>One character ≠ one byte.</strong> <code>"é"</code> is <em>two</em> bytes. <code>"😀"</code> is <em>four</em>.</li>
         </ul>
       </section>
@@ -138,8 +138,8 @@ func main() {
         <p>Go gives you two named types that will save your sanity:</p>
 
         <ul>
-          <li><strong><code>byte</code></strong> (alias for <code>uint8</code>) — one raw byte of data.</li>
-          <li><strong><code>rune</code></strong> (alias for <code>int32</code>) — one Unicode code point.</li>
+          <li><strong><code>byte</code></strong> (alias for <code>uint8</code>), one raw byte of data.</li>
+          <li><strong><code>rune</code></strong> (alias for <code>int32</code>), one Unicode code point.</li>
         </ul>
 
         <p>Visualize it for the string <code>"café"</code>:</p>
@@ -190,7 +190,7 @@ func main() {
             </g>
           </svg>
           <figcaption class="diagram-caption">
-            "café" — 5 bytes, 4 runes. That asymmetry is <em>the</em> thing to internalize.
+            "café", 5 bytes, 4 runes. That asymmetry is <em>the</em> thing to internalize.
           </figcaption>
         </figure>
 
@@ -203,8 +203,8 @@ import (
 
 func main() {
     s := "café"
-    fmt.Println(len(s))                        // 5  — bytes
-    fmt.Println(utf8.RuneCountInString(s))     // 4  — runes
+    fmt.Println(len(s))                        // 5 , bytes
+    fmt.Println(utf8.RuneCountInString(s))     // 4 : runes
 }
 </code></pre>
       </section>
@@ -221,22 +221,22 @@ import "fmt"
 
 func main() {
     s := "café"
-    fmt.Printf("%T %v\n", s[3], s[3])     // uint8 195   — NOT 'é'
+    fmt.Printf("%T %v\n", s[3], s[3])     // uint8 195  , NOT 'é'
 }
 </code></pre>
 
         <p>Slicing works on bytes too:</p>
 
         <pre><code class="language-go">s := "café"
-fmt.Println(s[0:3])     // "caf"   — OK, those bytes map 1:1 to runes
-fmt.Println(s[0:4])     // "caf?"  — cuts an 'é' in half! Invalid UTF-8.
+fmt.Println(s[0:3])     // "caf"  , OK, those bytes map 1:1 to runes
+fmt.Println(s[0:4])     // "caf?" , cuts an 'é' in half! Invalid UTF-8.
 </code></pre>
 
         <div class="callout pitfall">
           <div class="ico">!</div>
           <div>
             <span class="callout-title">Byte slicing isn't safe for arbitrary strings</span>
-            Slicing is cheap (it makes no copy — see Chapter 13) but operates on
+            Slicing is cheap (it makes no copy, see Chapter 13) but operates on
             <em>bytes</em>. Use it when you know your indexes land on rune
             boundaries (e.g. you just found them with
             <code>strings.Index</code>) or when the content is guaranteed ASCII.
@@ -248,7 +248,7 @@ fmt.Println(s[0:4])     // "caf?"  — cuts an 'é' in half! Invalid UTF-8.
       <section id="range">
         <h2>Ranging correctly</h2>
         <p>The <code>for … range</code> loop over a string is <em>rune-aware</em>
-           — it decodes UTF-8 on the fly:</p>
+          , it decodes UTF-8 on the fly:</p>
 
         <pre><code class="language-go">package main
 
@@ -275,7 +275,7 @@ byte-index 3: 'é' (rune value 233)</code></pre>
 
         <p>Compare to a C-style index loop:</p>
 
-        <pre><code class="language-go">// WRONG for non-ASCII — iterates bytes, not runes
+        <pre><code class="language-go">// WRONG for non-ASCII, iterates bytes, not runes
 for i := 0; i < len(s); i++ {
     fmt.Printf("%c ", s[i])     // will print garbage for multi-byte runes
 }
@@ -324,16 +324,16 @@ func main() {
         <p>Go has two flavors of string literal:</p>
 
         <ol>
-          <li><strong>Interpreted</strong> — double-quoted, supports escape
+          <li><strong>Interpreted</strong>: double-quoted, supports escape
               sequences like <code>\n</code>, <code>\t</code>, <code>\uXXXX</code>.</li>
-          <li><strong>Raw</strong> — backtick-quoted, <em>no</em> escape sequences.
+          <li><strong>Raw</strong>: backtick-quoted, <em>no</em> escape sequences.
               Great for Windows paths, regex, and multi-line content.</li>
         </ol>
 
         <pre><code class="language-go">normal := "line 1\nline 2\t(tabbed)"
 raw := `line 1
 line 2    but backslashes are literal: \n \t`
-regex := `^\d{3}-\d{4}$`      // raw string — don't escape the \
+regex := `^\d{3}-\d{4}$`      // raw string, don't escape the \
 </code></pre>
       </section>
 
@@ -341,17 +341,17 @@ regex := `^\d{3}-\d{4}$`      // raw string — don't escape the \
       <section id="packages">
         <h2>Useful packages</h2>
         <ul>
-          <li><strong><code>strings</code></strong> — <code>strings.Contains</code>,
+          <li><strong><code>strings</code></strong>: <code>strings.Contains</code>,
               <code>strings.Split</code>, <code>strings.ToLower</code>,
               <code>strings.ReplaceAll</code>, <code>strings.Index</code>,
               <code>strings.Fields</code>, <code>strings.TrimSpace</code>, and many more.</li>
-          <li><strong><code>unicode</code></strong> — rune classification:
+          <li><strong><code>unicode</code></strong>: rune classification:
               <code>unicode.IsLetter</code>, <code>unicode.IsDigit</code>,
               <code>unicode.IsSpace</code>, <code>unicode.ToUpper</code>.</li>
-          <li><strong><code>unicode/utf8</code></strong> — low-level UTF-8 operations:
+          <li><strong><code>unicode/utf8</code></strong>: low-level UTF-8 operations:
               <code>utf8.RuneCountInString</code>, <code>utf8.DecodeRuneInString</code>,
               <code>utf8.ValidString</code>.</li>
-          <li><strong><code>strconv</code></strong> — string ↔ number conversions
+          <li><strong><code>strconv</code></strong>: string ↔ number conversions
               (we met this in Chapter 6).</li>
         </ul>
 
@@ -408,7 +408,7 @@ func main() {
             <code>fmt.Sprintf</code> is fine for small formatted strings. For
             serializing structured data, reach for <code>encoding/json</code>
             (Chapter 29) or <code>text/template</code>. Build-loops with
-            <code>+=</code> are a classic Go anti-pattern — spotting them is
+            <code>+=</code> are a classic Go anti-pattern, spotting them is
             a quick code-review win.
           </div>
         </div>
@@ -543,7 +543,7 @@ func main() {
     fmt.Printf("letters=%d digits=%d\n", l, d)    // letters=12 digits=3
 }
 </code></pre>
-            <p>This uses <em>named returns</em> (Chapter 11) — handy when the
+            <p>This uses <em>named returns</em> (Chapter 11), handy when the
                semantic of each return value is clear from its name.</p>
           </details>
         </div>
@@ -553,10 +553,10 @@ func main() {
       <section id="further" class="further-reading">
         <h3>Further reading</h3>
         <ul>
-          <li><a href="https://go.dev/blog/strings" target="_blank" rel="noopener">The Go Blog — Strings, bytes, runes and characters</a> — Rob Pike's essential essay.</li>
+          <li><a href="https://go.dev/blog/strings" target="_blank" rel="noopener">The Go Blog, Strings, bytes, runes and characters</a>: Rob Pike's essential essay.</li>
           <li><a href="https://pkg.go.dev/strings" target="_blank" rel="noopener"><code>strings</code> package docs</a></li>
           <li><a href="https://pkg.go.dev/unicode/utf8" target="_blank" rel="noopener"><code>unicode/utf8</code> package docs</a></li>
-          <li><a href="https://home.unicode.org/" target="_blank" rel="noopener">Unicode.org</a> — the authoritative source on code points.</li>
+          <li><a href="https://home.unicode.org/" target="_blank" rel="noopener">Unicode.org</a>: the authoritative source on code points.</li>
         </ul>
       </section>
 
@@ -568,11 +568,11 @@ func main() {
       <nav class="chapter-nav" aria-label="Chapter navigation">
         <a class="prev" href="06-basic-types.html">
           <div class="nav-label">Previous</div>
-          <div class="nav-title">Chapter 6 — Basic Types</div>
+          <div class="nav-title">Chapter 6: Basic Types</div>
         </a>
         <a class="next" href="08-operators.html">
           <div class="nav-label">Next</div>
-          <div class="nav-title">Chapter 8 — Operators &amp; Expressions</div>
+          <div class="nav-title">Chapter 8: Operators &amp; Expressions</div>
         </a>
       </nav>
     </main>

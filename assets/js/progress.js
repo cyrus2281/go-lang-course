@@ -97,7 +97,7 @@
     document.dispatchEvent(new CustomEvent('progress:change', { detail: { reset: true } }));
   }
 
-  // Render helpers — wire up DOM elements declaratively
+  // Render helpers - wire up DOM elements declaratively
   function renderProgressBar(fillEl, labelEl) {
     const pct = getProgressPercent();
     const completed = getCompletedCount();

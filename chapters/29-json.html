@@ -5,17 +5,17 @@
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chapter 29 · Encoding JSON — Learn Go by Cyrus Mobini</title>
+  <title>Chapter 29 · Encoding JSON | Learn Go by Cyrus Mobini</title>
   <meta name="description" content="Marshal and Unmarshal JSON in Go. Struct tags, omitempty, streaming with encoders/decoders, custom MarshalJSON, and handling unknown structure.">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="Chapter 29 · Encoding JSON — Learn Go">
+  <meta property="og:title" content="Chapter 29 · Encoding JSON | Learn Go">
   <meta property="og:description" content="Marshal, Unmarshal, struct tags, streaming, custom marshaling.">
   <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
   <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/29-json.html">
-  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta property="og:site_name" content="Learn Go | by Cyrus Mobini">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Chapter 29 · Encoding JSON — Learn Go">
+  <meta name="twitter:title" content="Chapter 29 · Encoding JSON | Learn Go">
   <meta name="twitter:description" content="Marshal, Unmarshal, tags, streaming.">
   <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/29-json.html">
@@ -73,7 +73,7 @@
       </section>
 
       <section id="marshal">
-        <h2>Marshal — Go to JSON</h2>
+        <h2>Marshal, Go to JSON</h2>
         <pre><code class="language-go">type User struct {
     Name  string
     Email string
@@ -90,20 +90,20 @@ fmt.Println(string(b))   // {"Name":"Alice","Email":"a@example.com","Age":30}
       </section>
 
       <section id="unmarshal">
-        <h2>Unmarshal — JSON to Go</h2>
+        <h2>Unmarshal, JSON to Go</h2>
         <pre><code class="language-go">var u User
 data := []byte(`{"Name":"Bob","Email":"b@example.com","Age":25}`)
 if err := json.Unmarshal(data, &amp;u); err != nil { /* handle */ }
 fmt.Printf("%+v\n", u)
 </code></pre>
 
-        <p>Pass a <em>pointer</em> to <code>Unmarshal</code> — it writes into
+        <p>Pass a <em>pointer</em> to <code>Unmarshal</code>: it writes into
            your destination. Unknown JSON fields are ignored by default; missing
            fields get the Go zero value.</p>
       </section>
 
       <section id="tags">
-        <h2>Struct tags — controlling JSON field names</h2>
+        <h2>Struct tags, controlling JSON field names</h2>
         <pre><code class="language-go">type User struct {
     Name  string `json:"name"`
     Email string `json:"email"`
@@ -150,8 +150,8 @@ json.Unmarshal(data, &amp;v)
 
       <section id="stream">
         <h2>Streaming encoders/decoders</h2>
-        <p>For big inputs or HTTP bodies, use <code>json.Decoder</code> —
-           it reads from an <code>io.Reader</code>:</p>
+        <p>For big inputs or HTTP bodies, use <code>json.Decoder</code>.
+           It reads from an <code>io.Reader</code>:</p>
 
         <pre><code class="language-go">resp, _ := http.Get(url)
 defer resp.Body.Close()
@@ -161,7 +161,7 @@ if err := json.NewDecoder(resp.Body).Decode(&amp;users); err != nil { /* ... */ 
 </code></pre>
 
         <p>Conversely, <code>json.Encoder</code> writes to an
-           <code>io.Writer</code> — often used to stream an HTTP response:</p>
+           <code>io.Writer</code>: often used to stream an HTTP response:</p>
 
         <pre><code class="language-go">func handler(w http.ResponseWriter, r *http.Request) {
     w.Header().Set("Content-Type", "application/json")
@@ -217,7 +217,7 @@ fmt.Println(string(b))
             "questions": [
               {"q":"What happens to unexported (lowercase) struct fields in json.Marshal?","options":["Marshaled with lowercase keys","Silently omitted","Compile error","Marshaled only with a tag"],"answer":1,"explanation":"Only exported (capitalized) fields can be seen by the json package via reflection. Tags on unexported fields have no effect."},
               {"q":"What does the tag `json:\"email,omitempty\"` do?","options":["Requires email to be non-empty","Makes email required","Omits the field from the output when the value is the zero value","Emails the field"],"answer":2,"explanation":"omitempty omits the field when it's the zero value (\"\" for string, 0 for int, etc). Use a *int if you need to distinguish 0 from unset."},
-              {"q":"When should you prefer json.Decoder over json.Unmarshal?","options":["Always","When parsing from an io.Reader (files, HTTP bodies) — avoids loading the whole payload into memory","When the data is small","For struct types only"],"answer":1,"explanation":"Decoder streams from a Reader. For HTTP bodies and big files, this is much more memory-efficient than ReadAll + Unmarshal."},
+              {"q":"When should you prefer json.Decoder over json.Unmarshal?","options":["Always","When parsing from an io.Reader (files, HTTP bodies), avoids loading the whole payload into memory","When the data is small","For struct types only"],"answer":1,"explanation":"Decoder streams from a Reader. For HTTP bodies and big files, this is much more memory-efficient than ReadAll + Unmarshal."},
               {"q":"How do you preserve part of a JSON payload for later parsing?","options":["json.RawMessage in the struct","json.Partial","Delay parsing","Use strings"],"answer":0,"explanation":"json.RawMessage is just []byte with custom marshal/unmarshal. It preserves the raw JSON bytes so you can unmarshal into a specific type later (e.g., based on a 'type' discriminator)."},
               {"q":"Best way to pretty-print JSON to stdout:","options":["Write it yourself","json.MarshalIndent(v, \"\", \"  \")","json.Pretty","fmt.Printf(\"%j\", v)"],"answer":1,"explanation":"MarshalIndent adds the given prefix and per-level indent. json.Encoder.SetIndent does the same for streaming output."}
             ]
@@ -267,15 +267,15 @@ func main() {
         <ul>
           <li><a href="https://pkg.go.dev/encoding/json" target="_blank" rel="noopener"><code>encoding/json</code> reference</a></li>
           <li><a href="https://go.dev/blog/json" target="_blank" rel="noopener">JSON and Go (blog)</a></li>
-          <li><a href="https://mholt.github.io/json-to-go/" target="_blank" rel="noopener">JSON-to-Go converter</a> — drop in sample JSON, get matching struct</li>
+          <li><a href="https://mholt.github.io/json-to-go/" target="_blank" rel="noopener">JSON-to-Go converter</a>: drop in sample JSON, get matching struct</li>
         </ul>
       </section>
 
       <div class="complete-box"><p>JSON, any shape.</p><button class="complete-btn" type="button" data-chapter-id="ch-29">✓ Mark this chapter complete</button></div>
 
       <nav class="chapter-nav" aria-label="Chapter navigation">
-        <a class="prev" href="28-time-dates.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 28 — Time &amp; Dates</div></a>
-        <a class="next" href="30-net-http.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 30 — Networking: net/http</div></a>
+        <a class="prev" href="28-time-dates.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 28: Time &amp; Dates</div></a>
+        <a class="next" href="30-net-http.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 30: Networking: net/http</div></a>
       </nav>
     </main>
   </div>

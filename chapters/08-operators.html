@@ -5,18 +5,18 @@
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chapter 8 · Operators &amp; Expressions — Learn Go by Cyrus Mobini</title>
-  <meta name="description" content="Arithmetic, comparison, logical, bitwise, and assignment operators in Go — including precedence, short-circuit evaluation, and the &^ AND-NOT operator.">
+  <title>Chapter 8 · Operators &amp; Expressions | Learn Go by Cyrus Mobini</title>
+  <meta name="description" content="Arithmetic, comparison, logical, bitwise, and assignment operators in Go, including precedence, short-circuit evaluation, and the &^ AND-NOT operator.">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="Chapter 8 · Operators — Learn Go">
+  <meta property="og:title" content="Chapter 8 · Operators | Learn Go">
   <meta property="og:description" content="All of Go's operators, with the precedence table and short-circuit rules every textbook leaves out.">
   <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/08-operators.html">
-  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta property="og:site_name" content="Learn Go | by Cyrus Mobini">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Chapter 8 · Operators — Learn Go">
+  <meta name="twitter:title" content="Chapter 8 · Operators | Learn Go">
   <meta name="twitter:description" content="All of Go's operators with precedence and short-circuit rules.">
   <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/08-operators.html">
@@ -42,7 +42,7 @@
         <li><a href="#incdec">Increment / decrement</a></li>
         <li><a href="#address">Address-of &amp; receive</a></li>
         <li><a href="#precedence">Precedence table</a></li>
-        <li><a href="#no-ternary">No ternary — use <code>if</code></a></li>
+        <li><a href="#no-ternary">No ternary, use <code>if</code></a></li>
         <li><a href="#quiz">Quiz</a></li>
         <li><a href="#exercises">Exercises</a></li>
         <li><a href="#further">Further reading</a></li>
@@ -59,7 +59,7 @@
       <div class="chapter-eyebrow"><span class="dot"></span>CHAPTER 08 · CORE LANGUAGE</div>
       <h1>Operators &amp; Expressions</h1>
       <p>Operators are the verbs of an expression. Go has the usual arithmetic
-         and logical operators, plus a few quirks worth knowing — like
+         and logical operators, plus a few quirks worth knowing, like
          <code>&amp;^</code> (AND-NOT), <code>++</code> being a statement (not an
          expression), and the absence of a ternary <code>? :</code>.</p>
 
@@ -98,7 +98,7 @@ func main() {
     fmt.Println(a/b)             // 3   ← integer division
     fmt.Println(a%b)             // 1
 
-    // Same with floats — full precision
+    // Same with floats, full precision
     fmt.Println(10.0 / 3.0)      // 3.3333333333333335
 
     // String concat
@@ -159,7 +159,7 @@ fmt.Println("apple" == "Apple")    // false (case-sensitive)
            safe nil checks:</p>
 
         <pre><code class="language-go">if u != nil && u.IsAdmin {
-    // u.IsAdmin only evaluated when u != nil — no nil deref panic
+    // u.IsAdmin only evaluated when u != nil, no nil deref panic
 }
 </code></pre>
 
@@ -251,17 +251,17 @@ i++             // ✓ statement
            recognize them in code:</p>
 
         <ul>
-          <li><strong><code>&amp;x</code></strong> — take the address of <code>x</code>. Produces a pointer (Chapter 16).</li>
-          <li><strong><code>*p</code></strong> — dereference pointer <code>p</code>. Produces the underlying value (Chapter 16).</li>
-          <li><strong><code>&lt;-ch</code></strong> — receive a value from channel <code>ch</code> (Chapter 25).</li>
-          <li><strong><code>ch &lt;- v</code></strong> — send <code>v</code> on channel <code>ch</code>.</li>
+          <li><strong><code>&amp;x</code></strong>: take the address of <code>x</code>. Produces a pointer (Chapter 16).</li>
+          <li><strong><code>*p</code></strong>: dereference pointer <code>p</code>. Produces the underlying value (Chapter 16).</li>
+          <li><strong><code>&lt;-ch</code></strong>: receive a value from channel <code>ch</code> (Chapter 25).</li>
+          <li><strong><code>ch &lt;- v</code></strong>: send <code>v</code> on channel <code>ch</code>.</li>
         </ul>
       </section>
 
       <!-- ===================================================================== -->
       <section id="precedence">
-        <h2>Precedence (only 5 levels — easy to memorize)</h2>
-        <p>Go has a deliberately small precedence table — fewer levels means
+        <h2>Precedence (only 5 levels, easy to memorize)</h2>
+        <p>Go has a deliberately small precedence table. Fewer levels means
            fewer surprises. From highest to lowest:</p>
 
         <table>
@@ -279,7 +279,7 @@ i++             // ✓ statement
            <code>^</code>, <code>*</code>, <code>&amp;</code>, <code>&lt;-</code>)
            bind tightest of all.</p>
 
-        <pre><code class="language-go">x := 1 + 2*3        // 7  — * before +
+        <pre><code class="language-go">x := 1 + 2*3        // 7 , * before +
 y := a == b || c    // (a == b) || c
 z := !found && ok   // (!found) && ok
 </code></pre>
@@ -297,7 +297,7 @@ z := !found && ok   // (!found) && ok
 
       <!-- ===================================================================== -->
       <section id="no-ternary">
-        <h2>No ternary — use <code>if</code></h2>
+        <h2>No ternary, use <code>if</code></h2>
         <p>Go has no <code>cond ? a : b</code> operator. Use a regular
            <code>if/else</code> (Chapter 9):</p>
 
@@ -319,7 +319,7 @@ if score >= 60 {
 label := ifElse(score >= 60, "pass", "fail")
 </code></pre>
 
-        <p>(That's a generic function — Chapter 22.)</p>
+        <p>(That's a generic function, Chapter 22.)</p>
       </section>
 
       <!-- ===================================================================== -->
@@ -345,7 +345,7 @@ label := ifElse(score >= 60, "pass", "fail")
                   "It doesn't exist in Go"
                 ],
                 "answer": 2,
-                "explanation": "Unlike C/Java, Go's `++` and `--` are statements. You can't write `arr[i++]` or `y = i++` — Go considers those patterns hard to read."
+                "explanation": "Unlike C/Java, Go's `++` and `--` are statements. You can't write `arr[i++]` or `y = i++`, Go considers those patterns hard to read."
               },
               {
                 "q": "Why is `if u != nil && u.IsAdmin` safe even if `u` is nil?",
@@ -353,17 +353,17 @@ label := ifElse(score >= 60, "pass", "fail")
                   "Go's runtime catches nil dereferences automatically",
                   "Short-circuit: `u.IsAdmin` is only evaluated if `u != nil` is true",
                   "Because && treats nil as false",
-                  "It isn't safe — it'll panic"
+                  "It isn't safe, it'll panic"
                 ],
                 "answer": 1,
-                "explanation": "The && operator short-circuits — if the left side is false, the right is never evaluated. This is why the order of nil checks matters."
+                "explanation": "The && operator short-circuits, if the left side is false, the right is never evaluated. This is why the order of nil checks matters."
               },
               {
                 "q": "What does the `&^` operator do?",
                 "options": [
                   "Bitwise NAND",
                   "Take address of, then negate",
-                  "AND-NOT — clear in x the bits that are set in y",
+                  "AND-NOT, clear in x the bits that are set in y",
                   "It's not a valid Go operator"
                 ],
                 "answer": 2,
@@ -472,8 +472,8 @@ func main() {
       <section id="further" class="further-reading">
         <h3>Further reading</h3>
         <ul>
-          <li><a href="https://go.dev/ref/spec#Operators" target="_blank" rel="noopener">Go spec — Operators</a></li>
-          <li><a href="https://go.dev/ref/spec#Operator_precedence" target="_blank" rel="noopener">Go spec — Operator precedence</a></li>
+          <li><a href="https://go.dev/ref/spec#Operators" target="_blank" rel="noopener">Go spec, Operators</a></li>
+          <li><a href="https://go.dev/ref/spec#Operator_precedence" target="_blank" rel="noopener">Go spec, Operator precedence</a></li>
         </ul>
       </section>
 
@@ -485,11 +485,11 @@ func main() {
       <nav class="chapter-nav" aria-label="Chapter navigation">
         <a class="prev" href="07-strings-runes-unicode.html">
           <div class="nav-label">Previous</div>
-          <div class="nav-title">Chapter 7 — Strings, Runes &amp; Unicode</div>
+          <div class="nav-title">Chapter 7: Strings, Runes &amp; Unicode</div>
         </a>
         <a class="next" href="09-conditionals.html">
           <div class="nav-label">Next</div>
-          <div class="nav-title">Chapter 9 — Conditional Flow</div>
+          <div class="nav-title">Chapter 9: Conditional Flow</div>
         </a>
       </nav>
     </main>

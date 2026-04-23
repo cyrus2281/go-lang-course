@@ -93,9 +93,9 @@
       let message;
       const total = questions.length;
       const pct = score / total;
-      if (pct === 1)      message = '🎉 Perfect score — you nailed it!';
-      else if (pct >= .6) message = 'Nice work — review the explanations and keep going.';
-      else                message = 'Re-read this chapter and try again — you\'ve got this.';
+      if (pct === 1)      message = '🎉 Perfect score. You nailed it!';
+      else if (pct >= .6) message = 'Nice work. Review the explanations and keep going.';
+      else                message = 'Re-read this chapter and try again. You\'ve got this.';
       summary.innerHTML = `<span>${score} / ${total} correct.</span> <span>${message}</span>`;
       if (window.GoProgress) window.GoProgress.recordQuizScore(chapterId, score, total);
     }

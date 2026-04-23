@@ -5,17 +5,17 @@
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6YPTC2B9NR');</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chapter 18 · Packages &amp; Modules — Learn Go by Cyrus Mobini</title>
+  <title>Chapter 18 · Packages &amp; Modules | Learn Go by Cyrus Mobini</title>
   <meta name="description" content="Packages, exports, go.mod, go.sum, imports, semantic versioning, internal and vendor directories. How Go organizes and ships code.">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="Chapter 18 · Packages &amp; Modules — Learn Go">
+  <meta property="og:title" content="Chapter 18 · Packages &amp; Modules | Learn Go">
   <meta property="og:description" content="Organizing Go code: packages, modules, imports, exports, semver.">
   <meta property="og:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
   <meta property="og:url" content="https://cyrus2281.github.io/go-lang-course/chapters/18-packages-modules.html">
-  <meta property="og:site_name" content="Learn Go — by Cyrus Mobini">
+  <meta property="og:site_name" content="Learn Go | by Cyrus Mobini">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Chapter 18 · Packages &amp; Modules — Learn Go">
+  <meta name="twitter:title" content="Chapter 18 · Packages &amp; Modules | Learn Go">
   <meta name="twitter:description" content="Organizing Go code: packages, modules, imports, exports, semver.">
   <meta name="twitter:image" content="https://cyrus2281.github.io/go-lang-course/assets/img/og-cover.png">
   <link rel="canonical" href="https://cyrus2281.github.io/go-lang-course/chapters/18-packages-modules.html">
@@ -65,7 +65,7 @@
         <h3>Learning objectives</h3>
         <ul>
           <li>Organize code into packages and import them.</li>
-          <li>Export names via capitalization — and understand why.</li>
+          <li>Export names via capitalization, and understand why.</li>
           <li>Use <code>init</code> functions correctly (and sparingly).</li>
           <li>Create a module with <code>go mod init</code>, add dependencies, and understand <code>go.sum</code>.</li>
           <li>Know the role of <code>internal/</code> and <code>vendor/</code>.</li>
@@ -79,8 +79,8 @@
            kinds:</p>
 
         <ul>
-          <li><strong><code>package main</code></strong> — produces an executable.</li>
-          <li><strong>Any other name</strong> — produces a library, importable by others.</li>
+          <li><strong><code>package main</code></strong>: produces an executable.</li>
+          <li><strong>Any other name</strong>: produces a library, importable by others.</li>
         </ul>
 
         <p>Typical project layout:</p>
@@ -101,9 +101,9 @@
       </section>
 
       <section id="exports">
-        <h2>Exports — capitalization is the rule</h2>
+        <h2>Exports, capitalization is the rule</h2>
         <p>A name (function, type, variable, constant, method, field) is
-           <strong>exported</strong> — visible outside the package — iff its
+           <strong>exported</strong> (visible outside the package) iff its
            first letter is <em>uppercase</em>:</p>
 
         <pre><code class="language-go">package mathutil
@@ -118,7 +118,7 @@ func sub(a, b int) int { return a - b }     // unexported
 
       <section id="main-init">
         <h2><code>main</code> and <code>init</code></h2>
-        <p><code>main()</code> is the program's entry point — in
+        <p><code>main()</code> is the program's entry point, in
            <code>package main</code> only.</p>
 
         <p><code>init()</code> runs automatically when a package is loaded,
@@ -139,7 +139,7 @@ func init() {
 </code></pre>
 
         <p>Multiple files in a package can each have their own <code>init</code>;
-           they all run (in file name order). Use <code>init</code> sparingly —
+           they all run (in file name order). Use <code>init</code> sparingly;
            implicit magic makes tests harder and dependencies muddier.</p>
       </section>
 
@@ -151,9 +151,9 @@ func init() {
 
     "github.com/user/project/internal/store"
 
-    . "math"                    // dot import — makes names accessible unqualified (avoid)
+    . "math"                    // dot import, makes names accessible unqualified (avoid)
     log "log/slog"              // alias import
-    _ "image/png"               // side-effect only — registers format
+    _ "image/png"               // side-effect only, registers format
 )
 </code></pre>
 
@@ -163,7 +163,7 @@ func init() {
       </section>
 
       <section id="modules">
-        <h2>Modules — <code>go.mod</code></h2>
+        <h2>Modules, <code>go.mod</code></h2>
         <p>A module is declared by a <code>go.mod</code> file at its root:</p>
 
         <pre><code class="language-go" data-runnable="false">module github.com/cyrus2281/learn-go
@@ -178,10 +178,10 @@ require (
 
         <p>Four things are encoded:</p>
         <ol>
-          <li><strong>module path</strong> — the canonical import path consumers use.</li>
-          <li><strong>go version</strong> — minimum Go version.</li>
-          <li><strong>require</strong> — direct dependencies and their versions.</li>
-          <li><strong>go.sum</strong> (sibling file) — cryptographic hashes of every dependency for reproducibility.</li>
+          <li><strong>module path</strong>: the canonical import path consumers use.</li>
+          <li><strong>go version</strong>: minimum Go version.</li>
+          <li><strong>require</strong>: direct dependencies and their versions.</li>
+          <li><strong>go.sum</strong> (sibling file), cryptographic hashes of every dependency for reproducibility.</li>
         </ol>
       </section>
 
@@ -190,7 +190,7 @@ require (
         <pre><code class="language-bash">go get github.com/lib/pq@latest   # adds/upgrades to latest
 go mod tidy                        # remove unused, fill in missing</code></pre>
 
-        <p>Or just import and run <code>go build</code> — Go will fetch the
+        <p>Or just import and run <code>go build</code>: Go will fetch the
            dependency automatically and update <code>go.mod</code>.</p>
 
         <p>To upgrade one dep:</p>
@@ -202,9 +202,9 @@ go mod tidy                        # remove unused, fill in missing</code></pre>
         <h2>Semantic versioning</h2>
         <p>Go modules require <strong>semver</strong>-style tags: <code>v1.2.3</code>.</p>
         <ul>
-          <li><strong>v0.x</strong> — "anything goes" — used for early development.</li>
-          <li><strong>v1.x</strong> — stable API; minor/patch bumps don't break.</li>
-          <li><strong>v2+</strong> — major version bump <em>changes the module path</em>: <code>github.com/user/lib/v2</code>. This lets different major versions coexist.</li>
+          <li><strong>v0.x</strong>: "anything goes", used for early development.</li>
+          <li><strong>v1.x</strong>: stable API; minor/patch bumps don't break.</li>
+          <li><strong>v2+</strong>: major version bump <em>changes the module path</em>: <code>github.com/user/lib/v2</code>. This lets different major versions coexist.</li>
         </ul>
       </section>
 
@@ -217,7 +217,7 @@ go mod tidy                        # remove unused, fill in missing</code></pre>
 
         <p><strong><code>vendor/</code></strong> stores copies of your dependencies
            in the repo. <code>go mod vendor</code> creates it. Uncommon in modern
-           Go — module proxy caching makes it mostly unnecessary. Still used when
+           Go, module proxy caching makes it mostly unnecessary. Still used when
            you need reproducible builds without network access.</p>
       </section>
 
@@ -232,7 +232,7 @@ go mod tidy                        # remove unused, fill in missing</code></pre>
 # creates go.work at the parent level
 </code></pre>
 
-        <p>A <code>go.work</code> file lives outside version control — your
+        <p>A <code>go.work</code> file lives outside version control, your
            workspace choice is personal.</p>
       </section>
 
@@ -244,7 +244,7 @@ go mod tidy                        # remove unused, fill in missing</code></pre>
             "title": "Quick quiz",
             "questions": [
               {"q":"What makes a Go identifier exported (visible to other packages)?","options":["A special keyword","Its first letter is uppercase","Declaring it at the top of the file","Adding an `export` comment"],"answer":1,"explanation":"Capitalization is the mechanism. Add(...) is exported; add(...) is not. No keyword needed."},
-              {"q":"What's the role of go.sum?","options":["Mirror of go.mod","Records the cryptographic hashes of every dependency for reproducible builds","Lists test results","Sum of all file sizes"],"answer":1,"explanation":"go.sum ensures that the exact bytes of each dependency version you've locked to are what's downloaded — a supply-chain safeguard."},
+              {"q":"What's the role of go.sum?","options":["Mirror of go.mod","Records the cryptographic hashes of every dependency for reproducible builds","Lists test results","Sum of all file sizes"],"answer":1,"explanation":"go.sum ensures that the exact bytes of each dependency version you've locked to are what's downloaded, a supply-chain safeguard."},
               {"q":"If your module is at github.com/user/lib, where can packages under internal/ be imported from?","options":["Anywhere","Only by other code in github.com/user/lib","Only by tests","Only by the main package"],"answer":1,"explanation":"Anything inside an `internal/` directory can only be imported by code in the same module. Great for hiding implementation details."},
               {"q":"You want to upgrade a dependency to its latest version. Which command?","options":["go upgrade","go get github.com/user/pkg@latest","go mod upgrade","go update"],"answer":1,"explanation":"`go get pkg@latest` (or @vX.Y.Z for a specific version). Follow with `go mod tidy` to clean up."},
               {"q":"Why does Go 2+ require major version v2 modules to change their path (e.g. github.com/user/pkg/v2)?","options":["To annoy library authors","So that incompatible versions can coexist in a program (via different import paths)","Because v1 is deprecated","Unicode support"],"answer":1,"explanation":"Changing the path for v2+ is called the \"semantic import versioning\" rule. It lets a program depend on both v1 and v2 of the same library without conflict."}
@@ -295,16 +295,16 @@ func main() {
         <ul>
           <li><a href="https://go.dev/doc/modules/managing-dependencies" target="_blank" rel="noopener">Managing dependencies (official)</a></li>
           <li><a href="https://go.dev/ref/mod" target="_blank" rel="noopener">Go Modules reference</a></li>
-          <li><a href="https://go.dev/blog/organizing-go-code" target="_blank" rel="noopener">The Go Blog — Organizing Go code</a></li>
-          <li><a href="https://github.com/golang-standards/project-layout" target="_blank" rel="noopener">Standard project layout</a> (community, not official — use judiciously)</li>
+          <li><a href="https://go.dev/blog/organizing-go-code" target="_blank" rel="noopener">The Go Blog, Organizing Go code</a></li>
+          <li><a href="https://github.com/golang-standards/project-layout" target="_blank" rel="noopener">Standard project layout</a> (community, not official, use judiciously)</li>
         </ul>
       </section>
 
       <div class="complete-box"><p>Code organized and shippable.</p><button class="complete-btn" type="button" data-chapter-id="ch-18">✓ Mark this chapter complete</button></div>
 
       <nav class="chapter-nav" aria-label="Chapter navigation">
-        <a class="prev" href="17-scope.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 17 — Scope</div></a>
-        <a class="next" href="19-naming-and-style.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 19 — Naming &amp; Style</div></a>
+        <a class="prev" href="17-scope.html"><div class="nav-label">Previous</div><div class="nav-title">Chapter 17: Scope</div></a>
+        <a class="next" href="19-naming-and-style.html"><div class="nav-label">Next</div><div class="nav-title">Chapter 19: Naming &amp; Style</div></a>
       </nav>
     </main>
   </div>

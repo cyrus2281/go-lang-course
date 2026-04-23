@@ -1,4 +1,4 @@
-/* Lightweight syntax highlighter — Go, Bash, JSON.
+/* Lightweight syntax highlighter - Go, Bash, JSON.
    Not actually Prism.js, but produces the same `.token.<kind>` class names so
    our prism.css theme applies. Kept minimal on purpose: no regex backtracking
    pitfalls, no large vendored payloads, fully offline. */
