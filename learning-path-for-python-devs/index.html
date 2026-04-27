@@ -298,6 +298,37 @@
       margin: 22px 0 10px;
     }
 
+    /* LEGEND (Overview: section anatomy) */
+    .intro-section { margin: 28px 0; }
+    .intro-section h3 { font-size: 18px; margin-bottom: 6px; }
+    .intro-section .why { margin-bottom: 14px; }
+    .legend {
+      display: flex; flex-direction: column;
+      gap: 14px;
+      padding: 18px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+    }
+    .legend-row {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 18px;
+      align-items: start;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+    .legend-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--fg-muted);
+      padding-top: 2px;
+    }
+    .legend-desc { color: var(--fg); }
+    .legend-desc .badge { vertical-align: middle; margin: 0 2px; }
+    @media (max-width: 720px) {
+      .legend-row { grid-template-columns: 1fr; gap: 4px; }
+    }
+
     /* TOPICS */
     ul.topics { list-style: none; padding: 0; margin: 0; }
     ul.topics li { padding: 4px 0; }
@@ -649,6 +680,39 @@
       </div>
     </div>
 
+    <div class="intro-section">
+      <h3>How to use this learning path</h3>
+      <p class="why">Every section in this guide follows the same shape. Get comfortable with these three labels - you'll see them in every tab.</p>
+
+      <div class="legend" role="list">
+        <div class="legend-row" role="listitem">
+          <div class="legend-label">Topics to learn</div>
+          <div class="legend-desc">The checkpoints to internalize. Tick each one when you've got it; your progress saves to this browser automatically. Use <strong>Export</strong> / <strong>Import</strong> in the topbar to move progress between machines.</div>
+        </div>
+        <div class="legend-row" role="listitem">
+          <div class="legend-label">Resources</div>
+          <div class="legend-desc">Curated articles, docs, and videos that <em>teach</em> the topics above. Each one is annotated with badges (<span class="badge b-free">Free</span> <span class="badge b-paid">Paid</span> <span class="badge b-video">Video</span> <span class="badge b-reference">Reference</span> ...) and a <span class="badge b-must">Must-read</span> mark on the canonical sources.</div>
+        </div>
+        <div class="legend-row" role="listitem">
+          <div class="legend-label">Companion chapters</div>
+          <div class="legend-desc">Bite-sized lessons hand-picked from the companion Go course (introduced just below) for that step. Use them when you want a short, focused lesson rather than reading the official docs straight.</div>
+        </div>
+      </div>
+
+      <div class="label-h">The companion course</div>
+      <div class="res-list">
+        <div class="res-row">
+          <div class="res-rank">★</div>
+          <div class="res-info">
+            <h5><a href="https://cyrus2281.github.io/go-lang-course" target="_blank" rel="noopener">Learn Go Platform</a></h5>
+            <div class="src">cyrus2281.github.io/go-lang-course · 34 chapters · ~25 hrs · interactive</div>
+            <p>Free, open-source companion Go course covering everything from absolute beginner to shipping idiomatic Go. Each chapter has quizzes and exercises, with full-text search and its own browser-local progress tracking. <strong>Whenever you see a "Companion chapters" block in this guide</strong>, those pills link directly into specific lessons of this course - the friendliest path through any topic on this page.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-interactive">Interactive</span><span class="badge b-reference">Reference</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="label-h">The full path at a glance</div>
     <div class="path-map" role="list">
       <a class="path-row" role="listitem" href="#tab/overview"             data-tab="overview"             data-target="what-is-go"><span class="pm-num">1</span><span class="pm-title">What is Go?</span><span class="pm-purpose">Orient yourself in two minutes.</span><span class="pm-time">~5 min</span></a>
@@ -662,11 +726,6 @@
       <a class="path-row" role="listitem" href="#tab/practice-pitfalls"    data-tab="practice-pitfalls"    data-target="hands-on"><span class="pm-num">9</span><span class="pm-title">Hands-on practice</span><span class="pm-purpose">Pick a kata, ship it.</span><span class="pm-time">~half day</span></a>
       <a class="path-row" role="listitem" href="#tab/resources-readiness"  data-tab="resources-readiness"  data-target="resources"><span class="pm-num">10</span><span class="pm-title">Resources</span><span class="pm-purpose">Annotated reference list.</span><span class="pm-time">reference</span></a>
       <a class="path-row" role="listitem" href="#tab/resources-readiness"  data-tab="resources-readiness"  data-target="readiness"><span class="pm-num">11</span><span class="pm-title">Readiness checklist</span><span class="pm-purpose">"You'll know you're ready when…"</span><span class="pm-time">~5 min</span></a>
-    </div>
-
-    <div class="callout tip">
-      <div class="callout-label">How to use this page</div>
-      Tabs along the top group the steps. Within each tab, check off topics as you cover them - your progress saves to this browser automatically. <strong>Export</strong> to move progress between machines.
     </div>
   </section>
 
@@ -806,6 +865,15 @@
             <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span></div>
           </div>
         </div>
+        <div class="res-row">
+          <div class="res-rank">5</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/blog/gos-declaration-syntax" target="_blank" rel="noopener">Go's Declaration Syntax</a></h5>
+            <div class="src">go.dev/blog · ~10 min · article</div>
+            <p>Why Go reads types left-to-right (<code>x int</code>) instead of C/Python's right-to-left convention. Short and surprisingly useful for the moment a Python dev first hits <code>func foo(x int) string</code>.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reading</span></div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -858,6 +926,24 @@
             <h5><a href="https://go.dev/doc/" target="_blank" rel="noopener">Go documentation hub</a></h5>
             <div class="src">go.dev · entry point</div>
             <p>The canonical landing page for everything official. Bookmark this - you'll come back often.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">4</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/doc/tutorial/getting-started.html" target="_blank" rel="noopener">Tutorial: Getting started</a></h5>
+            <div class="src">go.dev · ~30 min · official tutorial</div>
+            <p>Hello-world walk-through that gets a Go module set up locally. Pair with the Tour for the first hour of hands-on work.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-interactive">Interactive</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">5</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/doc/code.html" target="_blank" rel="noopener">How to write Go code</a></h5>
+            <div class="src">go.dev · ~20 min · official</div>
+            <p>The official explanation of how <code>go build</code> / <code>go test</code> / <code>go install</code> and modules fit together. Surprisingly under-read; covers the mental model the Tour skips.</p>
             <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span></div>
           </div>
         </div>
@@ -930,6 +1016,33 @@
             <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span></div>
           </div>
         </div>
+        <div class="res-row">
+          <div class="res-rank">4</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/blog/defer-panic-and-recover" target="_blank" rel="noopener">Defer, Panic, and Recover</a></h5>
+            <div class="src">go.dev/blog · ~10 min · official article</div>
+            <p>The canonical explanation of all three keywords with worked examples. Clear guidance on when <code>panic</code> is appropriate and when it isn't.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reading</span><span class="badge b-must">Must-read</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">5</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/blog/error-handling-and-go" target="_blank" rel="noopener">Error Handling and Go</a></h5>
+            <div class="src">go.dev/blog · ~12 min · official article</div>
+            <p>Introductory companion to Pike's "Errors are values"; covers the <code>error</code> interface, <code>errors.New</code>, and <code>fmt.Errorf</code>.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reading</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">6</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/blog/go-slices-usage-and-internals" target="_blank" rel="noopener">Go Slices: usage and internals</a></h5>
+            <div class="src">go.dev/blog · ~15 min · official article</div>
+            <p>The canonical reference on the slice header, capacity, and <code>append</code> aliasing - the exact bug source called out in the Topics list above.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reading</span><span class="badge b-must">Must-read</span></div>
+          </div>
+        </div>
       </div>
 
       <div class="chapters">
@@ -992,6 +1105,33 @@
             <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span></div>
           </div>
         </div>
+        <div class="res-row">
+          <div class="res-rank">3</div>
+          <div class="res-info">
+            <h5><a href="https://www.youtube.com/watch?v=f6kdp27TYZs" target="_blank" rel="noopener">Go Concurrency Patterns - Rob Pike (Google I/O 2012)</a></h5>
+            <div class="src">YouTube · ~50 min · video</div>
+            <p>The talk that taught a generation how to think in goroutines and channels. Watch this once before you ship anything concurrent.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-video">Video</span><span class="badge b-must">Must-watch</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">4</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/doc/codewalk/sharemem" target="_blank" rel="noopener">Share Memory by Communicating</a></h5>
+            <div class="src">go.dev · codewalk</div>
+            <p>Annotated walk-through of a small concurrent program - the official illustration of Go's central concurrency proverb. Compact, runnable, worth the 15 minutes.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reading</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">5</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/blog/go-concurrency-patterns-timing-out-and" target="_blank" rel="noopener">Go Concurrency Patterns: Timing out, moving on</a></h5>
+            <div class="src">go.dev/blog · short article</div>
+            <p>Direct application of <code>select</code> for the timeout / cancellation patterns the Topics list calls out.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reading</span></div>
+          </div>
+        </div>
       </div>
 
       <div class="chapters">
@@ -1039,6 +1179,33 @@
             <h5><a href="https://gobyexample.com/" target="_blank" rel="noopener">Go by Example</a></h5>
             <div class="src">gobyexample.com</div>
             <p>Practical snippets for <code>go test</code>, <code>go mod</code>, build tags, and more.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">3</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/doc/modules/managing-dependencies" target="_blank" rel="noopener">Managing dependencies</a></h5>
+            <div class="src">go.dev · official guide</div>
+            <p>The current canonical guide for <code>go mod</code> workflows - adding, updating, removing dependencies, replace directives, and vendor. Replaces the older blog posts.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span><span class="badge b-must">Must-read</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">4</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/doc/editors.html" target="_blank" rel="noopener">Editor plugins and IDEs</a></h5>
+            <div class="src">go.dev · short page</div>
+            <p>The official editor / IDE roundup, including the recommended VS Code Go extension, GoLand, and notes on <code>gopls</code>.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">5</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/doc/articles/race_detector.html" target="_blank" rel="noopener">Data Race Detector</a></h5>
+            <div class="src">go.dev · official article</div>
+            <p>Operating manual for <code>go test -race</code>. How to run it, how to read its output, and when to turn it on in CI.</p>
             <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span></div>
           </div>
         </div>
@@ -1090,6 +1257,24 @@
             <h5><a href="https://go.dev/wiki/CodeReviewComments#package-names" target="_blank" rel="noopener">Code Review Comments - Package Names</a></h5>
             <div class="src">go.dev wiki</div>
             <p>The packaging conventions a reviewer will hold you to.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">3</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/doc/modules/layout" target="_blank" rel="noopener">Organizing a Go module</a></h5>
+            <div class="src">go.dev · official guide</div>
+            <p>The current canonical answer to "what goes in <code>cmd/</code>, <code>internal/</code>, <code>pkg/</code>". Replaces the older community <em>golang-standards/project-layout</em>.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span><span class="badge b-must">Must-read</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">4</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/doc/code.html" target="_blank" rel="noopener">How to write Go code</a></h5>
+            <div class="src">go.dev · ~20 min · official</div>
+            <p>Cross-listed from Foundations - the layout sections are equally relevant here. Covers project structure with the <code>go</code> command's expectations.</p>
             <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span></div>
           </div>
         </div>
@@ -1157,6 +1342,15 @@
             <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span></div>
           </div>
         </div>
+        <div class="res-row">
+          <div class="res-rank">3</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/doc/articles/race_detector.html" target="_blank" rel="noopener">Data Race Detector</a></h5>
+            <div class="src">go.dev · official article</div>
+            <p>Pairs directly with the "maps not safe for concurrent access" pitfall. How to enable the race detector and how to interpret its output.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1201,6 +1395,24 @@
             <h5><a href="https://github.com/bootdotdev/fcc-learn-golang-assets" target="_blank" rel="noopener">freeCodeCamp Go assets</a></h5>
             <div class="src">github.com/bootdotdev · sample exercises</div>
             <p>Exercises from the freeCodeCamp Go course. Useful if you want a structured set of practice problems.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-interactive">Interactive</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">4</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/doc/tutorial/web-service-gin.html" target="_blank" rel="noopener">Tutorial: Developing a RESTful API with Go and Gin</a></h5>
+            <div class="src">go.dev · ~1 hr · official tutorial</div>
+            <p>Self-contained kata that exercises HTTP handlers, routing, and JSON. A great "first real Go project" target.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-interactive">Interactive</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">5</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/doc/articles/wiki/" target="_blank" rel="noopener">Writing Web Applications</a></h5>
+            <div class="src">go.dev · ~2 hrs · classic tutorial</div>
+            <p>The classic Go wiki tutorial - builds a small webapp end-to-end with the standard library only. Excellent for understanding what you get without a framework.</p>
             <div class="tags"><span class="badge b-free">Free</span><span class="badge b-interactive">Interactive</span></div>
           </div>
         </div>
@@ -1268,6 +1480,33 @@
             <div class="src">go.dev/play · in-browser</div>
             <p>Try ideas without installing anything; share via URL.</p>
             <div class="tags"><span class="badge b-free">Free</span><span class="badge b-interactive">Interactive</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">5</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/ref/spec" target="_blank" rel="noopener">The Go Programming Language Specification</a></h5>
+            <div class="src">go.dev/ref/spec · reference</div>
+            <p>The authoritative grammar and semantics. Use it when blogs disagree.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">6</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/doc/faq" target="_blank" rel="noopener">FAQ</a></h5>
+            <div class="src">go.dev/doc/faq · reference</div>
+            <p>Answers to the questions every newcomer asks ("why no generics?", "why no exceptions?", "why <code>nil</code> behaves like that?").</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">7</div>
+          <div class="res-info">
+            <h5><a href="https://pkg.go.dev/std" target="_blank" rel="noopener">Standard library</a></h5>
+            <div class="src">pkg.go.dev/std · reference</div>
+            <p>The full stdlib package documentation. Bookmark.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span></div>
           </div>
         </div>
       </div>
