@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="An interactive learning path for developers picking up Go - curated topics, resources, and a Python to Go mindset bridge.">
-  <title>Go Learning Path</title>
+  <title>Go Learning Path for Python Devs</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
   <style>
     :root {
@@ -101,7 +101,7 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; scroll-padding-top: 120px; }
     body {
       font-family: var(--sans);
       background: var(--bg);
@@ -475,7 +475,13 @@
       padding: 12px 16px;
       border-bottom: 1px solid var(--border);
       font-size: 14px;
+      color: var(--fg);
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.1s;
     }
+    a.path-row:hover { background: var(--surface2); text-decoration: none; }
+    a.path-row:hover .pm-title { color: var(--accent); }
     .path-row:last-child { border-bottom: none; }
     .path-row .pm-num {
       font-weight: 700;
@@ -635,7 +641,6 @@
       <div class="chapters">
         <div class="chapters-label">Companion chapters</div>
         <div class="chapter-pills">
-          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/01-what-is-coding.html" target="_blank" rel="noopener"><span class="ch-num">01</span>What is coding</a>
           <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/02-story-of-go.html" target="_blank" rel="noopener"><span class="ch-num">02</span>Story of Go</a>
           <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/03-installation.html" target="_blank" rel="noopener"><span class="ch-num">03</span>Installation</a>
         </div>
@@ -644,17 +649,17 @@
 
     <div class="label-h">The full path at a glance</div>
     <div class="path-map" role="list">
-      <div class="path-row" role="listitem"><span class="pm-num">1</span><span class="pm-title">What is Go?</span><span class="pm-purpose">Orient yourself in two minutes.</span><span class="pm-time">~5 min</span></div>
-      <div class="path-row" role="listitem"><span class="pm-num">2</span><span class="pm-title">Python → Go mindset shift</span><span class="pm-purpose">Reframe expectations before syntax.</span><span class="pm-time">~20 min</span></div>
-      <div class="path-row" role="listitem"><span class="pm-num">3</span><span class="pm-title">Foundations</span><span class="pm-purpose">Go Tour + syntax basics.</span><span class="pm-time">2–3 hrs</span></div>
-      <div class="path-row" role="listitem"><span class="pm-num">4</span><span class="pm-title">Core concepts</span><span class="pm-purpose">Interfaces, errors, pointers, slices/maps, defer, context.</span><span class="pm-time">~half day</span></div>
-      <div class="path-row" role="listitem"><span class="pm-num">5</span><span class="pm-title">Concurrency</span><span class="pm-purpose">Goroutines, channels, <code>select</code>, <code>sync</code>.</span><span class="pm-time">~half day</span></div>
-      <div class="path-row" role="listitem"><span class="pm-num">6</span><span class="pm-title">Tooling</span><span class="pm-purpose">Modules, testing, linting, IDE.</span><span class="pm-time">~1 hr</span></div>
-      <div class="path-row" role="listitem"><span class="pm-num">7</span><span class="pm-title">Project layout</span><span class="pm-purpose"><code>cmd/</code>, <code>internal/</code>, capitalization-as-export.</span><span class="pm-time">~30 min</span></div>
-      <div class="path-row" role="listitem"><span class="pm-num">8</span><span class="pm-title">Common pitfalls</span><span class="pm-purpose">Concrete gotchas Python devs trip on.</span><span class="pm-time">~20 min</span></div>
-      <div class="path-row" role="listitem"><span class="pm-num">9</span><span class="pm-title">Hands-on practice</span><span class="pm-purpose">Pick a kata, ship it.</span><span class="pm-time">~half day</span></div>
-      <div class="path-row" role="listitem"><span class="pm-num">10</span><span class="pm-title">Resources</span><span class="pm-purpose">Annotated reference list.</span><span class="pm-time">reference</span></div>
-      <div class="path-row" role="listitem"><span class="pm-num">11</span><span class="pm-title">Readiness checklist</span><span class="pm-purpose">"You'll know you're ready when…"</span><span class="pm-time">~5 min</span></div>
+      <a class="path-row" role="listitem" href="#tab/overview"             data-tab="overview"             data-target="what-is-go"><span class="pm-num">1</span><span class="pm-title">What is Go?</span><span class="pm-purpose">Orient yourself in two minutes.</span><span class="pm-time">~5 min</span></a>
+      <a class="path-row" role="listitem" href="#tab/mindset"              data-tab="mindset"              data-target="mindset-shift"><span class="pm-num">2</span><span class="pm-title">Python → Go mindset shift</span><span class="pm-purpose">Reframe expectations before syntax.</span><span class="pm-time">~20 min</span></a>
+      <a class="path-row" role="listitem" href="#tab/foundations-concepts" data-tab="foundations-concepts" data-target="foundations"><span class="pm-num">3</span><span class="pm-title">Foundations</span><span class="pm-purpose">Go Tour + syntax basics.</span><span class="pm-time">2–3 hrs</span></a>
+      <a class="path-row" role="listitem" href="#tab/foundations-concepts" data-tab="foundations-concepts" data-target="core-concepts"><span class="pm-num">4</span><span class="pm-title">Core concepts</span><span class="pm-purpose">Interfaces, errors, pointers, slices/maps, defer, context.</span><span class="pm-time">~half day</span></a>
+      <a class="path-row" role="listitem" href="#tab/concurrency-tooling"  data-tab="concurrency-tooling"  data-target="concurrency"><span class="pm-num">5</span><span class="pm-title">Concurrency</span><span class="pm-purpose">Goroutines, channels, <code>select</code>, <code>sync</code>.</span><span class="pm-time">~half day</span></a>
+      <a class="path-row" role="listitem" href="#tab/concurrency-tooling"  data-tab="concurrency-tooling"  data-target="tooling"><span class="pm-num">6</span><span class="pm-title">Tooling</span><span class="pm-purpose">Modules, testing, linting, IDE.</span><span class="pm-time">~1 hr</span></a>
+      <a class="path-row" role="listitem" href="#tab/concurrency-tooling"  data-tab="concurrency-tooling"  data-target="project-layout"><span class="pm-num">7</span><span class="pm-title">Project layout</span><span class="pm-purpose"><code>cmd/</code>, <code>internal/</code>, capitalization-as-export.</span><span class="pm-time">~30 min</span></a>
+      <a class="path-row" role="listitem" href="#tab/practice-pitfalls"    data-tab="practice-pitfalls"    data-target="pitfalls"><span class="pm-num">8</span><span class="pm-title">Common pitfalls</span><span class="pm-purpose">Concrete gotchas Python devs trip on.</span><span class="pm-time">~20 min</span></a>
+      <a class="path-row" role="listitem" href="#tab/practice-pitfalls"    data-tab="practice-pitfalls"    data-target="hands-on"><span class="pm-num">9</span><span class="pm-title">Hands-on practice</span><span class="pm-purpose">Pick a kata, ship it.</span><span class="pm-time">~half day</span></a>
+      <a class="path-row" role="listitem" href="#tab/resources-readiness"  data-tab="resources-readiness"  data-target="resources"><span class="pm-num">10</span><span class="pm-title">Resources</span><span class="pm-purpose">Annotated reference list.</span><span class="pm-time">reference</span></a>
+      <a class="path-row" role="listitem" href="#tab/resources-readiness"  data-tab="resources-readiness"  data-target="readiness"><span class="pm-num">11</span><span class="pm-title">Readiness checklist</span><span class="pm-purpose">"You'll know you're ready when…"</span><span class="pm-time">~5 min</span></a>
     </div>
 
     <div class="callout tip">
@@ -1619,6 +1624,20 @@
     document.querySelector('.tabs').addEventListener('click', onTabClick);
     document.querySelector('.tabs').addEventListener('keydown', onTabKey);
     window.addEventListener('hashchange', onHashChange);
+
+    document.addEventListener('click', (e) => {
+      const row = e.target.closest('.path-row');
+      if (!row || !row.dataset.tab) return;
+      e.preventDefault();
+      setActiveTab(row.dataset.tab, true);
+      const target = row.dataset.target;
+      if (target) {
+        requestAnimationFrame(() => {
+          const el = document.querySelector('[data-subsection="' + target + '"]');
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      }
+    });
 
     document.getElementById('btn-theme').addEventListener('click', cycleTheme);
     document.getElementById('btn-export').addEventListener('click', exportProgress);
