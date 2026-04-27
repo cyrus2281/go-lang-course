@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="An interactive learning path for developers picking up Go - curated topics, resources, and a Python to Go mindset bridge.">
+  <title>Go Learning Path</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+  <style>
+    :root {
+      --bg: #f7f6f3;
+      --surface: #ffffff;
+      --surface2: #f0ede8;
+      --border: rgba(0, 0, 0, 0.08);
+      --border2: rgba(0, 0, 0, 0.16);
+      --fg: #1a1916;
+      --fg-muted: #6b6860;
+      --accent: #00717e;
+      --accent-strong: #005a64;
+      --accent-tint: #e6f4f6;
+      --hero-bg: #14171c;
+      --hero-fg: #f7f6f3;
+      --hero-accent: #4fc3cf;
+      --green: #2a6e3f;
+      --green-bg: #eaf5ee;
+      --amber: #9a5c00;
+      --amber-bg: #fdf3e3;
+      --red: #a32525;
+      --red-bg: #fdf0f0;
+      --purple: #5c3d99;
+      --purple-bg: #f2eeff;
+      --cyan: #007a8e;
+      --cyan-bg: #e2f1f4;
+      --tick: #2a6e3f;
+      --code-bg: #eef0f3;
+      --code-fg: #005a64;
+      --topbar-h: 56px;
+      --tabs-h: 48px;
+      --r: 10px;
+      --max-w: 980px;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, "Cascadia Code", Consolas, monospace;
+    }
+    [data-theme="dark"] {
+      --bg: #14171c;
+      --surface: #1c2027;
+      --surface2: #242a33;
+      --border: rgba(255, 255, 255, 0.08);
+      --border2: rgba(255, 255, 255, 0.16);
+      --fg: #e6e8eb;
+      --fg-muted: #9aa3af;
+      --accent: #4fc3cf;
+      --accent-strong: #79d4de;
+      --accent-tint: #14272d;
+      --hero-bg: #0a0d12;
+      --hero-fg: #e6e8eb;
+      --hero-accent: #4fc3cf;
+      --green: #4ac26b;
+      --green-bg: #14271a;
+      --amber: #d4a017;
+      --amber-bg: #2c2110;
+      --red: #e08585;
+      --red-bg: #2c1414;
+      --purple: #b29ce6;
+      --purple-bg: #1f1929;
+      --cyan: #6acbd6;
+      --cyan-bg: #142528;
+      --tick: #4ac26b;
+      --code-bg: #242a33;
+      --code-fg: #79d4de;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #14171c;
+        --surface: #1c2027;
+        --surface2: #242a33;
+        --border: rgba(255, 255, 255, 0.08);
+        --border2: rgba(255, 255, 255, 0.16);
+        --fg: #e6e8eb;
+        --fg-muted: #9aa3af;
+        --accent: #4fc3cf;
+        --accent-strong: #79d4de;
+        --accent-tint: #14272d;
+        --hero-bg: #0a0d12;
+        --hero-fg: #e6e8eb;
+        --hero-accent: #4fc3cf;
+        --green: #4ac26b;
+        --green-bg: #14271a;
+        --amber: #d4a017;
+        --amber-bg: #2c2110;
+        --red: #e08585;
+        --red-bg: #2c1414;
+        --purple: #b29ce6;
+        --purple-bg: #1f1929;
+        --cyan: #6acbd6;
+        --cyan-bg: #142528;
+        --tick: #4ac26b;
+        --code-bg: #242a33;
+        --code-fg: #79d4de;
+      }
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--fg);
+      font-size: 15px;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    h1, h2, h3, h4 { line-height: 1.25; font-weight: 700; }
+    code {
+      font-family: var(--mono);
+      font-size: 0.88em;
+      padding: 2px 7px;
+      border-radius: 5px;
+      background: var(--code-bg);
+      color: var(--code-fg);
+      border: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+    /* HERO */
+    .hero {
+      background: var(--hero-bg);
+      color: var(--hero-fg);
+      padding: 44px 32px 36px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: 'Go';
+      position: absolute;
+      right: -12px; bottom: -36px;
+      font-family: var(--sans);
+      font-size: 220px;
+      font-weight: 800;
+      font-style: italic;
+      color: rgba(255, 255, 255, 0.04);
+      pointer-events: none;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+    .hero-inner { max-width: var(--max-w); margin: 0 auto; position: relative; z-index: 1; }
+    .hero-kicker {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.45);
+      margin-bottom: 12px;
+    }
+    .hero h1 {
+      font-size: 38px;
+      letter-spacing: -0.015em;
+      line-height: 1.12;
+      margin-bottom: 14px;
+    }
+    .hero h1 em { font-style: normal; color: var(--hero-accent); }
+    .hero-lead { font-size: 16px; color: rgba(255, 255, 255, 0.7); max-width: 620px; line-height: 1.55; }
+
+    /* TOPBAR */
+    .topbar {
+      position: sticky; top: 0; z-index: 60;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: var(--topbar-h);
+      display: flex; align-items: center; gap: 16px;
+    }
+    .topbar-inner { max-width: var(--max-w); margin: 0 auto; width: 100%; display: flex; align-items: center; gap: 16px; }
+    .topbar progress {
+      flex: 1 1 200px;
+      max-width: 280px;
+      height: 7px;
+      appearance: none;
+      border: none;
+      border-radius: 999px;
+      overflow: hidden;
+      background: var(--surface2);
+    }
+    .topbar progress::-webkit-progress-bar { background: var(--surface2); }
+    .topbar progress::-webkit-progress-value { background: var(--accent); transition: width 0.2s; }
+    .topbar progress::-moz-progress-bar { background: var(--accent); }
+    .progress-label { font-size: 12px; color: var(--fg-muted); white-space: nowrap; font-variant-numeric: tabular-nums; flex: 0 0 auto; }
+    .topbar-spacer { flex: 1 1 auto; }
+    .topbar .actions { display: flex; gap: 6px; flex: 0 0 auto; }
+    .topbar button {
+      font: inherit; font-size: 12px;
+      background: transparent;
+      color: var(--fg);
+      border: 1px solid var(--border2);
+      border-radius: 6px;
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .topbar button:hover { background: var(--surface2); }
+
+    /* TABS */
+    .tabs-wrap {
+      position: sticky; top: var(--topbar-h); z-index: 50;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border2);
+    }
+    .tabs {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab {
+      flex: 0 0 auto;
+      padding: 14px 16px;
+      font: inherit; font-size: 13.5px; font-weight: 500;
+      color: var(--fg-muted);
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      white-space: nowrap;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .tab:hover { color: var(--fg); }
+    .tab[aria-selected="true"] {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      font-weight: 600;
+    }
+    .tab .tab-tick {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border2);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 10px; line-height: 1;
+      color: transparent;
+      flex: 0 0 auto;
+    }
+    .tab.done .tab-tick {
+      background: var(--tick);
+      border-color: var(--tick);
+      color: white;
+    }
+    .tab.done .tab-tick::before { content: "✓"; font-weight: 700; }
+
+    /* TAB PANELS */
+    .panels { max-width: var(--max-w); margin: 0 auto; padding: 36px 24px 80px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .panel > h2 {
+      font-size: 26px;
+      margin-bottom: 6px;
+    }
+    .panel > .lead {
+      font-size: 16px;
+      color: var(--fg-muted);
+      margin-bottom: 28px;
+      max-width: 640px;
+      line-height: 1.6;
+    }
+    .subsection { margin-top: 36px; }
+    .subsection:first-of-type { margin-top: 0; }
+    .subsection-head {
+      display: flex; align-items: center; gap: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 14px;
+    }
+    .subsection-head .step-num {
+      width: 28px; height: 28px; flex: 0 0 auto;
+      border-radius: 50%;
+      background: var(--surface2);
+      color: var(--fg-muted);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 13px;
+      font-variant-numeric: tabular-nums;
+    }
+    .subsection.done .subsection-head .step-num { background: var(--tick); color: white; }
+    .subsection-head h3 { flex: 1 1 auto; font-size: 18px; }
+    .subsection-head .meta {
+      font-size: 12px; color: var(--fg-muted); flex: 0 0 auto;
+      font-variant-numeric: tabular-nums;
+    }
+    .why { color: var(--fg-muted); font-style: italic; margin-bottom: 12px; }
+    .label-h {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--fg-muted);
+      margin: 22px 0 10px;
+    }
+
+    /* TOPICS */
+    ul.topics { list-style: none; padding: 0; margin: 0; }
+    ul.topics li { padding: 4px 0; }
+    ul.topics label {
+      display: flex; align-items: flex-start; gap: 10px;
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: 6px;
+      transition: background 0.1s;
+    }
+    ul.topics label:hover { background: var(--surface2); }
+    ul.topics input[type="checkbox"] {
+      margin-top: 5px;
+      flex: 0 0 auto;
+      accent-color: var(--accent);
+      width: 16px; height: 16px;
+      cursor: pointer;
+    }
+
+    /* ANNOTATED RESOURCE ROWS */
+    .res-list {
+      display: flex; flex-direction: column; gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      overflow: hidden;
+      margin-bottom: 4px;
+    }
+    .res-row {
+      background: var(--surface);
+      padding: 14px 18px;
+      display: flex; align-items: flex-start; gap: 14px;
+    }
+    .res-rank {
+      font-size: 18px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: var(--border2);
+      min-width: 22px;
+      text-align: right;
+      line-height: 1.2;
+      padding-top: 1px;
+      flex: 0 0 auto;
+    }
+    .res-info { flex: 1 1 auto; min-width: 0; }
+    .res-info h5 { font-size: 14px; font-weight: 700; margin-bottom: 2px; line-height: 1.35; }
+    .res-info .src { font-size: 12px; color: var(--fg-muted); margin-bottom: 6px; }
+    .res-info p { font-size: 13px; color: var(--fg-muted); line-height: 1.55; margin-bottom: 8px; }
+    .res-info .tags { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    /* BADGES */
+    .badge {
+      display: inline-block;
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 100px;
+      line-height: 1.4;
+      white-space: nowrap;
+    }
+    .b-free      { background: var(--green-bg);  color: var(--green); }
+    .b-paid      { background: var(--amber-bg);  color: var(--amber); }
+    .b-video     { background: var(--purple-bg); color: var(--purple); }
+    .b-book      { background: var(--accent-tint); color: var(--accent-strong); }
+    .b-interactive { background: var(--cyan-bg); color: var(--cyan); }
+    .b-reference { background: var(--surface2); color: var(--fg-muted); border: 1px solid var(--border); }
+    .b-must      { background: var(--fg);        color: var(--bg); }
+
+    /* CHAPTER PILLS */
+    .chapters {
+      margin-top: 14px;
+      padding: 12px 14px;
+      background: var(--surface2);
+      border-radius: var(--r);
+      border: 1px solid var(--border);
+    }
+    .chapters-label {
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--fg-muted);
+      margin-bottom: 8px;
+    }
+    .chapter-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chapter-pill {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 100px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--fg);
+      text-decoration: none;
+      transition: border-color 0.1s, color 0.1s;
+    }
+    .chapter-pill:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .chapter-pill .ch-num {
+      font-variant-numeric: tabular-nums;
+      color: var(--fg-muted);
+      margin-right: 4px;
+      font-size: 11px;
+    }
+
+    /* MINDSET TABLE */
+    table.mindset {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0 4px;
+      font-size: 14.5px;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      overflow: hidden;
+      background: var(--surface);
+    }
+    table.mindset th, table.mindset td {
+      padding: 12px 14px;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid var(--border);
+    }
+    table.mindset thead th {
+      background: var(--surface2);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--fg-muted);
+    }
+    table.mindset tbody tr:last-child td { border-bottom: none; }
+    table.mindset tbody tr:hover td { background: var(--surface2); }
+    table.mindset td.col-py { font-weight: 500; }
+    table.mindset td.col-go { font-weight: 600; color: var(--accent); }
+    table.mindset td.col-note { color: var(--fg-muted); font-size: 13.5px; }
+    table.mindset code { white-space: normal; }
+
+    /* CALLOUTS */
+    .callout {
+      border-radius: var(--r);
+      padding: 16px 20px;
+      margin: 22px 0;
+      font-size: 14px;
+      line-height: 1.6;
+      border-left: 4px solid var(--accent);
+      background: var(--accent-tint);
+    }
+    .callout.tip   { border-left-color: var(--green);  background: var(--green-bg);  }
+    .callout.warn  { border-left-color: var(--amber);  background: var(--amber-bg);  }
+    .callout.note  { border-left-color: var(--accent); background: var(--accent-tint); }
+    .callout-label {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      opacity: 0.65;
+    }
+    .callout strong { font-weight: 700; }
+
+    /* PATH MAP (overview tab) */
+    .path-map {
+      margin: 18px 0;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      overflow: hidden;
+      background: var(--surface);
+    }
+    .path-row {
+      display: grid;
+      grid-template-columns: 36px 1fr auto;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+    .path-row:last-child { border-bottom: none; }
+    .path-row .pm-num {
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: var(--fg-muted);
+    }
+    .path-row .pm-title { font-weight: 600; }
+    .path-row .pm-time { font-size: 12px; color: var(--fg-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .path-row .pm-purpose { color: var(--fg-muted); font-size: 13px; }
+    @media (min-width: 720px) {
+      .path-row { grid-template-columns: 36px minmax(180px, 220px) 1fr auto; }
+    }
+
+    /* VIDEO */
+    .video-wrap {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+      margin: 16px 0;
+      border-radius: var(--r);
+      background: #000;
+    }
+    .video-wrap iframe {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      border: 0;
+    }
+
+    /* PITFALL ROW: critical-styled list */
+    ul.pitfalls li label {
+      border-left: 3px solid var(--amber);
+      background: var(--surface);
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin-bottom: 6px;
+    }
+    ul.pitfalls li label:hover { background: var(--surface2); }
+
+    /* RESPONSIVE */
+    @media (max-width: 720px) {
+      .hero { padding: 32px 18px 28px; }
+      .hero h1 { font-size: 28px; }
+      .panels { padding: 24px 16px 64px; }
+      .topbar { padding: 0 12px; gap: 10px; }
+      .tabs { padding: 0 12px; }
+      .tab { padding: 12px 12px; font-size: 12.5px; }
+      .topbar .actions button { padding: 5px 8px; font-size: 11.5px; }
+      .progress-label { font-size: 11.5px; }
+      table.mindset thead { display: none; }
+      table.mindset, table.mindset tbody, table.mindset tr, table.mindset td { display: block; width: 100%; }
+      table.mindset tr {
+        border: 1px solid var(--border);
+        border-radius: var(--r);
+        margin: 0 0 10px;
+        background: var(--surface);
+      }
+      table.mindset tbody tr:hover td { background: transparent; }
+      table.mindset td { border: none; padding: 4px 14px; }
+      table.mindset td:first-child { padding-top: 10px; }
+      table.mindset td:last-child { padding-bottom: 10px; }
+      table.mindset td::before {
+        content: attr(data-label);
+        display: block;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--fg-muted);
+        margin-bottom: 2px;
+        font-weight: 700;
+      }
+      .res-row { padding: 12px 14px; gap: 12px; }
+      .res-rank { font-size: 16px; min-width: 18px; }
+    }
+    @media (max-width: 520px) {
+      .topbar { flex-wrap: wrap; height: auto; padding: 8px 12px; }
+      .topbar-inner { flex-wrap: wrap; gap: 8px; }
+      .topbar progress { flex: 1 1 100%; max-width: 100%; }
+      .progress-label { order: -1; flex: 1 1 100%; }
+      :root { --topbar-h: 92px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero" role="banner">
+  <div class="hero-inner">
+    <div class="hero-kicker">Interactive Learning Path</div>
+    <h1>Go Learning Path <em>for Python developers</em></h1>
+    <p class="hero-lead">A sequenced checklist of topics to learn and resources to read for developers picking up Go, with a Python → Go mindset bridge baked in. Track your progress, jump between phases, pick up where you left off.</p>
+  </div>
+</header>
+
+<!-- TOPBAR -->
+<div class="topbar" role="region" aria-label="Progress and controls">
+  <div class="topbar-inner">
+    <label for="overall-progress" class="visually-hidden">Overall progress</label>
+    <progress id="overall-progress" value="0" max="1"></progress>
+    <span class="progress-label" id="progress-label">0 of 0 done (0%)</span>
+    <span class="topbar-spacer"></span>
+    <div class="actions">
+      <button type="button" id="btn-theme" aria-label="Toggle theme">Theme</button>
+      <button type="button" id="btn-export" aria-label="Export progress as JSON">Export</button>
+      <button type="button" id="btn-import" aria-label="Import progress from JSON">Import</button>
+      <button type="button" id="btn-reset" aria-label="Reset all progress">Reset</button>
+    </div>
+  </div>
+</div>
+
+<!-- TAB NAV -->
+<div class="tabs-wrap">
+  <div class="tabs" role="tablist" aria-label="Learning path sections">
+    <button class="tab" id="tab-overview"             role="tab" aria-selected="true"  aria-controls="panel-overview"             data-tab="overview">             Overview               <span class="tab-tick" aria-hidden="true"></span></button>
+    <button class="tab" id="tab-mindset"              role="tab" aria-selected="false" aria-controls="panel-mindset"              data-tab="mindset">              Python → Go Mindset    <span class="tab-tick" aria-hidden="true"></span></button>
+    <button class="tab" id="tab-foundations-concepts" role="tab" aria-selected="false" aria-controls="panel-foundations-concepts" data-tab="foundations-concepts"> Foundations &amp; Concepts <span class="tab-tick" aria-hidden="true"></span></button>
+    <button class="tab" id="tab-concurrency-tooling"  role="tab" aria-selected="false" aria-controls="panel-concurrency-tooling"  data-tab="concurrency-tooling">  Concurrency &amp; Tooling  <span class="tab-tick" aria-hidden="true"></span></button>
+    <button class="tab" id="tab-practice-pitfalls"    role="tab" aria-selected="false" aria-controls="panel-practice-pitfalls"    data-tab="practice-pitfalls">    Practice &amp; Pitfalls   <span class="tab-tick" aria-hidden="true"></span></button>
+    <button class="tab" id="tab-resources-readiness"  role="tab" aria-selected="false" aria-controls="panel-resources-readiness"  data-tab="resources-readiness">  Resources &amp; Readiness <span class="tab-tick" aria-hidden="true"></span></button>
+  </div>
+</div>
+
+<div class="panels">
+
+  <!-- ============================ OVERVIEW ============================ -->
+  <section class="panel active" id="panel-overview" role="tabpanel" aria-labelledby="tab-overview">
+    <h2>Your Go Learning Journey</h2>
+    <p class="lead">Go is designed to be picked up fast - but truly owning it as a Python developer means understanding where it diverges in ways that matter. This page sequences the topics in the order they make most sense to learn, and points at the best resources for each.</p>
+
+    <div class="callout note">
+      <div class="callout-label">The key idea</div>
+      Go is <strong>not Python with braces</strong>. It trades dynamic flexibility for compile-time guarantees, explicit error handling, and built-in concurrency. The Mindset Shift tab comes <em>before</em> syntax for a reason - read it first.
+    </div>
+
+    <div class="subsection" data-subsection="what-is-go" data-step="1">
+      <div class="subsection-head">
+        <span class="step-num">1</span>
+        <h3>What is Go?</h3>
+        <span class="meta" data-section-progress></span>
+      </div>
+      <p class="why">Two minutes of orientation so the rest of the page has context.</p>
+
+      <div class="video-wrap">
+        <iframe
+          src="https://www.youtube.com/embed/446E-r0rXHI"
+          title="Go in 100 Seconds - Fireship"
+          loading="lazy"
+          allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+
+      <div class="label-h">Topic</div>
+      <ul class="topics">
+        <li><label><input type="checkbox" data-id="what-is-go.video"> Watched the intro video and have a sense of where Go is used (backends, cloud, CLIs)</label></li>
+      </ul>
+
+      <div class="chapters">
+        <div class="chapters-label">Companion chapters</div>
+        <div class="chapter-pills">
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/01-what-is-coding.html" target="_blank" rel="noopener"><span class="ch-num">01</span>What is coding</a>
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/02-story-of-go.html" target="_blank" rel="noopener"><span class="ch-num">02</span>Story of Go</a>
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/03-installation.html" target="_blank" rel="noopener"><span class="ch-num">03</span>Installation</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="label-h">The full path at a glance</div>
+    <div class="path-map" role="list">
+      <div class="path-row" role="listitem"><span class="pm-num">1</span><span class="pm-title">What is Go?</span><span class="pm-purpose">Orient yourself in two minutes.</span><span class="pm-time">~5 min</span></div>
+      <div class="path-row" role="listitem"><span class="pm-num">2</span><span class="pm-title">Python → Go mindset shift</span><span class="pm-purpose">Reframe expectations before syntax.</span><span class="pm-time">~20 min</span></div>
+      <div class="path-row" role="listitem"><span class="pm-num">3</span><span class="pm-title">Foundations</span><span class="pm-purpose">Go Tour + syntax basics.</span><span class="pm-time">2–3 hrs</span></div>
+      <div class="path-row" role="listitem"><span class="pm-num">4</span><span class="pm-title">Core concepts</span><span class="pm-purpose">Interfaces, errors, pointers, slices/maps, defer, context.</span><span class="pm-time">~half day</span></div>
+      <div class="path-row" role="listitem"><span class="pm-num">5</span><span class="pm-title">Concurrency</span><span class="pm-purpose">Goroutines, channels, <code>select</code>, <code>sync</code>.</span><span class="pm-time">~half day</span></div>
+      <div class="path-row" role="listitem"><span class="pm-num">6</span><span class="pm-title">Tooling</span><span class="pm-purpose">Modules, testing, linting, IDE.</span><span class="pm-time">~1 hr</span></div>
+      <div class="path-row" role="listitem"><span class="pm-num">7</span><span class="pm-title">Project layout</span><span class="pm-purpose"><code>cmd/</code>, <code>internal/</code>, capitalization-as-export.</span><span class="pm-time">~30 min</span></div>
+      <div class="path-row" role="listitem"><span class="pm-num">8</span><span class="pm-title">Common pitfalls</span><span class="pm-purpose">Concrete gotchas Python devs trip on.</span><span class="pm-time">~20 min</span></div>
+      <div class="path-row" role="listitem"><span class="pm-num">9</span><span class="pm-title">Hands-on practice</span><span class="pm-purpose">Pick a kata, ship it.</span><span class="pm-time">~half day</span></div>
+      <div class="path-row" role="listitem"><span class="pm-num">10</span><span class="pm-title">Resources</span><span class="pm-purpose">Annotated reference list.</span><span class="pm-time">reference</span></div>
+      <div class="path-row" role="listitem"><span class="pm-num">11</span><span class="pm-title">Readiness checklist</span><span class="pm-purpose">"You'll know you're ready when…"</span><span class="pm-time">~5 min</span></div>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-label">How to use this page</div>
+      Tabs along the top group the steps. Within each tab, check off topics as you cover them - your progress saves to this browser automatically. <strong>Export</strong> to move progress between machines.
+    </div>
+  </section>
+
+  <!-- ============================ MINDSET ============================ -->
+  <section class="panel" id="panel-mindset" role="tabpanel" aria-labelledby="tab-mindset" hidden>
+    <h2>Python → Go Mindset Shift</h2>
+    <p class="lead">The places where Go will actively fight your Python instincts. Read this before writing a line of Go - it's the page's biggest payoff.</p>
+
+    <div class="subsection" data-subsection="mindset-shift" data-step="2">
+      <div class="subsection-head">
+        <span class="step-num">2</span>
+        <h3>Twelve concept mappings</h3>
+        <span class="meta" data-section-progress></span>
+      </div>
+      <p class="why">A Python developer should leave this section with a mental map, not just trivia.</p>
+
+      <table class="mindset">
+        <thead>
+          <tr><th>Python concept</th><th>Go equivalent</th><th>Note</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="col-py" data-label="Python">Classes</td>
+            <td class="col-go" data-label="Go">Structs + interfaces</td>
+            <td class="col-note" data-label="Note">Composition over inheritance; no class hierarchy.</td>
+          </tr>
+          <tr>
+            <td class="col-py" data-label="Python">Duck typing</td>
+            <td class="col-go" data-label="Go">Implicit interface satisfaction</td>
+            <td class="col-note" data-label="Note">No <code>implements</code> keyword; if the methods match, it satisfies the interface.</td>
+          </tr>
+          <tr>
+            <td class="col-py" data-label="Python">Exceptions (<code>try</code> / <code>except</code>)</td>
+            <td class="col-go" data-label="Go">Multiple return values with <code>error</code></td>
+            <td class="col-note" data-label="Note">Errors are values; you check them, you don't catch them.</td>
+          </tr>
+          <tr>
+            <td class="col-py" data-label="Python"><code>threading</code> / <code>asyncio</code></td>
+            <td class="col-go" data-label="Go">Goroutines + channels</td>
+            <td class="col-note" data-label="Note">Concurrency is built into the language and runtime.</td>
+          </tr>
+          <tr>
+            <td class="col-py" data-label="Python"><code>pip</code> / <code>venv</code> / <code>requirements.txt</code></td>
+            <td class="col-go" data-label="Go">Go modules (<code>go.mod</code>, <code>go.sum</code>)</td>
+            <td class="col-note" data-label="Note">Per-project, vendored optional, reproducible.</td>
+          </tr>
+          <tr>
+            <td class="col-py" data-label="Python">Dynamic typing</td>
+            <td class="col-go" data-label="Go">Static typing with inference (<code>:=</code>)</td>
+            <td class="col-note" data-label="Note">Compiler enforces types; you rarely write them.</td>
+          </tr>
+          <tr>
+            <td class="col-py" data-label="Python"><code>__init__</code> / constructors</td>
+            <td class="col-go" data-label="Go"><code>New*</code> function convention</td>
+            <td class="col-note" data-label="Note">Convention, not language feature. Returns <code>*T</code> (or <code>T, error</code>).</td>
+          </tr>
+          <tr>
+            <td class="col-py" data-label="Python"><code>with</code> / context managers</td>
+            <td class="col-go" data-label="Go"><code>defer</code></td>
+            <td class="col-note" data-label="Note">Cleanup runs in LIFO order at function exit.</td>
+          </tr>
+          <tr>
+            <td class="col-py" data-label="Python">Decorators</td>
+            <td class="col-go" data-label="Go">Function wrapping / middleware</td>
+            <td class="col-note" data-label="Note">First-class functions, no syntactic sugar.</td>
+          </tr>
+          <tr>
+            <td class="col-py" data-label="Python">Optional <code>mypy</code></td>
+            <td class="col-go" data-label="Go">Static typing is the default</td>
+            <td class="col-note" data-label="Note">Compiler does the checking; no separate tool.</td>
+          </tr>
+          <tr>
+            <td class="col-py" data-label="Python"><code>_private</code> / <code>__name</code> conventions</td>
+            <td class="col-go" data-label="Go">Capitalization controls export</td>
+            <td class="col-note" data-label="Note"><code>Foo</code> is exported; <code>foo</code> is package-private.</td>
+          </tr>
+          <tr>
+            <td class="col-py" data-label="Python"><code>__del__</code> / garbage hooks</td>
+            <td class="col-go" data-label="Go">None - use <code>defer</code>, no finalizers</td>
+            <td class="col-note" data-label="Note">Don't try to recreate destructors.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="label-h">Topic</div>
+      <ul class="topics">
+        <li><label><input type="checkbox" data-id="mindset-shift.reviewed"> Reviewed every row of the mindset table and can name each Go equivalent without looking</label></li>
+      </ul>
+
+      <div class="label-h">Resources</div>
+      <div class="res-list">
+        <div class="res-row">
+          <div class="res-rank">1</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/doc/effective_go" target="_blank" rel="noopener">Effective Go</a></h5>
+            <div class="src">go.dev · ~1 hr read · official</div>
+            <p>The de-facto guide to idiomatic Go. Read after the table - it'll reinforce the concept-by-concept mapping above.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span><span class="badge b-must">Must-read</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">2</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/wiki/CodeReviewComments" target="_blank" rel="noopener">Go Code Review Comments</a></h5>
+            <div class="src">go.dev wiki · short read</div>
+            <p>The unofficial style guide that experienced Go reviewers use. A Python dev wouldn't guess these conventions.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ FOUNDATIONS & CONCEPTS ============================ -->
+  <section class="panel" id="panel-foundations-concepts" role="tabpanel" aria-labelledby="tab-foundations-concepts" hidden>
+    <h2>Foundations &amp; Core Concepts</h2>
+    <p class="lead">Get hands on the keyboard with the official tour, then tackle the handful of concepts Python developers most often trip on.</p>
+
+    <!-- 3. FOUNDATIONS -->
+    <div class="subsection" data-subsection="foundations" data-step="3">
+      <div class="subsection-head">
+        <span class="step-num">3</span>
+        <h3>Foundations</h3>
+        <span class="meta" data-section-progress></span>
+      </div>
+      <p class="why">Hands on the keyboard with the official tour.</p>
+
+      <div class="label-h">Topics to learn</div>
+      <ul class="topics">
+        <li><label><input type="checkbox" data-id="foundations.syntax"> Syntax basics: variables, functions, control flow, types</label></li>
+        <li><label><input type="checkbox" data-id="foundations.composite-types"> Composite types: structs, slices, maps, arrays</label></li>
+        <li><label><input type="checkbox" data-id="foundations.methods-interfaces"> Methods and interfaces (introductory)</label></li>
+        <li><label><input type="checkbox" data-id="foundations.packages-imports"> Packages and imports</label></li>
+      </ul>
+
+      <div class="label-h">Resources</div>
+      <div class="res-list">
+        <div class="res-row">
+          <div class="res-rank">1</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/tour/list" target="_blank" rel="noopener">A Tour of Go</a></h5>
+            <div class="src">go.dev · ~2–3 hrs · interactive in-browser</div>
+            <p>The canonical starting point. Covers syntax, types, methods, interfaces, and a taste of concurrency. Complete every section - don't skip the hard ones.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-interactive">Interactive</span><span class="badge b-must">Must-read</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">2</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/doc/effective_go" target="_blank" rel="noopener">Effective Go</a></h5>
+            <div class="src">go.dev · ~1 hr read · official</div>
+            <p>Read after the tour. Teaches you to write Go that other Go developers will recognize as idiomatic.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">3</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/doc/" target="_blank" rel="noopener">Go documentation hub</a></h5>
+            <div class="src">go.dev · entry point</div>
+            <p>The canonical landing page for everything official. Bookmark this - you'll come back often.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chapters">
+        <div class="chapters-label">Companion chapters</div>
+        <div class="chapter-pills">
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/04-hello-world.html" target="_blank" rel="noopener"><span class="ch-num">04</span>Hello, World</a>
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/05-variables.html" target="_blank" rel="noopener"><span class="ch-num">05</span>Variables</a>
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/06-basic-types.html" target="_blank" rel="noopener"><span class="ch-num">06</span>Basic types</a>
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/07-strings-runes-unicode.html" target="_blank" rel="noopener"><span class="ch-num">07</span>Strings &amp; runes</a>
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/08-operators.html" target="_blank" rel="noopener"><span class="ch-num">08</span>Operators</a>
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/09-conditionals.html" target="_blank" rel="noopener"><span class="ch-num">09</span>Conditionals</a>
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/10-loops.html" target="_blank" rel="noopener"><span class="ch-num">10</span>Loops</a>
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/11-functions.html" target="_blank" rel="noopener"><span class="ch-num">11</span>Functions</a>
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/12-arrays.html" target="_blank" rel="noopener"><span class="ch-num">12</span>Arrays</a>
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/15-structs.html" target="_blank" rel="noopener"><span class="ch-num">15</span>Structs</a>
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/17-scope.html" target="_blank" rel="noopener"><span class="ch-num">17</span>Scope</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. CORE CONCEPTS -->
+    <div class="subsection" data-subsection="core-concepts" data-step="4">
+      <div class="subsection-head">
+        <span class="step-num">4</span>
+        <h3>Core concepts</h3>
+        <span class="meta" data-section-progress></span>
+      </div>
+      <p class="why">The handful of ideas Python developers most commonly trip on.</p>
+
+      <div class="label-h">Topics to learn</div>
+      <ul class="topics">
+        <li><label><input type="checkbox" data-id="core.interfaces"> Interfaces - implicit satisfaction, "accept interfaces, return structs", small interfaces, type assertions / switches</label></li>
+        <li><label><input type="checkbox" data-id="core.errors"> Error handling - <code>error</code> return values, <code>errors.Is</code> / <code>errors.As</code>, wrapping with <code>fmt.Errorf("op: %w", err)</code></label></li>
+        <li><label><input type="checkbox" data-id="core.defer"> <code>defer</code>, <code>panic</code>, <code>recover</code> - when to use each, and when <em>not</em> to <code>panic</code></label></li>
+        <li><label><input type="checkbox" data-id="core.context"> <code>context.Context</code> - cancellation, timeouts, deadline propagation</label></li>
+        <li><label><input type="checkbox" data-id="core.slices-maps"> Slices vs maps vs arrays - slice header (ptr/len/cap), <code>append</code> aliasing, randomized map iteration</label></li>
+        <li><label><input type="checkbox" data-id="core.receivers"> Pointer vs value receivers - when to pick which, consistency rules</label></li>
+        <li><label><input type="checkbox" data-id="core.generics"> Generics (Go 1.18+) - syntax and when to reach for them</label></li>
+      </ul>
+
+      <div class="label-h">Resources</div>
+      <div class="res-list">
+        <div class="res-row">
+          <div class="res-rank">1</div>
+          <div class="res-info">
+            <h5><a href="https://gobyexample.com/" target="_blank" rel="noopener">Go by Example</a></h5>
+            <div class="src">gobyexample.com · reference snippets</div>
+            <p>The best "how do I do X" reference. Covers each topic above with runnable examples.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span><span class="badge b-must">Must-read</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">2</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/doc/effective_go" target="_blank" rel="noopener">Effective Go - interfaces &amp; errors</a></h5>
+            <div class="src">go.dev · official</div>
+            <p>Re-read the interfaces and error-handling sections specifically with code in your editor.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">3</div>
+          <div class="res-info">
+            <h5><a href="https://100go.co/" target="_blank" rel="noopener">100 Go Mistakes and How to Avoid Them</a></h5>
+            <div class="src">100go.co · companion site to the book</div>
+            <p>Real production mistakes organized by category. Pairs with this section and the pitfalls section.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chapters">
+        <div class="chapters-label">Companion chapters</div>
+        <div class="chapter-pills">
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/13-slices.html" target="_blank" rel="noopener"><span class="ch-num">13</span>Slices</a>
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/14-maps.html" target="_blank" rel="noopener"><span class="ch-num">14</span>Maps</a>
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/16-pointers.html" target="_blank" rel="noopener"><span class="ch-num">16</span>Pointers</a>
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/20-methods-receivers.html" target="_blank" rel="noopener"><span class="ch-num">20</span>Methods &amp; receivers</a>
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/21-interfaces.html" target="_blank" rel="noopener"><span class="ch-num">21</span>Interfaces</a>
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/22-generics.html" target="_blank" rel="noopener"><span class="ch-num">22</span>Generics</a>
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/23-error-handling.html" target="_blank" rel="noopener"><span class="ch-num">23</span>Error handling</a>
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/26-context.html" target="_blank" rel="noopener"><span class="ch-num">26</span><code>context.Context</code></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ CONCURRENCY & TOOLING ============================ -->
+  <section class="panel" id="panel-concurrency-tooling" role="tabpanel" aria-labelledby="tab-concurrency-tooling" hidden>
+    <h2>Concurrency &amp; Tooling</h2>
+    <p class="lead">Go's headline feature, plus the toolchain you'll use every day. Project layout sits here too - different enough from Python to warrant its own spot.</p>
+
+    <!-- 5. CONCURRENCY -->
+    <div class="subsection" data-subsection="concurrency" data-step="5">
+      <div class="subsection-head">
+        <span class="step-num">5</span>
+        <h3>Concurrency</h3>
+        <span class="meta" data-section-progress></span>
+      </div>
+      <p class="why">Go's headline feature. Hard to fake competence here.</p>
+
+      <div class="label-h">Topics to learn</div>
+      <ul class="topics">
+        <li><label><input type="checkbox" data-id="concurrency.goroutines"> Goroutines - what they are, how they're scheduled, always own a cancellation path</label></li>
+        <li><label><input type="checkbox" data-id="concurrency.channels"> Channels - buffered vs unbuffered, send/receive semantics, <code>close</code></label></li>
+        <li><label><input type="checkbox" data-id="concurrency.select"> <code>select</code> - multi-channel coordination</label></li>
+        <li><label><input type="checkbox" data-id="concurrency.sync"> <code>sync.WaitGroup</code>, <code>Mutex</code>, <code>RWMutex</code>, <code>Once</code> - when to reach for each</label></li>
+        <li><label><input type="checkbox" data-id="concurrency.patterns"> Patterns: fan-in / fan-out, worker pools</label></li>
+        <li><label><input type="checkbox" data-id="concurrency.maps"> Maps are <strong>not</strong> safe for concurrent access - pair with a mutex or use <code>sync.Map</code></label></li>
+      </ul>
+
+      <div class="label-h">Resources</div>
+      <div class="res-list">
+        <div class="res-row">
+          <div class="res-rank">1</div>
+          <div class="res-info">
+            <h5><a href="https://gobyexample.com/goroutines" target="_blank" rel="noopener">Go by Example - Goroutines</a></h5>
+            <div class="src">gobyexample.com · concurrency pages</div>
+            <p>Walk through goroutines, channels, <code>select</code>, and the <code>sync</code> primitives one example at a time.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">2</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/doc/effective_go#concurrency" target="_blank" rel="noopener">Effective Go - Concurrency</a></h5>
+            <div class="src">go.dev · official</div>
+            <p>The "share memory by communicating" mental model, with concrete patterns straight from the language designers.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chapters">
+        <div class="chapters-label">Companion chapters</div>
+        <div class="chapter-pills">
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/24-goroutines.html" target="_blank" rel="noopener"><span class="ch-num">24</span>Goroutines</a>
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/25-channels.html" target="_blank" rel="noopener"><span class="ch-num">25</span>Channels</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. TOOLING -->
+    <div class="subsection" data-subsection="tooling" data-step="6">
+      <div class="subsection-head">
+        <span class="step-num">6</span>
+        <h3>Tooling</h3>
+        <span class="meta" data-section-progress></span>
+      </div>
+      <p class="why">Equip yourself to actually work in a Go repo.</p>
+
+      <div class="label-h">Topics to learn</div>
+      <ul class="topics">
+        <li><label><input type="checkbox" data-id="tooling.deps"> Dependencies: <code>go mod</code>, <code>go.sum</code>, <code>go mod tidy</code>, replace directives, <code>go work</code> workspaces</label></li>
+        <li><label><input type="checkbox" data-id="tooling.fmt"> Formatting (non-negotiable): <code>gofmt</code>, <code>goimports</code></label></li>
+        <li><label><input type="checkbox" data-id="tooling.lint"> Static analysis: <code>go vet</code>, <code>golangci-lint</code>, <code>staticcheck</code></label></li>
+        <li><label><input type="checkbox" data-id="tooling.test"> Testing: <code>go test</code>, table-driven tests, subtests, <code>t.Parallel</code>, <code>t.Cleanup</code>, the race detector (<code>-race</code>), benchmarks, fuzzing</label></li>
+        <li><label><input type="checkbox" data-id="tooling.ide"> IDE: VS Code + Go extension or GoLand; <code>gopls</code> (language server); Delve (debugger)</label></li>
+        <li><label><input type="checkbox" data-id="tooling.build"> Build &amp; run: build tags, <code>GOOS</code> / <code>GOARCH</code> cross-compilation, the <a href="https://go.dev/play/" target="_blank" rel="noopener">Go Playground</a></label></li>
+      </ul>
+
+      <div class="label-h">Resources</div>
+      <div class="res-list">
+        <div class="res-row">
+          <div class="res-rank">1</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/doc/" target="_blank" rel="noopener">Go documentation hub</a></h5>
+            <div class="src">go.dev · official</div>
+            <p>Modules, testing, <code>vet</code>, build - all the toolchain documentation lives here.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">2</div>
+          <div class="res-info">
+            <h5><a href="https://gobyexample.com/" target="_blank" rel="noopener">Go by Example</a></h5>
+            <div class="src">gobyexample.com</div>
+            <p>Practical snippets for <code>go test</code>, <code>go mod</code>, build tags, and more.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chapters">
+        <div class="chapters-label">Companion chapters</div>
+        <div class="chapter-pills">
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/18-packages-modules.html" target="_blank" rel="noopener"><span class="ch-num">18</span>Packages &amp; modules</a>
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/31-testing.html" target="_blank" rel="noopener"><span class="ch-num">31</span>Testing</a>
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/32-benchmarking.html" target="_blank" rel="noopener"><span class="ch-num">32</span>Benchmarking</a>
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/33-documentation-toolchain.html" target="_blank" rel="noopener"><span class="ch-num">33</span>Documentation &amp; toolchain</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. PROJECT LAYOUT -->
+    <div class="subsection" data-subsection="project-layout" data-step="7">
+      <div class="subsection-head">
+        <span class="step-num">7</span>
+        <h3>Project layout &amp; package design</h3>
+        <span class="meta" data-section-progress></span>
+      </div>
+      <p class="why">Different enough from Python to warrant its own section.</p>
+
+      <div class="label-h">Topics to learn</div>
+      <ul class="topics">
+        <li><label><input type="checkbox" data-id="layout.standard"> Standard layout: <code>cmd/</code>, <code>internal/</code>, <code>pkg/</code></label></li>
+        <li><label><input type="checkbox" data-id="layout.internal"> <code>internal/</code> is <strong>compiler-enforced</strong> private - packages outside the parent cannot import it</label></li>
+        <li><label><input type="checkbox" data-id="layout.no-circular"> No circular imports allowed</label></li>
+        <li><label><input type="checkbox" data-id="layout.capitalization"> Capitalization controls export (<code>Foo</code> exported, <code>foo</code> not)</label></li>
+        <li><label><input type="checkbox" data-id="layout.one-per-dir"> One package per directory</label></li>
+      </ul>
+
+      <div class="label-h">Resources</div>
+      <div class="res-list">
+        <div class="res-row">
+          <div class="res-rank">1</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/doc/effective_go#names" target="_blank" rel="noopener">Effective Go - Names &amp; Packages</a></h5>
+            <div class="src">go.dev · official</div>
+            <p>The naming rules and the why behind them. Short, dense, essential.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">2</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/wiki/CodeReviewComments#package-names" target="_blank" rel="noopener">Code Review Comments - Package Names</a></h5>
+            <div class="src">go.dev wiki</div>
+            <p>The packaging conventions a reviewer will hold you to.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chapters">
+        <div class="chapters-label">Companion chapters</div>
+        <div class="chapter-pills">
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/18-packages-modules.html" target="_blank" rel="noopener"><span class="ch-num">18</span>Packages &amp; modules</a>
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/19-naming-and-style.html" target="_blank" rel="noopener"><span class="ch-num">19</span>Naming &amp; style</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ PRACTICE & PITFALLS ============================ -->
+  <section class="panel" id="panel-practice-pitfalls" role="tabpanel" aria-labelledby="tab-practice-pitfalls" hidden>
+    <h2>Practice &amp; Pitfalls</h2>
+    <p class="lead">A scannable list of gotchas that catch every Python developer at least once, plus a kata to glue everything together.</p>
+
+    <!-- 8. PITFALLS -->
+    <div class="subsection" data-subsection="pitfalls" data-step="8">
+      <div class="subsection-head">
+        <span class="step-num">8</span>
+        <h3>Common pitfalls for Python devs</h3>
+        <span class="meta" data-section-progress></span>
+      </div>
+      <p class="why">Concrete gotcha list. Each item is a one-liner; the resources go deeper.</p>
+
+      <div class="callout warn">
+        <div class="callout-label">Heads up</div>
+        Most of these compile cleanly. They surface in production. Memorize them - or at least keep this tab open during code review.
+      </div>
+
+      <div class="label-h">Pitfalls (check off as you internalize each)</div>
+      <ul class="topics pitfalls">
+        <li><label><input type="checkbox" data-id="pitfalls.unused"> Unused imports and variables don't compile - error, not warning</label></li>
+        <li><label><input type="checkbox" data-id="pitfalls.nil-iface"> <code>nil</code> interface vs nil concrete value (the famous gotcha)</label></li>
+        <li><label><input type="checkbox" data-id="pitfalls.leaks"> Goroutine leaks - always own a cancellation path (usually <code>context.Context</code>)</label></li>
+        <li><label><input type="checkbox" data-id="pitfalls.maps-concurrent"> Maps are not safe for concurrent access</label></li>
+        <li><label><input type="checkbox" data-id="pitfalls.range-copies"> <code>range</code> over a slice gives copies, not references</label></li>
+        <li><label><input type="checkbox" data-id="pitfalls.mixed-receivers"> Mixing pointer and value receivers on the same type</label></li>
+        <li><label><input type="checkbox" data-id="pitfalls.no-with"> No <code>with</code> block - remember <code>defer</code> for cleanup</label></li>
+        <li><label><input type="checkbox" data-id="pitfalls.capitalization"> Capitalization controls visibility, not keywords</label></li>
+        <li><label><input type="checkbox" data-id="pitfalls.loop-capture"> Loop variable capture (mostly fixed in Go 1.22, but older code still has it)</label></li>
+      </ul>
+
+      <div class="label-h">Resources</div>
+      <div class="res-list">
+        <div class="res-row">
+          <div class="res-rank">1</div>
+          <div class="res-info">
+            <h5><a href="https://100go.co/" target="_blank" rel="noopener">100 Go Mistakes and How to Avoid Them</a></h5>
+            <div class="src">100go.co · companion site (book also available)</div>
+            <p>The companion site for this section. Each mistake explained with broken code, correct code, and the why.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-paid">Paid book</span><span class="badge b-must">Must-read</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">2</div>
+          <div class="res-info">
+            <h5><a href="https://go-proverbs.github.io/" target="_blank" rel="noopener">Go Proverbs</a></h5>
+            <div class="src">go-proverbs.github.io · ~5 min</div>
+            <p>Short, dense aphorisms from Rob Pike. Worth reading once, then revisiting whenever you write Go.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. HANDS-ON -->
+    <div class="subsection" data-subsection="hands-on" data-step="9">
+      <div class="subsection-head">
+        <span class="step-num">9</span>
+        <h3>Hands-on practice</h3>
+        <span class="meta" data-section-progress></span>
+      </div>
+      <p class="why">Glue everything together at least once. Pick one of the suggested katas.</p>
+
+      <div class="label-h">Pick a kata</div>
+      <ul class="topics">
+        <li><label><input type="checkbox" data-id="handson.fanout"> Build a CLI that fans out N HTTP requests with a per-request timeout, prints results in arrival order, and exits cleanly on Ctrl-C. <em>Exercises:</em> goroutines, channels, <code>context</code>, error handling, <code>defer</code></label></li>
+        <li><label><input type="checkbox" data-id="handson.workerpool"> Implement a worker pool with bounded concurrency over a channel of jobs. <em>Exercises:</em> <code>sync.WaitGroup</code>, <code>select</code>, channel close semantics</label></li>
+      </ul>
+
+      <div class="label-h">Resources</div>
+      <div class="res-list">
+        <div class="res-row">
+          <div class="res-rank">1</div>
+          <div class="res-info">
+            <h5><a href="https://gobyexample.com/" target="_blank" rel="noopener">Go by Example</a></h5>
+            <div class="src">gobyexample.com</div>
+            <p>Reference snippets while building. Best companion to keep in a second tab.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">2</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/play/" target="_blank" rel="noopener">Go Playground</a></h5>
+            <div class="src">go.dev/play · in-browser</div>
+            <p>Quick experiments without a local setup. Shareable URLs, race detector available.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-interactive">Interactive</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">3</div>
+          <div class="res-info">
+            <h5><a href="https://github.com/bootdotdev/fcc-learn-golang-assets" target="_blank" rel="noopener">freeCodeCamp Go assets</a></h5>
+            <div class="src">github.com/bootdotdev · sample exercises</div>
+            <p>Exercises from the freeCodeCamp Go course. Useful if you want a structured set of practice problems.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-interactive">Interactive</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chapters">
+        <div class="chapters-label">Companion chapters</div>
+        <div class="chapter-pills">
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/27-io-files.html" target="_blank" rel="noopener"><span class="ch-num">27</span>I/O &amp; files</a>
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/28-time-dates.html" target="_blank" rel="noopener"><span class="ch-num">28</span>Time &amp; dates</a>
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/29-json.html" target="_blank" rel="noopener"><span class="ch-num">29</span>JSON</a>
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/30-net-http.html" target="_blank" rel="noopener"><span class="ch-num">30</span><code>net/http</code></a>
+          <a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/34-capstone-cli.html" target="_blank" rel="noopener"><span class="ch-num">34</span>Capstone CLI project</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ RESOURCES & READINESS ============================ -->
+  <section class="panel" id="panel-resources-readiness" role="tabpanel" aria-labelledby="tab-resources-readiness" hidden>
+    <h2>Resources &amp; Readiness</h2>
+    <p class="lead">Every link, in one place - annotated and grouped. Then a self-check to mark the transition from learning to shipping.</p>
+
+    <!-- 10. RESOURCES -->
+    <div class="subsection" data-subsection="resources" data-step="10">
+      <div class="subsection-head">
+        <span class="step-num">10</span>
+        <h3>Resources (consolidated)</h3>
+        <span class="meta" data-section-progress></span>
+      </div>
+
+      <div class="label-h">Official docs</div>
+      <div class="res-list">
+        <div class="res-row">
+          <div class="res-rank">1</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/tour/list" target="_blank" rel="noopener">A Tour of Go</a></h5>
+            <div class="src">go.dev · ~2–3 hrs · interactive</div>
+            <p>Canonical starting point. Runs in your browser, no install.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-interactive">Interactive</span><span class="badge b-must">Must-read</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">2</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/doc/effective_go" target="_blank" rel="noopener">Effective Go</a></h5>
+            <div class="src">go.dev · ~1 hr · official</div>
+            <p>The de-facto idioms guide. Read after the Tour.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span><span class="badge b-must">Must-read</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">3</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/doc/" target="_blank" rel="noopener">Go documentation hub</a></h5>
+            <div class="src">go.dev · entry point</div>
+            <p>Bookmark the official landing page for everything.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">4</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/play/" target="_blank" rel="noopener">Go Playground</a></h5>
+            <div class="src">go.dev/play · in-browser</div>
+            <p>Try ideas without installing anything; share via URL.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-interactive">Interactive</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="label-h">Style and review</div>
+      <div class="res-list">
+        <div class="res-row">
+          <div class="res-rank">1</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/wiki/CodeReviewComments" target="_blank" rel="noopener">Go Code Review Comments</a></h5>
+            <div class="src">go.dev wiki · short read</div>
+            <p>The unofficial style guide reviewers actually use.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">2</div>
+          <div class="res-info">
+            <h5><a href="https://go-proverbs.github.io/" target="_blank" rel="noopener">Go Proverbs</a></h5>
+            <div class="src">go-proverbs.github.io · ~5 min</div>
+            <p>Rob Pike's short, dense aphorisms about how to think in Go.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="label-h">Practice and reference</div>
+      <div class="res-list">
+        <div class="res-row">
+          <div class="res-rank">1</div>
+          <div class="res-info">
+            <h5><a href="https://gobyexample.com/" target="_blank" rel="noopener">Go by Example</a></h5>
+            <div class="src">gobyexample.com · runnable snippets</div>
+            <p>The best "how do I do X" reference. Use it whenever you're writing Go.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span><span class="badge b-must">Must-read</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">2</div>
+          <div class="res-info">
+            <h5><a href="https://100go.co/" target="_blank" rel="noopener">100 Go Mistakes and How to Avoid Them</a></h5>
+            <div class="src">100go.co · companion site &amp; book</div>
+            <p>Catalog of real production mistakes. Pairs directly with the pitfalls section.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-paid">Paid book</span><span class="badge b-book">Book</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="label-h">Companion course</div>
+      <div class="res-list">
+        <div class="res-row">
+          <div class="res-rank">★</div>
+          <div class="res-info">
+            <h5><a href="https://cyrus2281.github.io/go-lang-course" target="_blank" rel="noopener">Cyrus's Go course - 34 chapters</a></h5>
+            <div class="src">cyrus2281.github.io/go-lang-course · interactive</div>
+            <p>Full companion course covering everything from installation through a capstone CLI project. Individual chapters are linked from the relevant tabs above.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-interactive">Interactive</span><span class="badge b-reference">Reference</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="label-h">Video courses</div>
+      <div class="res-list">
+        <div class="res-row">
+          <div class="res-rank">1</div>
+          <div class="res-info">
+            <h5><a href="https://youtu.be/446E-r0rXHI" target="_blank" rel="noopener">Go in 100 Seconds - Fireship</a></h5>
+            <div class="src">YouTube · ~2 min · video</div>
+            <p>Two-minute orientation. Embedded on the Overview tab.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-video">Video</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">2</div>
+          <div class="res-info">
+            <h5><a href="https://www.udemy.com/course/go-the-complete-developers-guide" target="_blank" rel="noopener">Go: The Complete Developer's Guide - Stephen Grider</a></h5>
+            <div class="src">Udemy · ~9 hrs video · paid</div>
+            <p>Recommended pick for video learners. Diagram-heavy explanations make concurrency and interfaces click.</p>
+            <div class="tags"><span class="badge b-paid">Paid</span><span class="badge b-video">Video</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">3</div>
+          <div class="res-info">
+            <h5><a href="https://www.udemy.com/course/go-the-complete-guide" target="_blank" rel="noopener">Go - The Complete Guide / Bonus Projects</a></h5>
+            <div class="src">Udemy · paid · alternate</div>
+            <p>Another solid Udemy option if Grider's style isn't for you.</p>
+            <div class="tags"><span class="badge b-paid">Paid</span><span class="badge b-video">Video</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">4</div>
+          <div class="res-info">
+            <h5>Learn Go programming - full course for beginners</h5>
+            <div class="src">freeCodeCamp.org · YouTube · May 2023 · ~7 hrs</div>
+            <p>Free full course. Companion code: <a href="https://github.com/bootdotdev/fcc-learn-golang-assets" target="_blank" rel="noopener">bootdotdev/fcc-learn-golang-assets</a>.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-video">Video</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="label-h">Going deeper (optional)</div>
+      <div class="res-list">
+        <div class="res-row">
+          <div class="res-rank">1</div>
+          <div class="res-info">
+            <h5>The Go Programming Language - Donovan &amp; Kernighan</h5>
+            <div class="src">Addison-Wesley · ~400 pages · paid · textbook</div>
+            <p>The authoritative reference, co-authored by Brian Kernighan. Dense, precise, full of excellent examples. Use as a deep-dive companion.</p>
+            <div class="tags"><span class="badge b-paid">Paid</span><span class="badge b-book">Book</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">2</div>
+          <div class="res-info">
+            <h5>Dave Cheney's blog - especially the errors posts</h5>
+            <div class="src">dave.cheney.net · long-form essays</div>
+            <p>Search "Dave Cheney errors are values" to start. Influential thinking on idiomatic error handling.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 11. READINESS -->
+    <div class="subsection" data-subsection="readiness" data-step="11">
+      <div class="subsection-head">
+        <span class="step-num">11</span>
+        <h3>Readiness checklist</h3>
+        <span class="meta" data-section-progress></span>
+      </div>
+      <p class="why">Mark the transition from learning to shipping Go on the team. You'll know you're ready when…</p>
+
+      <div class="label-h">You can…</div>
+      <ul class="topics">
+        <li><label><input type="checkbox" data-id="ready.cancel"> Write a goroutine with a cancellation path and explain how it terminates</label></li>
+        <li><label><input type="checkbox" data-id="ready.errchain"> Read and write an error chain using <code>errors.Is</code> and <code>errors.As</code></label></li>
+        <li><label><input type="checkbox" data-id="ready.receivers"> Decide between a pointer and a value receiver and justify it</label></li>
+        <li><label><input type="checkbox" data-id="ready.layout"> Structure a small project with <code>cmd/</code> and <code>internal/</code></label></li>
+        <li><label><input type="checkbox" data-id="ready.test"> Write a table-driven test and run it with <code>-race</code></label></li>
+        <li><label><input type="checkbox" data-id="ready.nil-iface"> Recognize the <code>nil</code> interface vs nil concrete value gotcha in a code review</label></li>
+      </ul>
+
+      <div class="callout tip">
+        <div class="callout-label">When all six are checked</div>
+        You're ready. Write Go in production with confidence - and come back to this page whenever you onboard the next teammate.
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<input type="file" id="import-file" accept="application/json,.json" hidden>
+
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-go.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js" defer></script>
+
+<script>
+(function () {
+  'use strict';
+
+  const STORAGE_KEY = 'go-learning-path:v1';
+  const STATE_VERSION = 2;
+  const DEFAULT_TAB = 'overview';
+
+  let state = {
+    version: STATE_VERSION,
+    checked: {},
+    theme: null,
+    activeTab: DEFAULT_TAB
+  };
+
+  // --- Persistence ---
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== 'object') return;
+      if (parsed.version === 1 || parsed.version === 2) {
+        state.checked = (parsed.checked && typeof parsed.checked === 'object') ? parsed.checked : {};
+        if (parsed.theme === 'light' || parsed.theme === 'dark' || parsed.theme === null) {
+          state.theme = parsed.theme;
+        }
+        if (parsed.version === 2 && typeof parsed.activeTab === 'string') {
+          state.activeTab = parsed.activeTab;
+        }
+      }
+    } catch (_) {}
+  }
+  function saveState() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (_) {}
+  }
+
+  // --- Theme ---
+  function applyTheme() {
+    if (state.theme === 'light' || state.theme === 'dark') {
+      document.documentElement.setAttribute('data-theme', state.theme);
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+    }
+  }
+  function cycleTheme() {
+    const order = [null, 'light', 'dark'];
+    const i = order.indexOf(state.theme);
+    state.theme = order[(i + 1) % order.length];
+    applyTheme();
+    saveState();
+  }
+
+  // --- Checkboxes ---
+  function applyCheckedFromState() {
+    document.querySelectorAll('input[type="checkbox"][data-id]').forEach((cb) => {
+      cb.checked = !!state.checked[cb.dataset.id];
+    });
+  }
+  function onCheckboxChange(e) {
+    const cb = e.target;
+    if (!cb.matches('input[type="checkbox"][data-id]')) return;
+    if (cb.checked) state.checked[cb.dataset.id] = true;
+    else delete state.checked[cb.dataset.id];
+    saveState();
+    recomputeProgress();
+  }
+
+  // --- Progress computation ---
+  function counts(scope) {
+    const cbs = scope.querySelectorAll('input[type="checkbox"][data-id]');
+    let done = 0;
+    cbs.forEach((cb) => { if (cb.checked) done++; });
+    return { total: cbs.length, done };
+  }
+  function recomputeProgress() {
+    const { total, done } = counts(document);
+    const bar = document.getElementById('overall-progress');
+    const label = document.getElementById('progress-label');
+    bar.max = Math.max(total, 1);
+    bar.value = done;
+    const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+    label.textContent = `${done} of ${total} done (${pct}%)`;
+
+    // Per-subsection meta
+    document.querySelectorAll('.subsection').forEach((sub) => {
+      const c = counts(sub);
+      const meta = sub.querySelector('[data-section-progress]');
+      if (meta) meta.textContent = c.total === 0 ? '' : `${c.done} / ${c.total}`;
+      sub.classList.toggle('done', c.total > 0 && c.done === c.total);
+    });
+
+    // Per-tab tick
+    document.querySelectorAll('.panel').forEach((panel) => {
+      const tabId = panel.id.replace(/^panel-/, '');
+      const tab = document.getElementById('tab-' + tabId);
+      if (!tab) return;
+      const c = counts(panel);
+      tab.classList.toggle('done', c.total > 0 && c.done === c.total);
+    });
+  }
+
+  // --- Tabs ---
+  function getTabFromHash() {
+    const m = location.hash.match(/^#tab\/([\w-]+)$/);
+    return m ? m[1] : null;
+  }
+  function tabExists(id) {
+    return !!document.getElementById('tab-' + id);
+  }
+  function setActiveTab(tabId, updateHash) {
+    if (!tabExists(tabId)) tabId = DEFAULT_TAB;
+    document.querySelectorAll('.tab').forEach((t) => {
+      const isActive = t.dataset.tab === tabId;
+      t.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      t.tabIndex = isActive ? 0 : -1;
+    });
+    document.querySelectorAll('.panel').forEach((p) => {
+      const isActive = p.id === 'panel-' + tabId;
+      p.classList.toggle('active', isActive);
+      if (isActive) p.removeAttribute('hidden'); else p.setAttribute('hidden', '');
+    });
+    state.activeTab = tabId;
+    saveState();
+    if (updateHash) {
+      const desired = '#tab/' + tabId;
+      if (location.hash !== desired) {
+        history.replaceState(null, '', desired);
+      }
+    }
+  }
+  function onTabClick(e) {
+    const btn = e.target.closest('.tab');
+    if (!btn) return;
+    setActiveTab(btn.dataset.tab, true);
+    btn.focus();
+  }
+  function onTabKey(e) {
+    const btn = document.activeElement;
+    if (!btn || !btn.classList || !btn.classList.contains('tab')) return;
+    const tabs = Array.from(document.querySelectorAll('.tab'));
+    const i = tabs.indexOf(btn);
+    let target = -1;
+    if (e.key === 'ArrowRight') target = (i + 1) % tabs.length;
+    else if (e.key === 'ArrowLeft') target = (i - 1 + tabs.length) % tabs.length;
+    else if (e.key === 'Home') target = 0;
+    else if (e.key === 'End') target = tabs.length - 1;
+    if (target >= 0) {
+      e.preventDefault();
+      const next = tabs[target];
+      setActiveTab(next.dataset.tab, true);
+      next.focus();
+    }
+  }
+  function onHashChange() {
+    const id = getTabFromHash();
+    if (id && tabExists(id)) setActiveTab(id, false);
+  }
+
+  // --- Export / Import / Reset ---
+  function exportProgress() {
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'go-learning-path-progress.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+  function importProgress(file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(String(reader.result));
+        if (!parsed || (parsed.version !== 1 && parsed.version !== 2)) {
+          alert('Import failed: file is not a compatible progress export.');
+          return;
+        }
+        state.checked = (parsed.checked && typeof parsed.checked === 'object') ? parsed.checked : {};
+        if (parsed.theme === 'light' || parsed.theme === 'dark' || parsed.theme === null) {
+          state.theme = parsed.theme;
+        }
+        if (parsed.version === 2 && typeof parsed.activeTab === 'string' && tabExists(parsed.activeTab)) {
+          state.activeTab = parsed.activeTab;
+        }
+        saveState();
+        applyTheme();
+        applyCheckedFromState();
+        setActiveTab(state.activeTab, true);
+        recomputeProgress();
+      } catch (err) {
+        alert('Import failed: invalid JSON.');
+      }
+    };
+    reader.onerror = () => alert('Import failed: could not read file.');
+    reader.readAsText(file);
+  }
+  function resetProgress() {
+    if (!confirm('Reset all progress? This will clear checkboxes and theme/tab preferences.')) return;
+    state = { version: STATE_VERSION, checked: {}, theme: null, activeTab: DEFAULT_TAB };
+    try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
+    applyTheme();
+    applyCheckedFromState();
+    setActiveTab(DEFAULT_TAB, true);
+    recomputeProgress();
+  }
+
+  // --- Init ---
+  function init() {
+    loadState();
+    applyTheme();
+    applyCheckedFromState();
+
+    // Resolve initial active tab: hash > saved > first incomplete tab > default
+    let initial = getTabFromHash();
+    if (!initial || !tabExists(initial)) initial = state.activeTab;
+    if (!tabExists(initial)) initial = DEFAULT_TAB;
+    setActiveTab(initial, true);
+
+    recomputeProgress();
+
+    document.addEventListener('change', onCheckboxChange);
+
+    document.querySelector('.tabs').addEventListener('click', onTabClick);
+    document.querySelector('.tabs').addEventListener('keydown', onTabKey);
+    window.addEventListener('hashchange', onHashChange);
+
+    document.getElementById('btn-theme').addEventListener('click', cycleTheme);
+    document.getElementById('btn-export').addEventListener('click', exportProgress);
+    document.getElementById('btn-reset').addEventListener('click', resetProgress);
+
+    const importInput = document.getElementById('import-file');
+    document.getElementById('btn-import').addEventListener('click', () => importInput.click());
+    importInput.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) importProgress(file);
+      e.target.value = '';
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>
