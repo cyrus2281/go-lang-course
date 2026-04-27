@@ -435,6 +435,8 @@
     table.mindset td.col-py { font-weight: 500; }
     table.mindset td.col-go { font-weight: 600; color: var(--accent); }
     table.mindset td.col-note { color: var(--fg-muted); font-size: 13.5px; }
+    table.mindset td.col-link { white-space: nowrap; width: 1%; }
+    table.mindset td.col-link .chapter-pill { font-size: 11.5px; padding: 3px 9px; }
     table.mindset code { white-space: normal; }
 
     /* CALLOUTS */
@@ -683,68 +685,80 @@
 
       <table class="mindset">
         <thead>
-          <tr><th>Python concept</th><th>Go equivalent</th><th>Note</th></tr>
+          <tr><th>Python concept</th><th>Go equivalent</th><th>Note</th><th>Learn more</th></tr>
         </thead>
         <tbody>
           <tr>
             <td class="col-py" data-label="Python">Classes</td>
             <td class="col-go" data-label="Go">Structs + interfaces</td>
             <td class="col-note" data-label="Note">Composition over inheritance; no class hierarchy.</td>
+            <td class="col-link" data-label="Learn more"><a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/15-structs.html" target="_blank" rel="noopener"><span class="ch-num">15</span>Structs</a></td>
           </tr>
           <tr>
             <td class="col-py" data-label="Python">Duck typing</td>
             <td class="col-go" data-label="Go">Implicit interface satisfaction</td>
             <td class="col-note" data-label="Note">No <code>implements</code> keyword; if the methods match, it satisfies the interface.</td>
+            <td class="col-link" data-label="Learn more"><a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/21-interfaces.html" target="_blank" rel="noopener"><span class="ch-num">21</span>Interfaces</a></td>
           </tr>
           <tr>
             <td class="col-py" data-label="Python">Exceptions (<code>try</code> / <code>except</code>)</td>
             <td class="col-go" data-label="Go">Multiple return values with <code>error</code></td>
             <td class="col-note" data-label="Note">Errors are values; you check them, you don't catch them.</td>
+            <td class="col-link" data-label="Learn more"><a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/23-error-handling.html" target="_blank" rel="noopener"><span class="ch-num">23</span>Error handling</a></td>
           </tr>
           <tr>
             <td class="col-py" data-label="Python"><code>threading</code> / <code>asyncio</code></td>
             <td class="col-go" data-label="Go">Goroutines + channels</td>
             <td class="col-note" data-label="Note">Concurrency is built into the language and runtime.</td>
+            <td class="col-link" data-label="Learn more"><a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/24-goroutines.html" target="_blank" rel="noopener"><span class="ch-num">24</span>Goroutines</a></td>
           </tr>
           <tr>
             <td class="col-py" data-label="Python"><code>pip</code> / <code>venv</code> / <code>requirements.txt</code></td>
             <td class="col-go" data-label="Go">Go modules (<code>go.mod</code>, <code>go.sum</code>)</td>
             <td class="col-note" data-label="Note">Per-project, vendored optional, reproducible.</td>
+            <td class="col-link" data-label="Learn more"><a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/18-packages-modules.html" target="_blank" rel="noopener"><span class="ch-num">18</span>Packages &amp; modules</a></td>
           </tr>
           <tr>
             <td class="col-py" data-label="Python">Dynamic typing</td>
             <td class="col-go" data-label="Go">Static typing with inference (<code>:=</code>)</td>
             <td class="col-note" data-label="Note">Compiler enforces types; you rarely write them.</td>
+            <td class="col-link" data-label="Learn more"><a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/06-basic-types.html" target="_blank" rel="noopener"><span class="ch-num">06</span>Basic types</a></td>
           </tr>
           <tr>
             <td class="col-py" data-label="Python"><code>__init__</code> / constructors</td>
             <td class="col-go" data-label="Go"><code>New*</code> function convention</td>
             <td class="col-note" data-label="Note">Convention, not language feature. Returns <code>*T</code> (or <code>T, error</code>).</td>
+            <td class="col-link" data-label="Learn more"><a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/15-structs.html" target="_blank" rel="noopener"><span class="ch-num">15</span>Structs</a></td>
           </tr>
           <tr>
             <td class="col-py" data-label="Python"><code>with</code> / context managers</td>
             <td class="col-go" data-label="Go"><code>defer</code></td>
             <td class="col-note" data-label="Note">Cleanup runs in LIFO order at function exit.</td>
+            <td class="col-link" data-label="Learn more"><a class="chapter-pill" href="https://gobyexample.com/defer" target="_blank" rel="noopener">Go by Example: Defer</a></td>
           </tr>
           <tr>
             <td class="col-py" data-label="Python">Decorators</td>
             <td class="col-go" data-label="Go">Function wrapping / middleware</td>
             <td class="col-note" data-label="Note">First-class functions, no syntactic sugar.</td>
+            <td class="col-link" data-label="Learn more"><a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/11-functions.html" target="_blank" rel="noopener"><span class="ch-num">11</span>Functions</a></td>
           </tr>
           <tr>
             <td class="col-py" data-label="Python">Optional <code>mypy</code></td>
             <td class="col-go" data-label="Go">Static typing is the default</td>
             <td class="col-note" data-label="Note">Compiler does the checking; no separate tool.</td>
+            <td class="col-link" data-label="Learn more"><a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/06-basic-types.html" target="_blank" rel="noopener"><span class="ch-num">06</span>Basic types</a></td>
           </tr>
           <tr>
             <td class="col-py" data-label="Python"><code>_private</code> / <code>__name</code> conventions</td>
             <td class="col-go" data-label="Go">Capitalization controls export</td>
             <td class="col-note" data-label="Note"><code>Foo</code> is exported; <code>foo</code> is package-private.</td>
+            <td class="col-link" data-label="Learn more"><a class="chapter-pill" href="https://cyrus2281.github.io/go-lang-course/chapters/19-naming-and-style.html" target="_blank" rel="noopener"><span class="ch-num">19</span>Naming &amp; style</a></td>
           </tr>
           <tr>
             <td class="col-py" data-label="Python"><code>__del__</code> / garbage hooks</td>
             <td class="col-go" data-label="Go">None - use <code>defer</code>, no finalizers</td>
             <td class="col-note" data-label="Note">Don't try to recreate destructors.</td>
+            <td class="col-link" data-label="Learn more"><a class="chapter-pill" href="https://gobyexample.com/defer" target="_blank" rel="noopener">Go by Example: Defer</a></td>
           </tr>
         </tbody>
       </table>
@@ -759,14 +773,32 @@
         <div class="res-row">
           <div class="res-rank">1</div>
           <div class="res-info">
-            <h5><a href="https://go.dev/doc/effective_go" target="_blank" rel="noopener">Effective Go</a></h5>
-            <div class="src">go.dev · ~1 hr read · official</div>
-            <p>The de-facto guide to idiomatic Go. Read after the table - it'll reinforce the concept-by-concept mapping above.</p>
-            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span><span class="badge b-must">Must-read</span></div>
+            <h5><a href="https://go.dev/blog/errors-are-values" target="_blank" rel="noopener">Errors are values - Rob Pike</a></h5>
+            <div class="src">go.dev/blog · ~10 min read · 2015</div>
+            <p>The canonical post on Go's error philosophy from one of the language designers. Read this before you write a single <code>if err != nil</code>; it reframes the whole exception-vs-value question Python devs trip on.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reading</span><span class="badge b-must">Must-read</span></div>
           </div>
         </div>
         <div class="res-row">
           <div class="res-rank">2</div>
+          <div class="res-info">
+            <h5><a href="https://www.youtube.com/watch?v=ynoY2xz-F8s" target="_blank" rel="noopener">Understanding nil - Francesc Campoy (GopherCon 2016)</a></h5>
+            <div class="src">YouTube · ~25 min · video</div>
+            <p>The most common source of panics in Go. <code>nil</code> in Go is not the same as <code>None</code> in Python: an interface can be non-nil while holding a nil concrete value. Diagrams included; absolutely worth the half-hour.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-video">Video</span><span class="badge b-must">Must-watch</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">3</div>
+          <div class="res-info">
+            <h5><a href="https://go.dev/doc/effective_go" target="_blank" rel="noopener">Effective Go</a></h5>
+            <div class="src">go.dev · ~1 hr read · official</div>
+            <p>The de-facto guide to idiomatic Go. Read after the table; it reinforces the concept-by-concept mapping above.</p>
+            <div class="tags"><span class="badge b-free">Free</span><span class="badge b-reference">Reference</span><span class="badge b-must">Must-read</span></div>
+          </div>
+        </div>
+        <div class="res-row">
+          <div class="res-rank">4</div>
           <div class="res-info">
             <h5><a href="https://go.dev/wiki/CodeReviewComments" target="_blank" rel="noopener">Go Code Review Comments</a></h5>
             <div class="src">go.dev wiki · short read</div>

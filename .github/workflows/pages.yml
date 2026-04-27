@@ -22,9 +22,49 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history so `git log` can resolve a real lastmod for each page.
+          fetch-depth: 0
 
       - name: Configure Pages
         uses: actions/configure-pages@v4
+
+      - name: Generate sitemap.xml
+        run: |
+          set -euo pipefail
+          BASE="https://cyrus2281.github.io/go-lang-course"
+
+          emit() {
+            local path="$1" priority="$2" loc lastmod
+            case "$path" in
+              index.html)     loc="$BASE/" ;;
+              */index.html)   loc="$BASE/${path%index.html}" ;;
+              *)              loc="$BASE/$path" ;;
+            esac
+            lastmod=$(git log -1 --format=%cs -- "$path" 2>/dev/null || true)
+            [ -z "$lastmod" ] && lastmod=$(date -u +%Y-%m-%d)
+            printf '  <url>\n    <loc>%s</loc>\n    <lastmod>%s</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>%s</priority>\n  </url>\n' \
+              "$loc" "$lastmod" "$priority"
+          }
+
+          {
+            echo '<?xml version="1.0" encoding="UTF-8"?>'
+            echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+            emit "index.html" "1.0"
+            [ -f learning-path-for-python-devs/index.html ] && \
+              emit "learning-path-for-python-devs/index.html" "0.7"
+            for f in chapters/[0-9]*.html; do
+              n=$(basename "$f" | cut -c1-2)
+              if [ "$n" = "01" ]; then
+                emit "$f" "0.9"
+              else
+                emit "$f" "0.8"
+              fi
+            done
+            echo '</urlset>'
+          } > sitemap.xml
+
+          echo "Generated sitemap.xml with $(grep -c '<url>' sitemap.xml) URLs"
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
