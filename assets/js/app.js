@@ -241,6 +241,29 @@
     });
   }
 
+  // ---- Video lessons ------------------------------------------------------
+  // Each video starts as a thumbnail linking to YouTube. Clicking swaps in
+  // the embedded player, so pages only load YouTube's player when asked to.
+  function setupVideoEmbeds() {
+    document.querySelectorAll('a.video-embed[data-video-id]').forEach((link) => {
+      link.addEventListener('click', (e) => {
+        // Let modified clicks (new tab / window) follow the link.
+        if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        e.preventDefault();
+        const iframe = document.createElement('iframe');
+        iframe.className = 'video-embed';
+        iframe.src = 'https://www.youtube-nocookie.com/embed/' +
+          encodeURIComponent(link.dataset.videoId) + '?autoplay=1&rel=0';
+        iframe.title = (link.getAttribute('aria-label') || '').replace(/^Play video: /, '') || 'YouTube video';
+        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+        iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+        iframe.allowFullscreen = true;
+        link.replaceWith(iframe);
+        iframe.focus();
+      });
+    });
+  }
+
   // ---- "Mark complete" button --------------------------------------------
   function setupCompleteButton() {
     const btn = document.querySelector('.complete-btn');
@@ -279,6 +302,7 @@
     setupScrollspy();
     setupKeyboard();
     setupCompleteButton();
+    setupVideoEmbeds();
 
     // Mark current chapter as visited
     const main = document.querySelector('[data-chapter-id]');

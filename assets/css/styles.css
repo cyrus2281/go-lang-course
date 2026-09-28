@@ -693,6 +693,58 @@ tbody tr:hover { background: var(--bg-elev); }
 .learning-objectives ul { margin: 0; padding-left: 1.2em; }
 .learning-objectives li { color: var(--fg); font-size: .95rem; }
 
+/* Video lesson: a YouTube thumbnail that app.js swaps for the player on click */
+.video-lesson { margin: 20px 0 28px; }
+.video-embed {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: #000;
+  box-shadow: var(--shadow-md);
+}
+.video-embed img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: filter var(--transition);
+}
+.video-embed:hover img,
+.video-embed:focus-visible img { filter: brightness(.85); }
+.video-play {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 68px; height: 68px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: var(--shadow-lg);
+  transition: background var(--transition), transform var(--transition);
+}
+.video-play::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 22px; height: 26px;
+  transform: translateX(3px);
+  background: #fff;
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+.video-embed:hover .video-play,
+.video-embed:focus-visible .video-play { background: var(--accent-700); transform: scale(1.08); }
+.video-lesson figcaption {
+  margin-top: 10px;
+  font-size: .85rem;
+  color: var(--fg-muted);
+  text-align: center;
+}
+.hero .video-lesson { margin: 2.5em 0 0; }
+
 /* Callouts */
 .callout {
   display: grid;
